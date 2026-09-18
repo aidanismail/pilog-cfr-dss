@@ -1,0 +1,115 @@
+{
+  "mode": "simulation",
+  "status": "advisory-only",
+  "batch": "B3-quality",
+  "case_id": "CFR-SIM-BONTANG-ECI-001",
+  "overall_quality_status": "BLOCK",
+  "checks": [
+    {
+      "check": "required_parameters",
+      "status": "PASS",
+      "message": "Semua parameter wajib tersedia dan tidak kosong.",
+      "fields": []
+    },
+    {
+      "check": "numeric_values",
+      "status": "PASS",
+      "message": "Semua parameter numerik yang tersedia dapat dibaca.",
+      "fields": []
+    },
+    {
+      "check": "positive_ranges",
+      "status": "PASS",
+      "message": "Parameter positif yang tersedia berada di atas nol.",
+      "fields": []
+    },
+    {
+      "check": "non_negative_ranges",
+      "status": "PASS",
+      "message": "Parameter non-negatif tidak memiliki nilai negatif.",
+      "fields": []
+    },
+    {
+      "check": "experimental_route",
+      "status": "PASS",
+      "message": "Route eksperimen konsisten: Bontang → ECI.",
+      "fields": []
+    },
+    {
+      "check": "embedded_units",
+      "status": "WARN",
+      "message": "Unit masih tertanam pada label Variable. Pemisahan unit dilakukan pada batch normalize.",
+      "fields": [
+        "Laden distance (NM)",
+        "Ballast distance (NM)",
+        "Laden speed (knots)",
+        "Ballast speed (knots)",
+        "Fuel oil consumption - laden (MT/day)",
+        "Fuel oil consumption - ballast (MT/day)",
+        "Diesel consumption - at sea laden (MT/day)",
+        "Diesel consumption - at sea ballast (MT/day)",
+        "In-port diesel factor (kg/kWh)",
+        "Auxiliary engine power (kW)",
+        "DWT (MT)",
+        "Bunkers allowance (MT)",
+        "Constants allowance (MT)",
+        "DWCC / cargo quantity (MT)",
+        "Loading rate (MT/day)",
+        "Discharge rate (MT/day)",
+        "Fuel oil at loading port (MT)",
+        "Fuel oil at discharging port (MT)",
+        "Fuel oil price (USD/MT)",
+        "Diesel oil price (USD/MT)",
+        "Other voyage costs total (USD)",
+        "Daily cost assumption (USD/day)",
+        "Hire rate (USD/day)",
+        "Freight rate (USD/MT)",
+        "Running costs (USD/day)",
+        "Voyage expense allocation quantity (MT)",
+        "Exchange rate (IDR/USD)",
+        "Reference DWT (MT)",
+        "SSW draft (m)",
+        "TPC (MT/cm)",
+        "Maximum vessel age (years)",
+        "Length overall / LOA (m)",
+        "Beam (m)",
+        "Grain capacity (CBM)",
+        "Bale capacity (CBM)",
+        "Crane capacity each (MT)",
+        "Grab capacity each (CBM)",
+        "MFO consumption at 14 knots - laden (MT/day)",
+        "MFO consumption at 14 knots - ballast (MT/day)",
+        "MFO consumption at 13 knots - laden (MT/day)",
+        "MFO consumption at 13 knots - ballast (MT/day)",
+        "MFO consumption at 12 knots - laden (MT/day)",
+        "MFO consumption at 12 knots - ballast (MT/day)",
+        "MFO consumption at 11 knots - laden (MT/day)",
+        "MFO consumption at 11 knots - ballast (MT/day)"
+      ]
+    },
+    {
+      "check": "freshness",
+      "status": "WARN",
+      "message": "Dataset belum memiliki metadata freshness/as-of untuk setiap input yang sensitif terhadap waktu.",
+      "fields": []
+    },
+    {
+      "check": "route_override",
+      "status": "WARN",
+      "message": "Route Aqaba telah diubah menjadi Bontang → ECI untuk simulasi. Field voyage harus divalidasi ulang untuk route eksperimen.",
+      "fields": []
+    },
+    {
+      "check": "pricing_readiness",
+      "status": "BLOCK",
+      "message": "Pricing CFR belum siap karena Index/Alpha/ Freight belum lengkap sebagai parameter kanonis.",
+      "fields": [
+        "market_price_index",
+        "alpha"
+      ]
+    }
+  ],
+  "run": {
+    "executed_at_utc": "2026-09-17T08:59:45.612283+00:00"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "case_id": "CFR-SIM-BONTANG-ECI-001",
+  "mode": "simulation",
+  "status": "advisory-only",
+  "batch": "B7-gates",
+  "gate_1": {
+    "gate": "Gate 1",
+    "purpose": "Memeriksa kelayakan awal CFR.",
+    "outcome": "CFR_ELIGIBLE",
+    "checks": {
+      "status": "PASS",
+      "failed_checks": [],
+      "unknown_checks": []
+    }
+  },
+  "gate_2": {
+    "gate": "Gate 2",
+    "purpose": "Memeriksa keputusan akhir FOB versus CFR.",
+    "outcome": "CFR_CONDITIONAL",
+    "scenario_results": [
+      {
+        "scenario_id": "FOB-BASELINE",
+        "outcome": "FOB_BASELINE",
+        "recommendation_eligible": true,
+        "reasons": [
+          "Scenario digunakan sebagai baseline."
+        ]
+      },
+      {
+        "scenario_id": "CFR-PILOG-VESSEL",
+        "outcome": "CFR_CONDITIONAL",
+        "recommendation_eligible": false,
+        "reasons": [
+          "Basis scenario belum comparable."
+        ]
+      },
+      {
+        "scenario_id": "CFR-VOYAGE-CHARTER",
+        "outcome": "CFR_CONDITIONAL",
+        "recommendation_eligible": false,
+        "reasons": [
+          "Basis scenario belum comparable."
+        ]
+      },
+      {
+        "scenario_id": "DEFER-NO-BID",
+        "outcome": "INFEASIBLE",
+        "recommendation_eligible": false,
+        "reasons": [
+          "Scenario ditandai tidak feasible."
+        ]
+      }
+    ]
+  },
+  "overall_outcome": "CFR_CONDITIONAL",
+  "choice_made": false,
+  "human_approval_required": true,
+  "run": {
+    "executed_at_utc": "2026-09-17T09:47:46.020101+00:00"
+  }
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "scenario_id": "FOB-BASELINE",
+    "scenario_name": "FOB baseline",
+    "sales_term": "FOB",
+    "vessel_option": null,
+    "freight_selling_rate_usd_mt": null,
+    "freight_cost_usd_mt": null,
+    "feasible": true,
+    "comparable": true,
+    "source": "commercial baseline",
+    "note": "Baseline tanpa ocean freight scope PILOG."
+  },
+  {
+    "scenario_id": "CFR-PILOG-VESSEL",
+    "scenario_name": "CFR dengan kapal PILOG",
+    "sales_term": "CFR",
+    "vessel_option": "PILOG vessel",
+    "freight_selling_rate_usd_mt": 20,
+    "freight_cost_usd_mt": 18,
+    "feasible": true,
+    "comparable": false,
+    "source": "demo assumption - replace with mentor-approved value",
+    "note": "Angka hanya untuk menguji pipeline."
+  },
+  {
+    "scenario_id": "CFR-VOYAGE-CHARTER",
+    "scenario_name": "CFR dengan voyage charter",
+    "sales_term": "CFR",
+    "vessel_option": "Voyage charter",
+    "freight_selling_rate_usd_mt": 27,
+    "freight_cost_usd_mt": 24,
+    "feasible": true,
+    "comparable": false,
+    "source": "demo assumption - replace with mentor-approved value",
+    "note": "Angka hanya untuk menguji pipeline."
+  },
+  {
+    "scenario_id": "DEFER-NO-BID",
+    "scenario_name": "Defer atau no-bid",
+    "sales_term": "DEFER",
+    "vessel_option": null,
+    "freight_selling_rate_usd_mt": null,
+    "freight_cost_usd_mt": null,
+    "feasible": false,
+    "comparable": false,
+    "source": "decision option",
+    "note": "Dipakai bila data atau kelayakan tidak cukup."
+  }
+]

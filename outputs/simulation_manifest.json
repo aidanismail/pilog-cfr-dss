@@ -1,0 +1,26 @@
+{
+  "mode": "simulation",
+  "status": "advisory-only",
+  "scenario": {
+    "name": "Bontang-ECI experimental route",
+    "route_origin": "Bontang",
+    "route_destination": "ECI",
+    "note": "Dataset berbasis data Aqaba dengan perubahan routeuntuk eksperimen; bukan data produksi PILOG."
+  },
+  "dataset": {
+    "path": "C:\\AIDAN\\SEM 7\\PT PUPUK LOGISTIK INDONESIA\\pilog-cfr-dss\\data\\dataset_ready.csv",
+    "file_name": "dataset_ready.csv",
+    "size_bytes": 2121,
+    "sha256": "5a55dc59581a0ab46c8d53151aabf6977c32e9620a6e4cafb34edc0e816d9694",
+    "headers": [
+      "No",
+      "Variable",
+      "Value"
+    ],
+    "row_count": 62
+  },
+  "run": {
+    "executed_at_utc": "2026-09-17T08:38:53.968447+00:00",
+    "purpose": "Batch 0 baseline and reproducibility smoke check"
+  }
+}

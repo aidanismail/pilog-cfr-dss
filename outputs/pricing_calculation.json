@@ -1,0 +1,86 @@
+{
+  "case_id": "CFR-SIM-BONTANG-ECI-001",
+  "mode": "simulation",
+  "status": "advisory-only",
+  "calculation_status": "CALCULATED",
+  "route": {
+    "origin": "Bontang",
+    "destination": "ECI",
+    "experimental_route": "Bontang → ECI",
+    "route_override_note": "Dataset eksperimen berbasis data Aqaba dengan route override."
+  },
+  "input_basis": {
+    "index_unit": "USD/MT",
+    "alpha_unit": "USD/MT",
+    "freight_selling_rate_unit": "USD/MT",
+    "cfr_adjustment_unit": "USD/MT",
+    "freight_cost_unit": "USD/MT",
+    "index_source": "manual simulation input",
+    "alpha_source": "manual simulation input",
+    "freight_source": "explicit CLI simulation input"
+  },
+  "inputs": {
+    "index_usd_mt": 250.0,
+    "alpha_usd_mt": 3.0,
+    "freight_selling_rate_usd_mt": 20.0,
+    "cfr_adjustment_usd_mt": 0.0,
+    "freight_cost_usd_mt": 18.0,
+    "cargo_quantity_mt": 45000.0
+  },
+  "formulas": {
+    "fob": "Index + Alpha",
+    "cfr": "FOB + Freight + A",
+    "freight_margin": "Freight selling rate - Freight cost"
+  },
+  "results": {
+    "fob_usd_mt": 253.0,
+    "cfr_usd_mt": 273.0,
+    "freight_margin_usd_mt": 2.0
+  },
+  "quality_checks": [
+    {
+      "check": "non_negative_index_usd_mt",
+      "status": "PASS",
+      "message": "index_usd_mt tidak negatif."
+    },
+    {
+      "check": "non_negative_alpha_usd_mt",
+      "status": "PASS",
+      "message": "alpha_usd_mt tidak negatif."
+    },
+    {
+      "check": "non_negative_freight_selling_rate_usd_mt",
+      "status": "PASS",
+      "message": "freight_selling_rate_usd_mt tidak negatif."
+    },
+    {
+      "check": "non_negative_cfr_adjustment_usd_mt",
+      "status": "PASS",
+      "message": "cfr_adjustment_usd_mt tidak negatif."
+    },
+    {
+      "check": "non_negative_freight_cost_usd_mt",
+      "status": "PASS",
+      "message": "freight_cost_usd_mt tidak negatif."
+    },
+    {
+      "check": "common_unit",
+      "status": "PASS",
+      "message": "Semua input kalkulasi diperlakukan sebagai USD/MT."
+    },
+    {
+      "check": "business_basis",
+      "status": "WARN",
+      "message": "Basis Index, Alpha, Freight, dan A harus divalidasi mentor."
+    }
+  ],
+  "decision": {
+    "choice_made": false,
+    "recommendation": null,
+    "reason": "Batch 5 hanya menghitung; belum melakukan choice."
+  },
+  "run": {
+    "batch": "B5-calculate",
+    "executed_at_utc": "2026-09-17T09:29:34.329615+00:00"
+  }
+}
