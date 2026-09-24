@@ -1,0 +1,209 @@
+{
+  "schema_version": "1.0.0",
+  "project": {
+    "name": "PILOG CFR DSS",
+    "owner": "PT Pupuk Logistik Indonesia - Business Development",
+    "system_type": "prescriptive decision support system",
+    "operating_mode": "simulation",
+    "execution_boundary": "advisory-only; human approval required"
+  },
+  "source_priority": [
+    "mentor_feedback",
+    "approved_business_data_contract",
+    "authoritative_data_source",
+    "domain_reference",
+    "llm_takeaway_hypothesis"
+  ],
+  "calculation_policy": {
+    "llm_may": [
+      "extract and map variables",
+      "draft code and tests",
+      "inspect deterministic outputs",
+      "explain results",
+      "prepare review questions"
+    ],
+    "llm_must_not": [
+      "invent input values",
+      "perform authoritative maritime calculations",
+      "override deterministic Python results",
+      "approve or execute a commercial action"
+    ],
+    "calculation_runtime": "standard Python functions using Decimal and explicit units",
+    "required_evidence": [
+      "input snapshot",
+      "formula version",
+      "rule version",
+      "test result",
+      "reason code",
+      "human approval status"
+    ]
+  },
+  "current_iteration": {
+    "id": "I2",
+    "name": "Deterministic voyage economics and prescriptive decision foundation",
+    "status": "revision_implemented_pending_mentor_review",
+    "entry_condition": "I1 mentor feedback captured",
+    "exit_condition": "Mentor records accepted, needs-revision, or blocked in .agents/reviews/ITERATION_02.md",
+    "technical_status": "pre-offer I2 revision: 26 of 26 tests passing; end-to-end run reaches both Gates; mentor review pending",
+    "review_file": ".agents/reviews/ITERATION_02.md",
+    "latest_run": "outputs/runs/i2_20260923T091307166739Z_f5c4e74a",
+    "repository_cleanup": {
+      "date": "2026-09-24",
+      "status": "completed_locally_not_staged_or_pushed",
+      "retained_run_count": 1,
+      "historical_generated_runs_removed": 9,
+      "publication_check": "Confirm mentor/company permission and GitHub repository visibility before staging Aqaba-derived dataset or run snapshot"
+    },
+    "mentor_decision": null
+  },
+  "iteration_history": [
+    {
+      "id": "I1",
+      "status": "reviewed",
+      "objective": "Prove a simple end-to-end CFR simulation pipeline",
+      "achieved": [
+        "CSV inspection, ingestion, quality check, and normalization",
+        "generic FOB/CFR/margin calculation",
+        "FOB, CFR owned-vessel, CFR charter, and no-bid scenarios",
+        "rule-based Gate 1/Gate 2 prototype",
+        "decision brief with advisory-only boundary"
+      ],
+      "limitations": [
+        "freight cost and selling rate are hardcoded simulation inputs",
+        "feasibility and comparability are hardcoded scenario flags",
+        "full voyage cost and TCE are not calculated",
+        "quality BLOCK is not yet enforced by Gate 1",
+        "Bontang -> ECI is a route override over Aqaba-derived data"
+      ],
+      "review_file": ".agents/reviews/ITERATION_01.md"
+    }
+  ],
+  "authoritative_feedback": [
+    {
+      "id": "MF-001",
+      "source": "mentor",
+      "requirement": "Derive Freight Cost and Freight Selling Rate from the available dataset where the approved definition permits it.",
+      "status": "accepted",
+      "iteration": "I2"
+    },
+    {
+      "id": "MF-002",
+      "source": "mentor",
+      "requirement": "Limit vessel options to Supramax and Handysize.",
+      "status": "accepted",
+      "iteration": "I2"
+    },
+    {
+      "id": "MF-003",
+      "source": "mentor",
+      "requirement": "Keep Index and Alpha as controlled manual inputs for now.",
+      "status": "accepted",
+      "iteration": "I2"
+    },
+    {
+      "id": "MF-004",
+      "source": "mentor",
+      "requirement": "Group variables by the calculation they support.",
+      "status": "accepted",
+      "iteration": "I2"
+    },
+    {
+      "id": "MF-005",
+      "source": "mentor",
+      "requirement": "Separate calculation modules.",
+      "status": "accepted",
+      "iteration": "I2"
+    },
+    {
+      "id": "MF-006",
+      "source": "mentor",
+      "requirement": "The system must be prescriptive, not merely descriptive.",
+      "status": "accepted",
+      "iteration": "I2"
+    },
+    {
+      "id": "MF-007",
+      "source": "mentor via user",
+      "requirement": "Dataset Freight Rate is PILOG's freight selling rate.",
+      "status": "implemented_in_simulation",
+      "iteration": "I2"
+    },
+    {
+      "id": "MF-008",
+      "source": "mentor via user",
+      "requirement": "Use 45000 MT physical cargo for port days and 46000 MT allocation quantity for freight revenue and voyage-cost allocation; superseded by mentor correction D-016.",
+      "status": "superseded_by_D-016",
+      "iteration": "I2"
+    },
+    {
+      "id": "MF-009",
+      "source": "mentor via user",
+      "requirement": "Use owned PILOG vessel alternatives for this simulation; charter treatment is deferred.",
+      "status": "implemented_in_simulation",
+      "iteration": "I2"
+    },
+    {
+      "id": "MF-010",
+      "source": "mentor via user",
+      "requirement": "Include all three commission rates; gross-revenue basis remains a simulation assumption.",
+      "status": "implemented_conditionally",
+      "iteration": "I2"
+    },
+    {
+      "id": "MF-011",
+      "source": "mentor via user",
+      "requirement": "Screen Supramax and Handysize and report the selected vessel class before commercial handoff.",
+      "status": "superseded_by_D-019_versioned_class_range_screen",
+      "iteration": "I2"
+    }
+  ],
+  "known_gaps": [
+    {
+      "id": "GAP-001",
+      "severity": "critical",
+      "description": "Canonical pricing data does not yet include approved Index and Alpha lineage; current values are manual simulation inputs.",
+      "status": "accepted_simulation_constraint"
+    },
+    {
+      "id": "GAP-002",
+      "severity": "critical",
+      "description": "Historical I1 gap: Gate 1 did not consume critical quality status; revised I2 now blocks on technical quality errors.",
+      "status": "fixed_and_tested_in_I2"
+    },
+    {
+      "id": "GAP-003",
+      "severity": "critical",
+      "description": "Owned-vessel freight cost is calculated from the simulation CSV; gross-DWT vessel screening and FOB comparability remain preliminary.",
+      "status": "cost_calculated_in_I2; remaining operational and FOB evidence requires mentor review"
+    },
+    {
+      "id": "GAP-004",
+      "severity": "high",
+      "description": "Bontang -> ECI is an experimental route override over Aqaba-derived voyage values.",
+      "status": "requires_domain_validation"
+    },
+    {
+      "id": "GAP-005",
+      "severity": "medium",
+      "description": "Draft limits, stowage factor, terminal gear status, fuel-price feed, and annual CII data are absent; do not implement those checks as factual constraints yet.",
+      "status": "future_or_data_needed"
+    }
+  ],
+  "active_tasks": [
+    "I2-R01 through I2-R06 technically implemented; awaiting mentor review and final Iteration 2 disposition"
+  ],
+  "update_protocol": {
+    "when_to_update": [
+      "after a mentor review",
+      "after a task is completed or blocked",
+      "after a rule/formula decision",
+      "after a reproducible pipeline run"
+    ],
+    "never_store": [
+      "credentials",
+      "personal data",
+      "unapproved confidential commercial data",
+      "authoritative numeric output invented by an LLM"
+    ]
+  }
+}

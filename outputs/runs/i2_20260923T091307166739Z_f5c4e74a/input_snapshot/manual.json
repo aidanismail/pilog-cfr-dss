@@ -1,0 +1,30 @@
+{
+  "case_id": "I2-PRE-OFFER-45K",
+  "mode": "simulation",
+  "decision_stage": "pre_offer",
+  "buyer_response": "not_approached",
+  "commodity_seller": "PI Group entity",
+  "freight_provider": "PILOG",
+  "pricing": {
+    "index": {"value": "250", "unit": "USD/MT", "source": "Iteration 1 demo value; not live market price"},
+    "alpha": {"value": "3", "unit": "USD/MT", "source": "Iteration 1 demo value; not a sale quote"},
+    "cfr_adjustment": {"value": "0", "unit": "USD/MT", "reason": "No extra commercial adjustment in this simulation"}
+  },
+  "economic_definitions": {
+    "freight_rate_object": "selling_rate",
+    "other_voyage_cost_scope": "port_and_other_excluding_bunker_and_daily",
+    "daily_cost_day_basis": "total_voyage_days",
+    "commission_basis": "gross_revenue_cumulative",
+    "decision_objective": "net_freight_contribution_usd",
+    "owned_cost_boundary": "running_costs_plus_bunker_plus_other"
+  },
+  "simulation_assumptions": [
+    "CSV values are one experimental case; Bontang-to-ECI route inputs are not validated transaction data.",
+    "Buyer has not been approached; no offer, acceptance, or sale contract is assumed.",
+    "PILOG-owned/operated vessel is the only cost mode in this revision.",
+    "Three commission rates are applied cumulatively to gross freight revenue as a simulation assumption.",
+    "Other voyage costs aggregate excludes bunker and running cost; port and agency breakdown remains unconfirmed.",
+    "DWT-only screening is preliminary; actual cargo capacity, vessel availability, draft, terminal and laycan remain for human review.",
+    "Positive freight contribution is a review signal, not an approved minimum margin or evidence of PI Group commodity profit."
+  ]
+}

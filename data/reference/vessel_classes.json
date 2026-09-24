@@ -1,0 +1,10 @@
+{
+  "policy_version": "I2-R2-DWT-1",
+  "screen_type": "gross_dwt_only",
+  "unit": "MT",
+  "classes": {
+    "Handysize": {"min_dwt_mt": "20000", "max_dwt_mt": "40000"},
+    "Supramax": {"min_dwt_mt": "50000", "max_dwt_mt": "60000"}
+  },
+  "limitation": "DWT-only is a preliminary class and gross capacity screen, not proof of actual safe cargo capacity or vessel availability."
+}

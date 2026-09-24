@@ -1,0 +1,62 @@
+no,canonical_key,group,data_type,unit,currency,route_dependent,scenario_dependent,role,module,current_use,intended_use,source_status,missing_dependency,definition
+1,cargo_description,case_and_commercial,text,text,,false,false,input,models,quality_check,case_context,csv_no_asof,stowage_factor,Deskripsi komoditas pada kasus
+2,loading_port,route_and_timing,text,port,,true,false,input,validation,hardcoded_route_check,route_origin,csv_no_asof,port_master,Port asal muatan
+3,discharging_port,route_and_timing,text,port,,true,false,input,validation,hardcoded_route_check,route_destination,csv_no_asof,port_master,Port tujuan bongkar
+4,laden_distance_nm,route_and_timing,decimal,NM,,true,true,input,calculations,quality_check,laden_sea_days,csv_no_asof,route_basis,Jarak pelayaran bermuatan
+5,ballast_distance_nm,route_and_timing,decimal,NM,,true,true,input,calculations,quality_check,ballast_sea_days,csv_no_asof,position_basis,Jarak pelayaran ballast
+6,laden_speed_knots,route_and_timing,decimal,knot,,false,true,input,calculations,quality_check,laden_sea_days,csv_no_asof,speed_basis,Kecepatan saat bermuatan
+7,ballast_speed_knots,route_and_timing,decimal,knot,,false,true,input,calculations,quality_check,ballast_sea_days,csv_no_asof,speed_basis,Kecepatan saat ballast
+8,fuel_oil_consumption_laden_mt_day,fuel_and_consumption,decimal,MT/day,,false,true,input,calculations,quality_check,laden_fuel_use,csv_no_asof,performance_basis,Konsumsi fuel oil saat laden
+9,fuel_oil_consumption_ballast_mt_day,fuel_and_consumption,decimal,MT/day,,false,true,input,calculations,quality_check,ballast_fuel_use,csv_no_asof,performance_basis,Konsumsi fuel oil saat ballast
+10,diesel_consumption_at_sea_laden_mt_day,fuel_and_consumption,decimal,MT/day,,false,true,input,calculations,quality_check,laden_diesel_use,csv_no_asof,performance_basis,Konsumsi diesel di laut saat laden
+11,diesel_consumption_at_sea_ballast_mt_day,fuel_and_consumption,decimal,MT/day,,false,true,input,calculations,quality_check,ballast_diesel_use,csv_no_asof,performance_basis,Konsumsi diesel di laut saat ballast
+12,in_port_working_load_factor,port_operations,decimal,fraction,,true,true,input,calculations,quality_check,port_diesel_use,csv_no_asof,port_power_basis,Proporsi daya mesin bantu saat kegiatan pelabuhan
+13,in_port_diesel_factor_kg_kwh,port_operations,decimal,kg/kWh,,false,true,input,calculations,quality_check,port_diesel_use,csv_no_asof,engine_basis,Konsumsi diesel per energi mesin bantu
+14,auxiliary_engine_power_kw,port_operations,decimal,kW,,false,true,input,calculations,quality_check,port_diesel_use,csv_no_asof,engine_basis,Daya mesin bantu kapal
+15,dwt_mt,vessel_and_capacity,decimal,MT,,false,true,input,calculations,quality_check,capacity_screen,csv_no_asof,vessel_identity,Bobot mati kapal kasus
+16,bunkers_allowance_mt,vessel_and_capacity,decimal,MT,,false,true,input,calculations,quality_check,capacity_screen,csv_no_asof,allowance_basis,Pengurang kapasitas untuk bunker
+17,constants_allowance_mt,vessel_and_capacity,decimal,MT,,false,true,input,calculations,quality_check,capacity_screen,csv_no_asof,allowance_basis,Pengurang kapasitas untuk constants
+18,dwcc_cargo_quantity_mt,case_and_commercial,decimal,MT,,false,false,input,calculations,operational_days_and_capacity,physical_cargo_basis,csv_no_asof,route_data_validation,Kuantitas fisik kargo 45000 MT untuk hari muat bongkar dan pemeriksaan kapasitas
+19,loading_rate_mt_day,port_operations,decimal,MT/day,,true,true,input,calculations,quality_check,loading_days,csv_no_asof,port_rate_basis,Laju muat per hari
+20,discharge_rate_mt_day,port_operations,decimal,MT/day,,true,true,input,calculations,quality_check,discharge_days,csv_no_asof,port_rate_basis,Laju bongkar per hari
+21,canal_transit_days,route_and_timing,decimal,day,,true,true,input,calculations,quality_check,transit_days,csv_no_asof,transit_cost_basis,Hari transit kanal jika relevan
+22,fuel_oil_at_loading_port_mt,fuel_and_consumption,decimal,MT,,true,true,input,calculations,quality_check,port_fuel_use,csv_no_asof,quantity_semantics,Fuel oil di port muat; arti stok atau konsumsi perlu dikonfirmasi
+23,fuel_oil_at_discharging_port_mt,fuel_and_consumption,decimal,MT,,true,true,input,calculations,quality_check,port_fuel_use,csv_no_asof,quantity_semantics,Fuel oil di port bongkar; arti stok atau konsumsi perlu dikonfirmasi
+24,fuel_oil_price_usd_mt,cost_commission_revenue,decimal,USD/MT,USD,false,true,input,calculations,quality_check,fuel_oil_cost,csv_no_asof,price_asof,Harga fuel oil per MT
+25,diesel_oil_price_usd_mt,cost_commission_revenue,decimal,USD/MT,USD,false,true,input,calculations,quality_check,diesel_cost,csv_no_asof,price_asof,Harga diesel oil per MT
+26,other_voyage_costs_total_usd,cost_commission_revenue,decimal,USD,USD,true,true,input,calculations,owned_voyage_cost,port_and_other_cost,csv_no_asof,cost_component_detail,Biaya voyage lain 200000 USD terpisah dari bunker dan running cost menurut klarifikasi pengguna
+27,daily_cost_assumption_usd_day,cost_commission_revenue,decimal,USD/day,USD,false,true,reference,calculations,quality_check,cost_candidate,csv_no_asof,owned_vs_charter_boundary,Asumsi biaya harian yang mungkin alternatif terhadap hire atau running cost
+28,hire_rate_usd_day,cost_commission_revenue,decimal,USD/day,USD,false,true,input,calculations,quality_check,charter_hire_candidate,csv_no_asof,hire_contract_basis,Tarif hire per hari
+29,freight_rate_usd_mt,cost_commission_revenue,decimal,USD/MT,USD,false,true,input,calculations,freight_revenue,selling_rate,csv_no_asof,selling_rate_source_asof,Tarif jual freight PILOG per MT menurut keputusan mentor yang disampaikan pengguna
+30,freight_commission_rate,cost_commission_revenue,decimal,fraction,,false,true,input,calculations,quality_check,commission_candidate,csv_no_asof,commission_basis,Persentase komisi freight
+31,running_costs_usd_day,cost_commission_revenue,decimal,USD/day,USD,false,true,reference,calculations,quality_check,owned_cost_candidate,csv_no_asof,owned_vs_charter_boundary,Biaya operasi kapal per hari
+33,exchange_rate_idr_usd,benchmark_and_market,decimal,IDR/USD,IDR,false,true,reference,calculations,quality_check,fx_if_needed,csv_no_asof,fx_asof,Kurs IDR per USD
+34,hire_comparison_days,route_and_timing,decimal,day,,false,true,reference,calculations,quality_check,hire_comparison_candidate,csv_no_asof,comparison_basis,Hari pembanding hire yang bukan otomatis total voyage days
+35,broker_fee_rate,cost_commission_revenue,decimal,fraction,,false,true,input,calculations,quality_check,commission_candidate,csv_no_asof,commission_overlap_basis,Persentase fee broker
+36,additional_commission_rate,cost_commission_revenue,decimal,fraction,,false,true,input,calculations,quality_check,commission_candidate,csv_no_asof,commission_overlap_basis,Persentase komisi tambahan
+37,benchmark_vessel,benchmark_and_market,text,text,,false,true,reference,reporting,stored_only,benchmark_label,csv_no_asof,benchmark_value_date_and_basis,Nama benchmark kapal tanpa nilai angka indeks
+38,scrubber_fitted,vessel_and_capacity,boolean,boolean,,false,true,reference,models,stored_only,future_fuel_policy,csv_no_asof,fuel_policy,Kapal memiliki scrubber atau tidak
+39,at_sea_fuel_type,fuel_and_consumption,text,text,,false,true,reference,models,stored_only,fuel_identity,csv_no_asof,fuel_grade_definition,Jenis fuel pada pelayaran
+40,marine_gas_oil_at_sea,fuel_and_consumption,boolean,boolean,,false,true,reference,models,stored_only,fuel_identity,csv_no_asof,diesel_vs_mgo_semantics,Apakah marine gas oil dipakai di laut
+41,reference_dwt_mt,benchmark_and_market,decimal,MT,,false,true,reference,reporting,quality_check,benchmark_vessel_size,csv_no_asof,reference_only,DWT kapal benchmark dan bukan otomatis DWT kasus
+42,ssw_draft_m,vessel_and_capacity,decimal,m,,false,true,reference,models,quality_check,future_draft_screen,csv_no_asof,port_draft_limit,Draft SSW kapal referensi
+43,tpc_mt_cm,vessel_and_capacity,decimal,MT/cm,,false,true,reference,models,quality_check,future_draft_screen,csv_no_asof,port_draft_limit,Ton per centimeter immersion
+44,maximum_vessel_age_years,vessel_and_capacity,integer,year,,false,true,reference,models,quality_check,future_vessel_screen,csv_no_asof,actual_vessel_age,Usia maksimum kapal referensi
+45,length_overall_loa_m,vessel_and_capacity,decimal,m,,false,true,reference,models,quality_check,future_port_screen,csv_no_asof,port_loa_limit,Panjang total kapal referensi
+46,beam_m,vessel_and_capacity,decimal,m,,false,true,reference,models,quality_check,future_port_screen,csv_no_asof,port_beam_limit,Lebar kapal referensi
+47,grain_capacity_cbm,vessel_and_capacity,decimal,CBM,,false,true,reference,models,quality_check,future_volume_screen,csv_no_asof,cargo_stowage_factor,Kapasitas grain kapal referensi
+48,bale_capacity_cbm,vessel_and_capacity,decimal,CBM,,false,true,reference,models,quality_check,future_volume_screen,csv_no_asof,cargo_stowage_factor,Kapasitas bale kapal referensi
+49,cargo_holds,vessel_and_capacity,integer,count,,false,true,reference,models,quality_check,future_cargo_screen,csv_no_asof,terminal_requirement,Jumlah palka kapal referensi
+50,cargo_hatches,vessel_and_capacity,integer,count,,false,true,reference,models,quality_check,future_cargo_screen,csv_no_asof,terminal_requirement,Jumlah hatch kapal referensi
+51,cranes,vessel_and_capacity,integer,count,,false,true,reference,models,quality_check,future_gear_screen,csv_no_asof,terminal_gear_requirement,Jumlah crane kapal referensi
+52,crane_capacity_each_mt,vessel_and_capacity,decimal,MT,,false,true,reference,models,quality_check,future_gear_screen,csv_no_asof,terminal_gear_requirement,Kapasitas tiap crane kapal referensi
+53,grabs,vessel_and_capacity,integer,count,,false,true,reference,models,quality_check,future_gear_screen,csv_no_asof,terminal_gear_requirement,Jumlah grab kapal referensi
+54,grab_capacity_each_cbm,vessel_and_capacity,decimal,CBM,,false,true,reference,models,quality_check,future_gear_screen,csv_no_asof,terminal_gear_requirement,Kapasitas tiap grab kapal referensi
+55,mfo_consumption_at_14_knots_laden_mt_day,fuel_and_consumption,decimal,MT/day,,false,true,reference,calculations,quality_check,speed_curve_candidate,csv_no_asof,vessel_performance_source,Konsumsi MFO laden pada 14 knot
+56,mfo_consumption_at_14_knots_ballast_mt_day,fuel_and_consumption,decimal,MT/day,,false,true,reference,calculations,quality_check,speed_curve_candidate,csv_no_asof,vessel_performance_source,Konsumsi MFO ballast pada 14 knot
+57,mfo_consumption_at_13_knots_laden_mt_day,fuel_and_consumption,decimal,MT/day,,false,true,reference,calculations,quality_check,speed_curve_candidate,csv_no_asof,vessel_performance_source,Konsumsi MFO laden pada 13 knot
+58,mfo_consumption_at_13_knots_ballast_mt_day,fuel_and_consumption,decimal,MT/day,,false,true,reference,calculations,quality_check,speed_curve_candidate,csv_no_asof,vessel_performance_source,Konsumsi MFO ballast pada 13 knot
+59,mfo_consumption_at_12_knots_laden_mt_day,fuel_and_consumption,decimal,MT/day,,false,true,reference,calculations,quality_check,speed_curve_candidate,csv_no_asof,vessel_performance_source,Konsumsi MFO laden pada 12 knot
+60,mfo_consumption_at_12_knots_ballast_mt_day,fuel_and_consumption,decimal,MT/day,,false,true,reference,calculations,quality_check,speed_curve_candidate,csv_no_asof,vessel_performance_source,Konsumsi MFO ballast pada 12 knot
+61,mfo_consumption_at_11_knots_laden_mt_day,fuel_and_consumption,decimal,MT/day,,false,true,reference,calculations,quality_check,speed_curve_candidate,csv_no_asof,vessel_performance_source,Konsumsi MFO laden pada 11 knot
+62,mfo_consumption_at_11_knots_ballast_mt_day,fuel_and_consumption,decimal,MT/day,,false,true,reference,calculations,quality_check,speed_curve_candidate,csv_no_asof,vessel_performance_source,Konsumsi MFO ballast pada 11 knot

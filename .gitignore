@@ -1,1 +1,24 @@
-venv
+# Local environments and Python build/cache files
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+.coverage
+htmlcov/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+
+# Generated learning previews and inspection logs
+outputs/learning/*.png
+outputs/learning/*.inspect.ndjson
+
+# Keep one reviewed Iteration 2 example; ignore subsequent local runs.
+outputs/runs/*
+!outputs/runs/i2_20260923T091307166739Z_f5c4e74a/
+!outputs/runs/i2_20260923T091307166739Z_f5c4e74a/**

@@ -1,0 +1,57 @@
+{
+  "status": "WARN",
+  "checks": [
+    {
+      "code": "ROUTE_IDENTITY",
+      "status": "PASS",
+      "fields": [],
+      "detail": "Origin dan destination dari dataset"
+    },
+    {
+      "code": "CRITICAL_NUMERIC",
+      "status": "PASS",
+      "fields": [],
+      "detail": "Input fisik minimum harus positif"
+    },
+    {
+      "code": "CRITICAL_NONNEGATIVE",
+      "status": "PASS",
+      "fields": [],
+      "detail": "Biaya dan konsumsi yang diperlukan tidak boleh negatif"
+    },
+    {
+      "code": "PORT_LOAD_FACTOR",
+      "status": "PASS",
+      "fields": [],
+      "detail": "Faktor beban pelabuhan harus berada pada 0..1"
+    },
+    {
+      "code": "COMMISSION_RATE",
+      "status": "PASS",
+      "fields": [],
+      "detail": "Komisi harus berupa fraksi nonnegatif dengan total kurang dari 1"
+    },
+    {
+      "code": "OPTIONAL_PARSE",
+      "status": "PASS",
+      "fields": [],
+      "detail": "Nilai opsional tidak dapat dibaca"
+    },
+    {
+      "code": "CONTROLLED_PRICING",
+      "status": "PASS",
+      "fields": [],
+      "detail": "Index, Alpha, dan adjustment harus bernilai numerik dengan unit USD/MT; adjustment punya alasan"
+    },
+    {
+      "code": "SOURCE_METADATA_DEFERRED",
+      "status": "WARN",
+      "fields": [
+        "source",
+        "as_of",
+        "owner"
+      ],
+      "detail": "Sumber/as-of/approval domain belum menjadi Gate pada simulasi ini"
+    }
+  ]
+}

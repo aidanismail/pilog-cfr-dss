@@ -30,7 +30,6 @@ No,Variable,Value
 29,Freight rate (USD/MT),20
 30,Freight commission rate,0.025
 31,Running costs (USD/day),5612
-32,Voyage expense allocation quantity (MT),46000
 33,Exchange rate (IDR/USD),15800
 34,Hire comparison days,15
 35,Broker fee rate,0.0125
