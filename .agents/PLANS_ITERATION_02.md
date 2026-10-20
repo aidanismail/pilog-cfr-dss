@@ -12,7 +12,7 @@ Alternatif **komersial** hanya dua: **FOB** dan **CFR**. `NO_BID`/`DEFER` adalah
 
 | Objek | Aturan aktif untuk rancangan revisi |
 |---|---|
-| `data/dataset_ready.csv` | Contoh angka satu kasus simulasi, bukan data produksi tervalidasi. Mentor menangani pengelompokan, provenance, freshness, dan approval sumber di tahap lanjut. Cek teknis yang diperlukan untuk menghitung tetap berlaku. |
+| `data/processed/dataset_ready.csv` | Contoh angka satu kasus simulasi, bukan data produksi tervalidasi. Mentor menangani pengelompokan, provenance, freshness, dan approval sumber di tahap lanjut. Cek teknis yang diperlukan untuk menghitung tetap berlaku. |
 | Cargo / DWCC | **45.000 MT untuk seluruh perhitungan**: hari pelabuhan, screen kapasitas, freight revenue, komisi, dan biaya per MT. Ini kuantitas kargo yang dibatasi seller. |
 | Angka 46.000 MT | Baris `Voyage expense allocation quantity` pada data Aqaba keliru menurut mentor. **Tidak ada objek allocation quantity** dalam kasus PILOG ini. Dataset dan model aktif menghapus/menolak baris itu; run lama telah dibersihkan atas instruksi pengguna, sedangkan perbedaan basisnya dicatat dalam review/decision log. |
 | Harga | `FOB = Index + Alpha`; `CFR indikatif = FOB + freight selling rate PILOG + adjustment`, dengan unit USD/MT dan adjustment eksplisit. Harga FOB/CFR ditampilkan, bukan bukti margin komoditas PI Group. |

@@ -18,10 +18,10 @@ from pilog_cfr_dss.orchestration.pipeline import evaluate, persist_run
 class RunSnapshotTests(unittest.TestCase):
     def test_run_contains_verified_input_snapshot(self) -> None:
         inputs = {
-            "dataset": ROOT / "data" / "dataset_ready.csv",
-            "catalog": ROOT / "data" / "reference" / "variable_catalog.csv",
-            "manual": ROOT / "data" / "raw" / "iteration_02_pre_offer_simulation.json",
-            "vessel_policy": ROOT / "data" / "reference" / "vessel_classes.json",
+            "dataset": ROOT / "data" / "processed" / "dataset_ready.csv",
+            "catalog": ROOT / "data" / "processed" / "variable_catalog.csv",
+            "manual": ROOT / "data" / "processed" / "iteration_02_pre_offer_simulation.json",
+            "vessel_policy": ROOT / "data" / "processed" / "vessel_classes.json",
         }
         report = evaluate(inputs["dataset"], inputs["catalog"], inputs["manual"], inputs["vessel_policy"])
         with tempfile.TemporaryDirectory() as temporary:

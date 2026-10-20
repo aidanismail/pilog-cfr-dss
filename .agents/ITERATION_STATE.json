@@ -23,7 +23,7 @@
       "prepare review questions"
     ],
     "llm_must_not": [
-      "invent input values",
+      "invent unlabelled or authoritative input values; explicitly labelled simulation-only synthetic fixtures are permitted for tests",
       "perform authoritative maritime calculations",
       "override deterministic Python results",
       "approve or execute a commercial action"
@@ -39,14 +39,18 @@
     ]
   },
   "current_iteration": {
-    "id": "I2",
-    "name": "Deterministic voyage economics and prescriptive decision foundation",
-    "status": "revision_implemented_pending_mentor_review",
-    "entry_condition": "I1 mentor feedback captured",
-    "exit_condition": "Mentor records accepted, needs-revision, or blocked in .agents/reviews/ITERATION_02.md",
-    "technical_status": "pre-offer I2 revision: 26 of 26 tests passing; end-to-end run reaches both Gates; mentor review pending",
-    "review_file": ".agents/reviews/ITERATION_02.md",
-    "latest_run": "outputs/runs/i2_20260923T091307166739Z_f5c4e74a",
+    "id": "I3",
+    "name": "PI post-tender CFR GO/NO GO simulation",
+    "status": "implemented_pending_mentor_review",
+    "entry_condition": "User approved I3 plan and synthetic-data implementation on 2026-10-08; I2 technical baseline preserved, mentor acceptance of I2 not inferred",
+    "exit_condition": "Mentor records accepted or needs-revision in .agents/reviews/ITERATION_03.md",
+    "technical_status": "post-tender I3: 38 of 38 tests passing; two synthetic end-to-end fixtures yield GO and NO_GO; no production inputs or approvals",
+    "review_file": ".agents/reviews/ITERATION_03.md",
+    "latest_run": "outputs/runs/i3_20261008T032331853553Z_i3_go_urea",
+    "presentation_runs": [
+      "outputs/runs/i3_20261008T032331853553Z_i3_go_urea",
+      "outputs/runs/i3_20261008T032331863983Z_i3_no_go_urea"
+    ],
     "repository_cleanup": {
       "date": "2026-09-24",
       "status": "completed_locally_not_staged_or_pushed",
@@ -54,9 +58,38 @@
       "historical_generated_runs_removed": 9,
       "publication_check": "Confirm mentor/company permission and GitHub repository visibility before staging Aqaba-derived dataset or run snapshot"
     },
+    "data_directory_cleanup": {
+      "date": "2026-10-20",
+      "status": "completed_locally_not_staged_or_pushed",
+      "target_directories": ["data/raw", "data/processed"],
+      "runtime_inputs_moved": 7,
+      "empty_directories_removed": ["data/cases", "data/reference", "data/learning", "data/snapshots"],
+      "input_bytes_preserved": true,
+      "evaluation_results_preserved": ["I2", "I3_GO", "I3_NO_GO"],
+      "verification": "38/38 tests pass; I3 default CLI, I3 explicit case CLI, and I2 default CLI succeed using temporary output directories",
+      "workbook": "Latest user-saved workbook moved to data/raw after Excel was closed; SHA-256 before and after the move is identical",
+      "pending": null,
+      "business_rules_changed": false,
+      "git_staged_committed_or_pushed": false
+    },
     "mentor_decision": null
   },
   "iteration_history": [
+    {
+      "id": "I2",
+      "status": "technically_implemented_pending_mentor_review",
+      "objective": "Deterministic pre-offer voyage economics with historical FOB/CFR and vessel-class screens",
+      "achieved": [
+        "Owned-vessel voyage economics and 45000 MT quantity basis",
+        "26 tests passed before I3; I3 regression suite retains I2 behavior",
+        "Historical complete run i2_20260923T091307166739Z_f5c4e74a"
+      ],
+      "limitations": [
+        "Mentor acceptance not recorded",
+        "Pre-offer flow superseded as active business scope by post-tender I3"
+      ],
+      "review_file": ".agents/reviews/ITERATION_02.md"
+    },
     {
       "id": "I1",
       "status": "reviewed",
@@ -155,6 +188,27 @@
       "requirement": "Screen Supramax and Handysize and report the selected vessel class before commercial handoff.",
       "status": "superseded_by_D-019_versioned_class_range_screen",
       "iteration": "I2"
+    },
+    {
+      "id": "MF-012",
+      "source": "mentor via user",
+      "requirement": "I3 follows PI push-demand tender; the CFR DSS reviews a PI-selected post-tender candidate, using PI OE/HPS and buyer-supplied alpha.",
+      "status": "implemented_in_synthetic_simulation",
+      "iteration": "I3"
+    },
+    {
+      "id": "MF-013",
+      "source": "user confirmation",
+      "requirement": "Use urea granular bulk Bontang, 45000 MT, and the midpoint average of Argus and Fertecon FOB SEA granular series for simulation; label unavailable observations synthetic.",
+      "status": "implemented_in_synthetic_simulation",
+      "iteration": "I3"
+    },
+    {
+      "id": "MF-014",
+      "source": "user instruction",
+      "requirement": "Present I3 recommendations only as GO or NO_GO and synthesize one dataset variant for each outcome.",
+      "status": "implemented_and_tested",
+      "iteration": "I3"
     }
   ],
   "known_gaps": [
@@ -187,10 +241,22 @@
       "severity": "medium",
       "description": "Draft limits, stowage factor, terminal gear status, fuel-price feed, and annual CII data are absent; do not implement those checks as factual constraints yet.",
       "status": "future_or_data_needed"
+    },
+    {
+      "id": "GAP-006",
+      "severity": "critical",
+      "description": "I3 market index, OE/HPS, buyer bids, and PI candidate selection are labelled synthetic; actual Argus quote and tender data are not verified in this repository.",
+      "status": "accepted_simulation_constraint_not_valid_for_transaction"
+    },
+    {
+      "id": "GAP-007",
+      "severity": "high",
+      "description": "I3 uses derived voyage cost per MT as an OD matrix proxy and I2 freight selling rate as PILOG revenue; official OD matrix and PI-PILOG contract/commission scope await mentor review.",
+      "status": "accepted_simulation_assumption_pending_domain_review"
     }
   ],
   "active_tasks": [
-    "I2-R01 through I2-R06 technically implemented; awaiting mentor review and final Iteration 2 disposition"
+    "I3-0 through I3-5 technically implemented and tested; I3-6 mentor review pending"
   ],
   "update_protocol": {
     "when_to_update": [

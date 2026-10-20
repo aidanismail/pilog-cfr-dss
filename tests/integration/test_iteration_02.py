@@ -14,9 +14,9 @@ from pilog_cfr_dss.orchestration.pipeline import evaluate
 
 
 class Iteration2IntegrationTests(unittest.TestCase):
-    dataset = ROOT / "data" / "dataset_ready.csv"
-    catalog = ROOT / "data" / "reference" / "variable_catalog.csv"
-    manual = ROOT / "data" / "raw" / "iteration_02_pre_offer_simulation.json"
+    dataset = ROOT / "data" / "processed" / "dataset_ready.csv"
+    catalog = ROOT / "data" / "processed" / "variable_catalog.csv"
+    manual = ROOT / "data" / "processed" / "iteration_02_pre_offer_simulation.json"
 
     def test_current_case_has_two_commercial_alternatives(self) -> None:
         report = evaluate(self.dataset, self.catalog, self.manual)

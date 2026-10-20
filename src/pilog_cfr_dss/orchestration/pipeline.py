@@ -31,7 +31,7 @@ def _scenario_dict(item: ScenarioEvidence) -> dict[str, Any]:
     return {**asdict(item), "contribution_usd": str(item.contribution_usd) if item.contribution_usd is not None else None, "reasons": list(item.reasons)}
 
 
-DEFAULT_VESSEL_POLICY = Path(__file__).resolve().parents[3] / "data" / "reference" / "vessel_classes.json"
+DEFAULT_VESSEL_POLICY = Path(__file__).resolve().parents[3] / "data" / "processed" / "vessel_classes.json"
 
 
 def evaluate(

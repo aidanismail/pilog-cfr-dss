@@ -1,6 +1,6 @@
 # Kontrak ekonomi voyage — revisi simulasi Iterasi 2
 
-**Status:** aktif untuk simulasi pra-penawaran; belum menjadi kebijakan quotation atau transaksi. Sumber keputusan: D-016 sampai D-022 dalam `../DECISIONS.md`. Angka di `data/dataset_ready.csv` adalah ground truth numerik **simulasi**, bukan validasi transaksi nyata.
+**Status:** aktif untuk simulasi pra-penawaran; belum menjadi kebijakan quotation atau transaksi. Sumber keputusan: D-016 sampai D-022 dalam `../DECISIONS.md`. Angka di `data/processed/dataset_ready.csv` adalah ground truth numerik **simulasi**, bukan validasi transaksi nyata.
 
 ## Price object, pihak, dan satuan
 

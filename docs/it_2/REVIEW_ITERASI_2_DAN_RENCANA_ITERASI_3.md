@@ -19,7 +19,7 @@ Saya membaca kontrak/keputusan aktif, modul `src/pilog_cfr_dss/`, tes unit dan i
 | Bukti yang dapat dibuka | Fungsi dalam review |
 |---|---|
 | [Keputusan aktif](../../.agents/DECISIONS.md), [kontrak ekonomi](../../.agents/contracts/ITERATION_02_ECONOMICS.md), [task revisi](../../.agents/tasks/ITERATION_02_PROPOSED.md) | Menentukan aturan yang memang telah disetujui untuk simulasi, bukan menebak dari kode. |
-| [CSV kasus](../../data/dataset_ready.csv), [input manual](../../data/raw/iteration_02_pre_offer_simulation.json), [kelas kapal](../../data/reference/vessel_classes.json) | Sumber angka, konteks pra-penawaran, dan kebijakan gross-DWT. |
+| [CSV kasus](../../data/processed/dataset_ready.csv), [input manual](../../data/processed/iteration_02_pre_offer_simulation.json), [kelas kapal](../../data/processed/vessel_classes.json) | Sumber angka, konteks pra-penawaran, dan kebijakan gross-DWT. |
 | [Pipeline](../../src/pilog_cfr_dss/orchestration/pipeline.py), [validasi](../../src/pilog_cfr_dss/validation/ingest.py), [skenario](../../src/pilog_cfr_dss/scenarios/economics.py), [gate](../../src/pilog_cfr_dss/decisions/gates.py) | Perilaku yang benar-benar dieksekusi. |
 | [Decision brief run terakhir](../../outputs/runs/i2_20260923T091307166739Z_f5c4e74a/decision_brief.md), [trace](../../outputs/runs/i2_20260923T091307166739Z_f5c4e74a/calculation_trace.json), [ekonomi](../../outputs/runs/i2_20260923T091307166739Z_f5c4e74a/scenario_economics.json) | Nilai dan alasan yang diterima pengguna. |
 | [Review Iterasi 2 lama](../../.agents/reviews/ITERATION_02.md) | Riwayat perubahan; bagian “Arsip review awal” **bukan** kontrak aktif dan run yang dirujuk di sana sudah dibersihkan. |

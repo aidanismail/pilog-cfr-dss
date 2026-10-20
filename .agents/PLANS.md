@@ -1,16 +1,26 @@
 # Iteration Plan - PILOG CFR DSS
 
-**Status 2026-09-24:** revisi teknis Iteration 2 selesai, 26 tes lulus, dan satu contoh run lengkap dipertahankan; **review/penerimaan mentor belum ada**. Rencana rinci ada di `PLANS_ITERATION_02.md`; hasil aktual dan pertanyaan keputusan ada di `reviews/ITERATION_02.md`. Struktur kode aktual mengikuti `src/pilog_cfr_dss/`; sketsa modul di bawah bersifat historis. Tidak ada persetujuan untuk MVP.
+## Pemeliharaan direktori data - 20 Oktober 2026
+
+- [x] Pisahkan workbook sumber/audit (`data/raw/`) dari input siap-baca (`data/processed/`), tanpa mengubah nilai CSV/JSON atau rule bisnis. Tujuh input runtime sudah dipindahkan.
+- [x] Perbarui path CLI, orchestrator, tes, dan dokumentasi; pertahankan input I2 yang masih dipakai regresi/lineage.
+- [x] Hapus empat direktori data kosong; abaikan file pengunci Office di Git.
+- [x] Verifikasi 38/38 tes, tiga jalur CLI (I3 dua kasus, I3 satu kasus, I2), serta kesamaan byte input dan hasil evaluasi terhadap baseline.
+- [x] Setelah pengguna menyimpan/menutup Excel, pindahkan workbook audit ke `data/raw/` tanpa overwrite; hash sesaat sebelum dan sesudah pemindahan identik. Struktur akhir hanya dua folder, tanpa file tersisa di root `data/`.
+
+Ini pemeliharaan path, bukan implementasi Iterasi 4. Perbaikan bisnis dari audit dibahas terpisah setelah pengguna menyerahkan review.
+
+**Status 2026-10-08:** Simulasi Iterasi 3 pasca-tender sudah berjalan pada dua fixture sintetis GO/NO GO; **38 tes lulus**, tetapi review/penerimaan mentor belum ada. Rencana bisnis/data rinci ada di `docs/it_3/ITERATION_03_TENDER_DSS_PLAN.md`, task board di `tasks/ITERATION_03.md`, dan paket review di `reviews/ITERATION_03.md`. Bagian Iterasi 2 di bawah adalah **historis**, bukan scope aktif. Tidak ada persetujuan untuk MVP.
 
 ## Product objective
 
-Build a transparent, prescriptive DSS. In the active revised Iteration 2 simulation, commercial alternatives are FOB and CFR; vessel-class choice is nested in CFR, owned-vessel economics only, while defer/no-bid are outcomes. Chartered tonnage and broader choice sets belong to later iterations only after mentor feedback. The system recommends an action and explains the evidence; humans retain commercial authority.
+Build a transparent, prescriptive DSS. **Active I3:** after PI's push-demand tender, review a PI-selected candidate for CFR using the OE/HPS floor and PILOG freight/vessel economics. Public outputs are GO/NO GO with reason categories; people retain tender and commercial authority. I2's FOB/CFR pre-offer comparison remains available only as a versioned historical baseline.
 
 ## Non-negotiable scope boundaries
 
 - Current mode is simulation, not production.
 - No external write-back or transaction execution.
-- Index and Alpha are controlled manual inputs until a mentor-approved source/definition exists.
+- Index and Alpha are controlled, explicitly labelled synthetic I3 inputs until a mentor-approved source/definition exists. I3 also labels OE/HPS, buyer bids, PI candidate selection, and OD proxy/commission assumptions.
 - All money/rate calculations run in deterministic Python functions, not in LLM reasoning.
 - Mentor feedback is authoritative. AI suggestions are hypotheses until accepted.
 - The pilot dataset is experimental Bontang -> ECI data with an Aqaba-derived route override.

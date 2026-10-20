@@ -17,8 +17,8 @@ from openpyxl.utils import get_column_letter
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DATASET = ROOT / "data" / "dataset_ready.csv"
-CATALOG = ROOT / "data" / "reference" / "variable_catalog.csv"
+DATASET = ROOT / "data" / "processed" / "dataset_ready.csv"
+CATALOG = ROOT / "data" / "processed" / "variable_catalog.csv"
 OUTPUT = ROOT / "outputs" / "learning" / "iteration_02_variable_map.xlsx"
 
 GROUPS = {

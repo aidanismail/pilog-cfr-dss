@@ -36,10 +36,8 @@ pilog-cfr-dss/
 |   `-- templates/
 |
 |-- data/
-|   |-- raw/                         # Immutable/manual source files; never overwrite
-|   |-- reference/                   # Approved policy/reference configuration only
-|   |-- snapshots/                   # Future versioned normalized Case snapshots; not populated yet
-|   `-- learning/                    # Generated learning artefacts; not source of truth
+|   |-- raw/                         # Workbook sumber/audit mentor; pertahankan isinya
+|   `-- processed/                   # Input siap-baca I3, policy/katalog, dan fixture regresi I2
 |
 |-- src/
 |   `-- pilog_cfr_dss/
@@ -162,11 +160,16 @@ tests/unit/
 tests/integration/
 tests/fixtures/
 data/raw/
-data/snapshots/
-data/learning/
+data/processed/
 outputs/runs/
 outputs/learning/
 outputs/reviews/
 ```
 
 Do not start adding calculation logic until I2-T01 variable mapping is reviewed.
+
+## Penataan data 20 Oktober 2026
+
+Struktur data aktif hanya `raw/` dan `processed/`; folder kosong `cases/`, `reference/`, `learning/`, dan `snapshots/` di bawah `data/` dihapus. CLI, default policy pada orchestrator, tes, dan dokumentasi memakai path `data/processed/`. CSV, JSON, dan workbook tidak ditulis ulang. Input historis I2 tetap diperlukan oleh regresi dan tes lineage I3; generated learning workbook dan snapshot eksekusi tetap berada di `outputs/`, bukan `data/`.
+
+`processed` tidak berarti sumber sudah disahkan untuk transaksi. Teks lineage historis di CSV I3 dipertahankan; `source_reference = data/dataset_ready.csv` menunjuk sumber yang kini dipindah ke `data/processed/dataset_ready.csv`. Rumus/gate dan perbaikan bisnis hasil audit belum diimplementasikan oleh penataan direktori ini.

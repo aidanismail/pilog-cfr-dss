@@ -15,10 +15,10 @@ from pilog_cfr_dss.orchestration.pipeline import evaluate, persist_run
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="PILOG CFR DSS — Simulation Iteration 2")
-    parser.add_argument("--dataset", type=Path, default=ROOT / "data" / "dataset_ready.csv")
-    parser.add_argument("--catalog", type=Path, default=ROOT / "data" / "reference" / "variable_catalog.csv")
-    parser.add_argument("--manual", type=Path, default=ROOT / "data" / "raw" / "iteration_02_pre_offer_simulation.json")
-    parser.add_argument("--vessel-policy", type=Path, default=ROOT / "data" / "reference" / "vessel_classes.json")
+    parser.add_argument("--dataset", type=Path, default=ROOT / "data" / "processed" / "dataset_ready.csv")
+    parser.add_argument("--catalog", type=Path, default=ROOT / "data" / "processed" / "variable_catalog.csv")
+    parser.add_argument("--manual", type=Path, default=ROOT / "data" / "processed" / "iteration_02_pre_offer_simulation.json")
+    parser.add_argument("--vessel-policy", type=Path, default=ROOT / "data" / "processed" / "vessel_classes.json")
     parser.add_argument("--output-root", type=Path, default=ROOT / "outputs" / "runs")
     args = parser.parse_args()
     report = evaluate(args.dataset, args.catalog, args.manual, args.vessel_policy)

@@ -1,0 +1,17 @@
+{
+  "schema_version": "I3.1",
+  "case_id": "I3-UREA-GO-SYNTHETIC",
+  "mode": "simulation",
+  "voyage_dataset": "i3_urea_v1.csv",
+  "market_index": {
+    "argus": {"series": "Urea granular FOB Southeast Asia (series label to verify)", "low": "400", "high": "420", "unit": "USD/MT", "basis": "FOB SEA granular", "observation_date": "2026-10-08", "source_status": "simulation_only_synthetic", "source_reference": "not_extracted_from_Argus_report"},
+    "fertecon": {"series": "FGUAA04", "low": "400", "high": "420", "unit": "USD/MT", "basis": "FOB SEA granular", "observation_date": "2026-10-08", "source_status": "simulation_only_synthetic", "source_reference": "not_extracted_from_Fertecon_report"}
+  },
+  "oe_hps": {"value": "415", "unit": "USD/MT", "source_status": "simulation_only_synthetic", "source_reference": "PI_strategic_market_price_not_provided"},
+  "bids": [
+    {"bid_id": "R1-B1", "round": 1, "buyer_id": "SYNTHETIC_BUYER_A", "alpha_usd_mt": "-10", "source_status": "simulation_only_synthetic"},
+    {"bid_id": "R2-B1", "round": 2, "buyer_id": "SYNTHETIC_BUYER_B", "alpha_usd_mt": "10", "source_status": "simulation_only_synthetic"}
+  ],
+  "pi_selected_bid": {"bid_id": "R2-B1", "source_status": "simulation_only_synthetic", "source_reference": "PI_tender_result_not_provided"},
+  "economic_assumptions": {"od_cost_method": "derived_voyage_proxy", "freight_selling_rate_basis": "i2_dataset_rate_for_simulation", "commission_basis": "gross_freight_revenue_cumulative", "vessel_mode": "owned", "source_status": "simulation_only_assumption"}
+}

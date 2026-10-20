@@ -6,7 +6,7 @@
 
 | Butir | Bukti revisi aktif |
 |---|---|
-| Input | `data/dataset_ready.csv` dan katalog kini 61 variabel; alokasi 46.000 MT lama dihapus dari input aktif dan ditolak bila muncul lagi. Fixture aktif: `data/raw/iteration_02_pre_offer_simulation.json`. |
+| Input | `data/processed/dataset_ready.csv` dan katalog kini 61 variabel; alokasi 46.000 MT lama dihapus dari input aktif dan ditolak bila muncul lagi. Fixture aktif: `data/processed/iteration_02_pre_offer_simulation.json`. |
 | Kontrak | PI Group menjual komoditas; PILOG menyediakan freight. Cargo/DWCC **45.000 MT** untuk hari port, screen, revenue, komisi, dan biaya/MT. |
 | Pilihan | Dua alternatif komersial: FOB baseline harga dan CFR. Dalam CFR, Handysize gagal batas kelas 40.000 DWT; Supramax kasus 58.000 DWT lolos screen DWT awal. Tidak ada klaim availability/DWCC aktual. |
 | Gate 1 | `CFR_ELIGIBLE` meski buyer `not_approached`; sumber/as-of yang ditunda adalah WARN, bukan bypass. Input numerik/unit rusak serta buyer decline tetap punya tes negatif. |
@@ -39,8 +39,8 @@ Input manual dasar kini memiliki enam bukti komersial bernilai `true`, sehingga 
 
 | Bukti | Lokasi | Catatan |
 |---|---|---|
-| Snapshot input | `data/dataset_ready.csv` dan `data/raw/iteration_02_owned_e2e_simulation.json` | CSV 62 baris adalah register satu kasus; Index/Alpha angka demo Iteration 1, bukan harga pasar saat ini. |
-| Kontrak variabel | `data/reference/variable_catalog.csv` | 62/62 baris cocok dengan nomor dan nama variabel CSV. |
+| Snapshot input | `data/processed/dataset_ready.csv` dan `data/raw/iteration_02_owned_e2e_simulation.json` | CSV 62 baris adalah register satu kasus; Index/Alpha angka demo Iteration 1, bukan harga pasar saat ini. |
+| Kontrak variabel | `data/processed/variable_catalog.csv` | 62/62 baris cocok dengan nomor dan nama variabel CSV. |
 | Workbook belajar | `outputs/learning/iteration_02_variable_map.xlsx` | 10 sheet: ringkasan, seluruh variabel, tujuh grup, pertanyaan mentor. Bukan sumber rumus sistem. |
 | Kontrak ekonomi | `.agents/contracts/ITERATION_02_ECONOMICS.md` | Tarif jual dan basis kuantitas telah dikonfirmasi; komisi gross, floor, dan availability masih asumsi simulasi. |
 | Run terbaru | `outputs/runs/i2_20260922T101102273077Z_5a55dc59/` | SHA-256 dataset/katalog/manual, salinan input, formula I2.1, dan rule I2.3 ada di run ini. |

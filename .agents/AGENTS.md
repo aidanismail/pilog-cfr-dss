@@ -4,11 +4,11 @@ Dokumen ini berlaku untuk setiap agent yang bekerja di repository `pilog-cfr-dss
 
 ## Konteks dan batas produk
 
-PILOG CFR DSS adalah Decision Support System (DSS) untuk membantu Business Development/Commercial membandingkan dua alternatif komersial pada satu peluang shipment: **FOB** dan **CFR**. `NO_BID`/`DEFER` adalah tindakan akhir, bukan skenario penjualan tambahan. Untuk revisi simulasi Iterasi 2, pilihan kelas kapal milik/dioperasikan PILOG adalah sub-keputusan di dalam CFR; charter ditunda.
+PILOG CFR DSS adalah Decision Support System (DSS) untuk membantu Business Development/Commercial. **Scope aktif Iterasi 3** ialah menerima kandidat dari tender PI lalu mengevaluasi **GO/NO GO pelaksanaan CFR PILOG**; bukan memilih pemenang tender atau membandingkan profit FOB versus CFR. Model FOB/CFR pra-penawaran di Iterasi 2 adalah **historis**, tetap dipertahankan sebagai regresi. Charter masih di luar simulasi kapal milik I3.
 
 Sistem bersifat **prescriptive DSS**: ia menghitung alternatif, menerapkan constraint/rule yang disetujui, lalu mengusulkan tindakan beserta alasan. Sistem tidak menggantikan Commercial, Operations, Finance, Legal, Procurement, Risk, atau mentor domain.
 
-Saat ini **revisi Simulation Iteration 2 telah diimplementasikan dan diuji, tetapi belum diterima mentor**. Dataset siap pakai adalah contoh numerik, dengan route override **Bontang -> ECI**, bukan transaksi operasional. Cargo/DWCC **45.000 MT dipakai untuk seluruh hitungan**; field 46.000 MT `Voyage expense allocation quantity` pada data Aqaba sudah dikeluarkan dari kontrak aktif. Pemeriksaan provenance/approval domain ditunda, sedangkan cek teknis nilai, satuan, dan rumus tetap berlaku. Baca `.agents/00_READ_CURRENT.md`, `.agents/PLANS_ITERATION_02.md`, dan task aktif sebelum mengubah kode.
+Saat ini **Simulasi Iterasi 3 telah diimplementasikan dan diuji, tetapi belum diterima mentor**. Fixture I3 adalah **urea granular bulk Bontang→ECI sintetis**, bukan transaksi operasional. Cargo/DWCC **45.000 MT dipakai untuk seluruh hitungan**; tidak ada alokasi 46.000 MT. Indeks, OE/HPS, bid, kandidat, dan asumsi ekonomi yang tidak dapat diturunkan dari CSV wajib berlabel `simulation_only`; provenance input ditampilkan, sedangkan persetujuan domain nyata masih menunggu mentor. Baca `.agents/00_READ_CURRENT.md`, `docs/it_3/ITERATION_03_TENDER_DSS_PLAN.md`, dan `.agents/tasks/ITERATION_03.md` sebelum mengubah kode.
 
 ## File yang wajib dibaca sebelum mengubah kode
 
@@ -31,7 +31,7 @@ Saat ini **revisi Simulation Iteration 2 telah diimplementasikan dan diuji, teta
 
 - Semua output harus berstatus `simulation` dan `advisory-only`.
 - Tidak ada write-back, auto-quotation, auto-fixture, auto-RFQ, auto-approval, hedge, transaksi, atau integrasi produksi.
-- Data kosong yang dibutuhkan hitungan, unit/basis tidak jelas, atau constraint teknis yang gagal harus menjadi `WARN`, `HOLD`, atau `BLOCK`; tidak boleh diganti diam-diam dengan nol/true. Freshness/provenance domain belum menjadi Gate simulasi revisi Iterasi 2, tetapi harus tercatat sebagai batas kepercayaan bila tidak tersedia.
+- Data kosong yang dibutuhkan hitungan, unit/basis tidak jelas, atau constraint teknis yang gagal tidak boleh diganti diam-diam dengan nol/true. **Output I3 hanya GO/NO GO; masalah data menjadi `NO_GO / DATA_ISSUE` dan harus dijelaskan sebagai belum aman untuk GO, bukan penolakan buyer.** I2 historis tetap memakai outcome HOLD/DEFER sesuai kontrak lamanya.
 - Jangan memaksakan target 60% FOB / 40% CFR sebagai outcome keputusan.
 - Jangan mengklaim bahwa data eksperimen adalah quote, approval, P&L, atau keputusan produksi.
 
