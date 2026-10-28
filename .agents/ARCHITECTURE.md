@@ -1,5 +1,9 @@
 # Modular Architecture and Directory Workflow
 
+## Target I5 — rencana, bukan arsitektur yang sudah diimplementasikan
+
+Plan docs/it_5/ITERATION_05_PLAN.md memisahkan React SPA → FastAPI/auth/revision → application service/repository → engine I4. PostgreSQL menampung shared canonical state, private volume menyimpan artefak; raw Decimal string dan formatter existing tetap. InteractiveCase saat ini masih object mutable plus IO file, sehingga adapter/persistence perlu diuji, bukan langsung diasumsikan multi-user-safe. Tidak mengganti calculations/decisions/reporting dengan FastAPI atau formula frontend. I4 commit 57257c0 adalah parity/rollback baseline; API/web/DB/infra di direktori plan belum dibuat.
+
 ## Formatter bersama — D-068/D-069
 
 reporting/formatting.py memiliki number_text dan percent_text untuk presentasi Indonesia dua desimal. UI fmt dan report amount mendelegasikan ke formatter yang sama; minimum=True menggunakan CEILING khusus lower bound preskriptif. Tidak mengubah angka di calculations, decisions, source rows, fixed record atau JSON. String tampilan tidak dipakai sebagai input bisnis. I4-BRIEF.8; audit detail/raw tetap presisi penuh. Empat ekspektasi tampilan legacy diperbarui dan ditest ulang, bukan pelonggaran gate.

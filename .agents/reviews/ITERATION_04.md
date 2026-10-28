@@ -8,6 +8,8 @@ Pengguna mengizinkan checkpoint commit/push I4 ke branch dev. Sesudah checkpoint
 
 **Verifikasi release:** 239/239 tes suite penuh lulus dalam 252,554 detik pada 28 Oktober; empat perubahan ekspektasi format D-069 kini tercakup run lengkap bersih. Repo origin diverifikasi PRIVATE. Kandidat commit sekitar 5,8 MB, tanpa file >10 MB atau pola private key/token pada scan teks. Secrets/cache/output lokal dikecualikan, artefak I2 yang sudah tracked dipertahankan. I5 belum diimplementasikan.
 
+**Checkpoint Git:** commit 57257c07299cd74d7172a84d3ec158e5679a7c1e dipush origin/dev dan hash remote sama. Tidak force push/main. Rencana I5 diterbitkan sebagai perubahan dokumentasi terpisah. Pemeriksaan whitespace menemukan satu blank line EOF di tes UI; dibersihkan dalam follow-up dengan AST tes identik, tanpa perubahan perilaku/runtime.
+
 ## Format hasil dua desimal — D-068/D-069, 28 Oktober
 
 K0..K3 selesai teknis. Permintaan pengguna 23,3896 → 23,39 diterapkan pada hasil UI/brief I4. Formatter bersama **number_text** memakai Decimal ROUND_HALF_UP, dua digit tetap, format Indonesia (1.234,56). Percent helper memakai dua digit. Kuantitas, biaya, durasi, freight, FOB/CFR, tabel tender/perbandingan, bukti numerik gate dan analisis pendukung diselaraskan. ID, putaran, tanggal dan versi tidak diubah menjadi desimal.

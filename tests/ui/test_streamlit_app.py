@@ -276,4 +276,3 @@ class StreamlitWorkflowTests(unittest.TestCase):
         self.assertFalse(next(select for select in self.app.selectbox if select.label == "Pilih profil kapal").disabled)
         self.click("Muat contoh GO")
         self.assertTrue(next(select for select in self.app.selectbox if select.label == "Pilih profil kapal").disabled)
-

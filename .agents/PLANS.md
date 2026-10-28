@@ -1,5 +1,9 @@
 # Iteration Plan - PILOG CFR DSS
 
+## Iterasi 5 — rencana porting dan deployment pilot
+
+Acuan terbaru [plan I5](../docs/it_5/ITERATION_05_PLAN.md) dan [task I5](tasks/ITERATION_05.md). I4 diterima dan checkpoint 57257c0 sudah dipush origin/dev, 239/239 tes lulus. I5-P0/P1/P2 selesai sebagai persiapan/rencana; P3 akses/hosting/pengguna menunggu jawaban dan P4 instruksi implementasi belum ada. Batch I5-0..I5-6 mencakup kontrak, persistence, API/auth, React, concurrency, private staging/operasi dan UAT. Belum ada runtime I5 dibangun.
+
 ## Terbaru D-070 — I4 diterima, menuju plan I5
 
 Mentor menerima I4 melalui konfirmasi pengguna. Full suite 239/239 lulus 28 Oktober (252,554 detik); histori empat targeted reruns kini dilengkapi satu run bersih. Checkpoint dev/origin diotorisasi sebelum plan porting/deployment I5. Engine Python/Decimal dipertahankan; keputusan akses/hosting/pengguna ditanyakan di akhir. I5 belum diimplementasikan.

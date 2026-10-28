@@ -1,5 +1,9 @@
 # Decision Log
 
+## D-071 — checkpoint I4 terverifikasi dan rencana I5 disusun
+
+28 Oktober: commit I4 57257c07299cd74d7172a84d3ec158e5679a7c1e sudah dipush origin/dev dan hash remote diverifikasi; repo PRIVATE. 239/239 tes release lulus. Rencana docs/it_5/ITERATION_05_PLAN.md dan task I5 membandingkan jalur host Streamlit sementara dengan port FastAPI + React TS/Vite + PostgreSQL + Compose yang direkomendasikan. Fokus I5: shared state/persistence, revision/idempotency, auth/izin, raw parity, UI dan private deployment. Akses kantor/luar kantor, host/SSO dan pengguna/izin belum dijawab. Hanya plan, tidak menginstal/scaffold/provision/deploy aplikasi. State current I4 accepted dan planned I5; kontrak/history lama dipertahankan. Tidak ada rumus/gate/quote/data berubah. Satu blank line EOF tes UI dibersihkan; AST identik dengan checkpoint, tidak ada perubahan perilaku. Perubahan dokumen rencana disimpan terpisah dari commit implementasi I4.
+
 ## D-070 — mentor menerima I4; checkpoint Git dan perencanaan I5
 
 28 Oktober 2026: pengguna menyatakan mentor sepenuhnya menyetujui Iterasi 4. Catat I4 accepted berdasarkan konfirmasi pengguna, bukan self-rating agent. Pengguna mengizinkan commit/push I4 ke repo Git yang sudah terhubung, kemudian meminta plan porting/deployment sebagai Iterasi 5. Branch aktif dev/origin dev; jangan force push/main atau git init pada vault. I5 baru perencanaan: FastAPI sebagai adapter engine Python existing dan pilihan frontend/deployment dibandingkan, tidak membangun/men-deploy publik sebelum rencana/infrastruktur jelas. Tanyakan kebutuhan akses/hosting/pengguna di akhir pekerjaan. Persetujuan I4 tidak berarti award/transaksi, data pasar aktual, atau approval produksi/MVP penuh. Asumsi freight tidak mendapat penggantian otomatis PI tetap mengikat.

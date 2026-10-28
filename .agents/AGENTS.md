@@ -1,5 +1,9 @@
 # Panduan Agentic Coding - PILOG CFR DSS
 
+## Aktif D-071 — rencana I5, belum implementasi
+
+I4 accepted dan telah dipush ke dev pada 57257c0, full suite 239/239 lulus. Baca docs/it_5/ITERATION_05_PLAN.md dan .agents/tasks/ITERATION_05.md. Pengguna meminta plan porting/deployment, belum execute build. Rekomendasi FastAPI sebagai adapter, React TS/Vite, PostgreSQL dan private Compose; tidak menulis ulang rumus, memindahkan kalkulasi ke JS/PHP, atau memperluas model. Tiga pertanyaan akses/hosting/pilot users di akhir masih menunggu jawaban. Jangan scaffold/install/provision/deploy sampai instruksi implementasi dan informasi yang diperlukan tersedia. I4 tetap baseline/parity/fallback, bukan dibuang karena migrasi. Role resmi/SSO/host belum diasumsikan; auth/ownership backend harus dirancang sebelum akses bersama.
+
 ## Terbaru D-070 — I4 accepted, push diotorisasi
 
 Pengguna mengonfirmasi I4 accepted dan mengizinkan commit/push origin/dev. Larangan push historis sudah digantikan untuk checkpoint ini; repo PRIVATE diverifikasi. 239/239 regresi lengkap lulus 28 Oktober (252,554 detik), menggantikan status targeted reruns lama. Sesudah checkpoint, rencanakan porting/deployment I5 dengan engine/rule tetap. I5 baru plan, belum izin implementasi/deployment publik. Pertanyaan akses/hosting/pengguna diminta di akhir. Jangan git init vault, force push/main, membawa secrets/cache atau menganggap acceptance I4 izin transaksi/MVP penuh.

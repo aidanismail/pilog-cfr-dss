@@ -1,5 +1,9 @@
 # Product Charter - PILOG CFR DSS
 
+## Tahap berikutnya — I5 porting/deployment pilot
+
+Mentor telah menerima I4; kebutuhan baru adalah menggunakan aplikasi dari laptop lain melalui browser. I5 direncanakan untuk akses bersama yang persisten, UI terpisah dan kontrol akses, dengan engine/aturan accepted tetap. Stack yang direkomendasikan FastAPI + React TS/Vite + PostgreSQL + Compose, subject ke infrastruktur/identitas IT. Memindahkan stack bukan syarat dasar akses browser dan bukan bukti skalabilitas otomatis. Prioritas adalah paritas keputusan, pemisahan kasus, versi/jejak dan backup sebelum menambah worker/replica. Dokumen plan I5 memuat pilihan, batch, acceptance dan tiga pertanyaan; belum implementasi atau MVP/produksi penuh.
+
 ## Mentor menerima I4 — D-070, 28 Oktober
 
 I4 diterima penuh menurut konfirmasi pengguna. Kebutuhan berikutnya adalah aplikasi dapat digunakan dari laptop mentor melalui deployment; porting/deployment disebut Iterasi 5. Mulai dari perencanaan akses bersama dan API/UI dengan engine tetap, bukan otomatis tender/award/produksi penuh. Tidak ada penggantian otomatis kerugian freight dari PI. FOB >= OE/HPS adalah floor barang; kontribusi freight PILOG dinilai Gate B.

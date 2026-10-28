@@ -1,5 +1,39 @@
 {
   "schema_version": "1.0.0",
+  "planned_iteration": {
+    "id": "I5",
+    "name": "Porting API/web and private deployment pilot",
+    "status": "planning_pending_answers",
+    "updated_on": "2026-10-28",
+    "plan_file": "docs/it_5/ITERATION_05_PLAN.md",
+    "task_file": ".agents/tasks/ITERATION_05.md",
+    "planning_authorized": true,
+    "execution_authorized": false,
+    "runtime_implemented": false,
+    "baseline_iteration": "I4",
+    "baseline_accepted": true,
+    "baseline_commit": "57257c07299cd74d7172a84d3ec158e5679a7c1e",
+    "baseline_branch": "dev",
+    "baseline_pushed_and_verified": true,
+    "baseline_tests_passed": 239,
+    "recommended_stack": [
+      "Python Decimal engine existing",
+      "FastAPI/Pydantic/Uvicorn",
+      "React TypeScript Vite",
+      "PostgreSQL/SQLAlchemy/Alembic",
+      "Docker Compose/private persistent storage"
+    ],
+    "access_and_hosting_confirmed": false,
+    "roles_confirmed": false,
+    "pilot_concurrency_confirmed": false,
+    "questions_pending_answers": [
+      "Q1 office/VPN or outside office access",
+      "Q2 approved host/cloud/SSO/domain availability",
+      "Q3 pilot users/concurrency and mentor edit permissions"
+    ],
+    "implementation_scope": "preserve I4 financial parity; add persistence, auth, API, frontend and private pilot",
+    "deployment_performed": false
+  },
   "iteration_04_acceptance": {
     "decision_id": "D-070",
     "mentor_decision": {
@@ -20,7 +54,9 @@
       "remote": "origin",
       "repository": "https://github.com/aidanismail/pilog-cfr-dss",
       "visibility": "PRIVATE",
-      "status": "ready_to_commit_and_push"
+      "status": "pushed_and_remote_verified",
+      "commit": "57257c07299cd74d7172a84d3ec158e5679a7c1e",
+      "verified_on": "2026-10-28"
     },
     "next_iteration": {
       "id": "I5",
@@ -475,7 +511,7 @@
       "reported_by": "user",
       "scope": "Iteration 4 advisory logic/UI; not commercial execution approval"
     },
-    "git_staged_committed_or_pushed": false,
+    "git_staged_committed_or_pushed": true,
     "source_preservation": {
       "protected_baseline_file_count": 54,
       "changed": 0,
@@ -697,7 +733,7 @@
       "production_or_mvp_readiness_asserted": false
     }
   },
-  "planned_iteration": {
+  "iteration_04_planning_history": {
     "id": "I4",
     "status": "accepted",
     "updated_on": "2026-10-27",
@@ -875,6 +911,23 @@
     }
   },
   "iteration_history": [
+    {
+      "id": "I4",
+      "status": "accepted",
+      "mentor_decision": {
+        "status": "accepted",
+        "date": "2026-10-28",
+        "reported_by": "user",
+        "scope": "Iteration 4 advisory logic/UI; not commercial execution approval"
+      },
+      "commit": "57257c07299cd74d7172a84d3ec158e5679a7c1e",
+      "branch": "dev",
+      "pushed": true,
+      "release_tests_passed": 239,
+      "review_file": ".agents/reviews/ITERATION_04.md",
+      "engine_version": "I4.1",
+      "report_version": "I4-BRIEF.8"
+    },
     {
       "id": "I3",
       "name": "PI post-tender CFR GO/NO GO simulation",
@@ -1104,10 +1157,11 @@
     }
   ],
   "active_tasks": [
-    "Commit and push accepted I4 to dev/origin; explicitly authorized",
-    "Plan I5 porting/deployment preserving Python engine, not implementation",
-    "Ask access network, hosting and pilot-user requirements at end",
-    "No automatic PI freight-loss compensation, production transaction or MVP approval inferred"
+    "Review I5 plan and answer access/hosting/pilot-user questions",
+    "I4 accepted and pushed at 57257c0 on origin/dev; preserve baseline for parity/rollback",
+    "I5 planning only; no scaffolding, dependency install, DB/container/cloud provisioning or application deployment",
+    "Finalize host/auth/roles after answers, implement only on instruction",
+    "Preserve gate rules, raw precision, fixed quotes and no automatic PI compensation"
   ],
   "update_protocol": {
     "when_to_update": [
@@ -1222,11 +1276,12 @@
     }
   },
   "future_rbac": {
-    "status": "recorded_not_implemented",
+    "status": "I5_planning_identity_and_permission_foundation",
     "tentative_iteration": "I5",
     "requirement": "Different dashboards by authorized role; enforce read/write/approve/export access at service/backend as well as UI",
     "roles_confirmed": false,
     "permission_matrix_confirmed": false,
-    "no_production_access_control_claim": true
+    "no_production_access_control_claim": true,
+    "plan_file": "docs/it_5/ITERATION_05_PLAN.md"
   }
 }

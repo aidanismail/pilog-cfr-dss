@@ -1,5 +1,7 @@
 # PILOG CFR DSS — Simulasi Iterasi 4
 
+**Checkpoint diterima:** I4 sudah dipush ke origin/dev pada [57257c0](https://github.com/aidanismail/pilog-cfr-dss/commit/57257c07299cd74d7172a84d3ec158e5679a7c1e), full suite 239/239 lulus. [Rencana Iterasi 5](docs/it_5/ITERATION_05_PLAN.md) membahas porting FastAPI/React dan private deployment untuk akses mentor. I5 belum dibangun/deploy; source runtime saat ini tetap Streamlit/engine I4. [Task I5](.agents/tasks/ITERATION_05.md) mencatat batch dan pertanyaan akses/hosting/pengguna.
+
 **Status 28 Oktober:** mentor menyetujui Iterasi 4 melalui konfirmasi pengguna. Versi ini menjadi baseline yang diterima untuk logika dan UI advisory. Porting stack/deployment bagi pengguna lain dibahas sebagai Iterasi 5; penerimaan ini tidak mengubah angka, gate atau kewenangan kontrak.
 
 ## Format angka — dua desimal (D-069)

@@ -1,5 +1,7 @@
 # Rencana Iterasi 4 — simulasi tender dan DSS CFR
 
+**Penutupan D-070/D-071:** mentor menerima I4 melalui konfirmasi pengguna. Checkpoint 57257c0 sudah dipush origin/dev; 239/239 tes release lulus. [Plan I5 porting/deployment](../it_5/ITERATION_05_PLAN.md) menjadi pekerjaan berikutnya, belum implementasi. Bagian pending review/acceptance lama di bawah adalah histori; rule/format I4 tetap baseline.
+
 **Terbaru D-069:** format hasil dua desimal §7.16/K0..K3 selesai teknis, I4-BRIEF.8. Sumber/angka internal/quote/gate tetap; minimum impas memakai CEILING dua desimal. Review menjelaskan verifikasi unit/regresi/browser, tiga brief baru dan proteksi 357 file existing. Presisi form input/audit/JSON/raw tetap, bukan angka tampilan untuk menghitung ulang.
 
 **Terbaru D-067, 28 Oktober:** J0..J5/§7.15 selesai teknis. UI satu pemilih kapal di Step 1, sumber harga terpisah, Step 2 kebutuhan bahan bakar/biaya dan empat analisis pendukung ringkas. Footer berulang dihapus. 21 AppTest + 18 integrasi lulus, satu AppTest final copy diulang lulus, browser tiga hasil PASS/0 JS error dan 347 hash terlindungi identik. Rumus/gate/sumber/quote/report backend/histori tetap; tidak membuat run presentasi baru. Review dan README menjelaskan alur terbaru; acceptance manusia tetap terpisah.

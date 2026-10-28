@@ -1,5 +1,13 @@
 # Mulai di sini — PILOG CFR DSS
 
+## Terbaru D-071 — I4 sudah dipush; plan I5 siap direview
+
+I4 accepted oleh mentor melalui pengguna, full suite 239/239 lulus. Checkpoint **57257c07299cd74d7172a84d3ec158e5679a7c1e** sudah dipush dan refs/heads/dev remote diverifikasi sama. Repo PRIVATE. [Plan I5](../docs/it_5/ITERATION_05_PLAN.md) dan task I5 menjadi arah berikutnya.
+
+I5 baru **rencana porting/deployment pilot**, bukan implementasi. Rekomendasi: FastAPI adapter engine Python existing, React/TypeScript/Vite, PostgreSQL dan Compose pada host private yang disetujui. Pertanyaan akses, infrastruktur/SSO dan pilot users/hak edit masih menunggu jawaban; ajukan di akhir sesuai pengguna. Current iteration I4 accepted; planned_iteration I5. Spesifikasi planned I4 lama disimpan sebagai iteration_04_planning_history, bukan kebutuhan aktif yang mengembalikan tarif OD.
+
+Jangan memasang dependency/scaffold API/React/DB/container atau melakukan deploy dari izin plan saja. Tidak mengubah rumus/gate/quote/data atau menghubungkan Fleetra. I4 tetap fallback/parity baseline; report I4-BRIEF.8 dan engine I4.1. Pending mentor historis I4 telah terselesaikan.
+
 ## Terbaru D-070 — I4 accepted; checkpoint dan perencanaan I5
 
 Pengguna menyatakan mentor sepenuhnya menerima I4 dan mengizinkan commit/push ke repo ini. Simpan snapshot I4 di branch dev sebelum membuat rencana I5. Porting/deployment dihitung Iterasi 5, baru tahap perencanaan: gunakan engine Python existing, bandingkan FastAPI + frontend sederhana dan opsi hosting untuk laptop mentor. Tidak memulai migrasi/runtime deployment dari izin plan saja. Pertanyaan akses/hosting/pengguna di akhir sesuai permintaan pengguna. Persetujuan I4 menggantikan pending mentor historis, bukan izin award/transaksi atau bukti produksi/MVP penuh.
