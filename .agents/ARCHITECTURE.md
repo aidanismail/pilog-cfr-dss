@@ -1,8 +1,10 @@
 # Modular Architecture and Directory Workflow
 
-## Target I5 — rencana, bukan arsitektur yang sudah diimplementasikan
+## Target I5 — demo kecil yang masih direncanakan
 
-Plan docs/it_5/ITERATION_05_PLAN.md memisahkan React SPA → FastAPI/auth/revision → application service/repository → engine I4. PostgreSQL menampung shared canonical state, private volume menyimpan artefak; raw Decimal string dan formatter existing tetap. InteractiveCase saat ini masih object mutable plus IO file, sehingga adapter/persistence perlu diuji, bukan langsung diasumsikan multi-user-safe. Tidak mengganti calculations/decisions/reporting dengan FastAPI atau formula frontend. I4 commit 57257c0 adalah parity/rollback baseline; API/web/DB/infra di direktori plan belum dibuat.
+Plan docs/it_5/ITERATION_05_PLAN.md: satu web service menyajikan React build dan FastAPI/auth/revision → application service/repository → engine I4. Managed PostgreSQL menyimpan canonical state serta JSON/MD/audit/snapshot kecil immutable; ZIP dibuat dari bytes tersimpan. Staging file sementara bukan persistence. Object storage/VM/Compose wajib/replica ditunda; Compose opsional lokal. Render + Neon kandidat, bukan layanan aktif. Pages hanya alternatif host frontend dan memerlukan backend terpisah.
+
+1–3 editor dari luar kantor; individual login dengan shared demo workspace merupakan usulan minimal, bukan role korporat yang sudah ditetapkan. Mutable InteractiveCase dihidrasi per operasi dari state/revision, bukan global antar-user. Raw Decimal strings/formatter/gate tetap. I4 57257c0 parity/fallback. API/web/DB/infra belum dibuat; kotretan pengguna dan provider/anggaran belum final.
 
 ## Formatter bersama — D-068/D-069
 

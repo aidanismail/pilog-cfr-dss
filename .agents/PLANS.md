@@ -1,8 +1,8 @@
 # Iteration Plan - PILOG CFR DSS
 
-## Iterasi 5 — rencana porting dan deployment pilot
+## Iterasi 5 — rencana demo untuk 1–3 pengguna
 
-Acuan terbaru [plan I5](../docs/it_5/ITERATION_05_PLAN.md) dan [task I5](tasks/ITERATION_05.md). I4 diterima dan checkpoint 57257c0 sudah dipush origin/dev, 239/239 tes lulus. I5-P0/P1/P2 selesai sebagai persiapan/rencana; P3 akses/hosting/pengguna menunggu jawaban dan P4 instruksi implementasi belum ada. Batch I5-0..I5-6 mencakup kontrak, persistence, API/auth, React, concurrency, private staging/operasi dan UAT. Belum ada runtime I5 dibangun.
+Acuan [plan I5](../docs/it_5/ITERATION_05_PLAN.md) dan [task I5](tasks/ITERATION_05.md), diperbarui D-072. P0..P4 selesai sebagai perencanaan: I4 accepted/pushed, akses luar kantor, belum ada host, Pages dipertimbangkan, 1–3 pengguna perlu create/edit. P5 menggabungkan kotretan yang akan diunggah dan memfinalkan provider/anggaran sebelum instruksi implementasi. Rekomendasi satu layanan React build + FastAPI/engine, managed PostgreSQL; Render + Neon kandidat. Pages opsional hanya frontend. Batch I5-0..6 belum dimulai; tidak ada runtime/deploy I5. I4 57257c0/239 tes tetap baseline.
 
 ## Terbaru D-070 — I4 diterima, menuju plan I5
 

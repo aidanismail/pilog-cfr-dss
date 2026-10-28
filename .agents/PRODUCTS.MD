@@ -1,8 +1,10 @@
 # Product Charter - PILOG CFR DSS
 
-## Tahap berikutnya — I5 porting/deployment pilot
+## Tahap berikutnya — I5 demo web untuk 1–3 pengguna
 
-Mentor telah menerima I4; kebutuhan baru adalah menggunakan aplikasi dari laptop lain melalui browser. I5 direncanakan untuk akses bersama yang persisten, UI terpisah dan kontrol akses, dengan engine/aturan accepted tetap. Stack yang direkomendasikan FastAPI + React TS/Vite + PostgreSQL + Compose, subject ke infrastruktur/identitas IT. Memindahkan stack bukan syarat dasar akses browser dan bukan bukti skalabilitas otomatis. Prioritas adalah paritas keputusan, pemisahan kasus, versi/jejak dan backup sebelum menambah worker/replica. Dokumen plan I5 memuat pilihan, batch, acceptance dan tiga pertanyaan; belum implementasi atau MVP/produksi penuh.
+Kebutuhan terkonfirmasi: aplikasi dapat dibuka dari luar kantor dan membuat/mengubah kasus, tanpa server yang sudah tersedia. Audiens awal mentor dan demonstrasi PIHC. Rekomendasi plan I5 disederhanakan menjadi satu URL HTTPS: React build + FastAPI/engine accepted dalam satu web service, managed PostgreSQL dan akun demo terbatas. Render + Neon kandidat, bukan keputusan provider. GitHub Pages dapat menjadi frontend alternatif, tidak menjalankan Python/backend dan tidak membuat materi internal aman hanya karena repo private.
+
+Pertahankan keputusan/presisi/fixed quote/UX I4; fokus pada akses, persistence, revision, izin dan unduhan. SSO/RBAC enterprise, live auction dan high availability bukan syarat demo kecil. Kotretan pengguna akan diunggah; anggaran/provider belum final. I5 masih plan, belum implementasi/deploy atau produksi/MVP penuh. Memindahkan stack bukan syarat dasar akses browser maupun bukti skalabilitas.
 
 ## Mentor menerima I4 — D-070, 28 Oktober
 

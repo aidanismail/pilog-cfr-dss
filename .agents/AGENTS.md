@@ -1,8 +1,10 @@
 # Panduan Agentic Coding - PILOG CFR DSS
 
-## Aktif D-071 — rencana I5, belum implementasi
+## Aktif D-072 — rencana demo I5, belum implementasi
 
-I4 accepted dan telah dipush ke dev pada 57257c0, full suite 239/239 lulus. Baca docs/it_5/ITERATION_05_PLAN.md dan .agents/tasks/ITERATION_05.md. Pengguna meminta plan porting/deployment, belum execute build. Rekomendasi FastAPI sebagai adapter, React TS/Vite, PostgreSQL dan private Compose; tidak menulis ulang rumus, memindahkan kalkulasi ke JS/PHP, atau memperluas model. Tiga pertanyaan akses/hosting/pilot users di akhir masih menunggu jawaban. Jangan scaffold/install/provision/deploy sampai instruksi implementasi dan informasi yang diperlukan tersedia. I4 tetap baseline/parity/fallback, bukan dibuang karena migrasi. Role resmi/SSO/host belum diasumsikan; auth/ownership backend harus dirancang sebelum akses bersama.
+Baca docs/it_5/ITERATION_05_PLAN.md dan .agents/tasks/ITERATION_05.md. Jawaban pengguna: akses luar kantor, tidak ada infrastruktur tersedia, ide Pages, 1–3 pengguna perlu create/edit. Kotretan system design akan diunggah; jangan mengklaim sudah dibaca. Rekomendasi proporsional: satu web service untuk React build + FastAPI/engine existing, managed PostgreSQL dan akun demo individual. Render + Neon baru kandidat. GitHub Pages hanya frontend statis, bukan host Python; repo tetap private. SSO/role enterprise, VM sendiri, Compose wajib dan object storage terpisah ditunda.
+
+I4 accepted/pushed 57257c0, 239/239 tes release lulus. Jangan mengubah matematika ke JS/PHP atau mengganti gate/model. I5 hanya plan: tanpa scaffold/install/provision/deploy sampai instruksi implementasi. Anggaran free versus always-on kecil dan desain pengguna belum final; tanyakan hanya pertanyaan yang masih perlu di akhir. Auth/izin backend, persistent state, conflict/retry handling tetap dirancang; bukan alasan membangun arsitektur enterprise.
 
 ## Terbaru D-070 — I4 accepted, push diotorisasi
 

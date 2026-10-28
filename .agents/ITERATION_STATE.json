@@ -2,8 +2,8 @@
   "schema_version": "1.0.0",
   "planned_iteration": {
     "id": "I5",
-    "name": "Porting API/web and private deployment pilot",
-    "status": "planning_pending_answers",
+    "name": "Demo web CFR DSS for 1–3 remote editors",
+    "status": "planning_demo_scope_confirmed_pending_sketch_provider_budget",
     "updated_on": "2026-10-28",
     "plan_file": "docs/it_5/ITERATION_05_PLAN.md",
     "task_file": ".agents/tasks/ITERATION_05.md",
@@ -17,22 +17,42 @@
     "baseline_pushed_and_verified": true,
     "baseline_tests_passed": 239,
     "recommended_stack": [
-      "Python Decimal engine existing",
-      "FastAPI/Pydantic/Uvicorn",
+      "Existing Python Decimal engine",
+      "FastAPI/Pydantic/Uvicorn serving API and React build",
       "React TypeScript Vite",
-      "PostgreSQL/SQLAlchemy/Alembic",
-      "Docker Compose/private persistent storage"
+      "Managed PostgreSQL/SQLAlchemy/Alembic",
+      "Single hosted web service; reproducible packaging; optional local Compose"
     ],
     "access_and_hosting_confirmed": false,
     "roles_confirmed": false,
-    "pilot_concurrency_confirmed": false,
+    "pilot_concurrency_confirmed": true,
     "questions_pending_answers": [
-      "Q1 office/VPN or outside office access",
-      "Q2 approved host/cloud/SSO/domain availability",
-      "Q3 pilot users/concurrency and mentor edit permissions"
+      "Must initial hosting be Rp0, or is a small always-on hosting budget available for the PIHC demo?"
     ],
-    "implementation_scope": "preserve I4 financial parity; add persistence, auth, API, frontend and private pilot",
-    "deployment_performed": false
+    "implementation_scope": "preserve I4 parity; minimal remote demo with persistence, invited accounts, API and React; enterprise RBAC deferred",
+    "deployment_performed": false,
+    "access_requirements_confirmed": true,
+    "access_scope": "outside office",
+    "existing_infrastructure_available": false,
+    "github_pages": "considered frontend alternative only; not selected; repository stays private",
+    "pilot_users_estimate": {
+      "min": 1,
+      "max": 3
+    },
+    "case_create_edit_required": true,
+    "enterprise_rbac_required_for_demo": false,
+    "hosting_recommendation": {
+      "topology": "one HTTPS application web service plus managed database",
+      "app_candidate": "Render",
+      "database_candidate": "Neon",
+      "provider_selected": false,
+      "budget_confirmed": false
+    },
+    "system_design_sketch": {
+      "status": "user drafting; pending upload",
+      "read": false
+    },
+    "decision_id": "D-072"
   },
   "iteration_04_acceptance": {
     "decision_id": "D-070",
@@ -1157,11 +1177,11 @@
     }
   ],
   "active_tasks": [
-    "Review I5 plan and answer access/hosting/pilot-user questions",
-    "I4 accepted and pushed at 57257c0 on origin/dev; preserve baseline for parity/rollback",
-    "I5 planning only; no scaffolding, dependency install, DB/container/cloud provisioning or application deployment",
-    "Finalize host/auth/roles after answers, implement only on instruction",
-    "Preserve gate rules, raw precision, fixed quotes and no automatic PI compensation"
+    "Integrate forthcoming user system-design sketch; do not claim it was read",
+    "Finalize demo provider/budget: 1–3 remote editors, no existing infrastructure",
+    "I4 accepted/pushed at 57257c0; preserve baseline for parity and fallback",
+    "I5 plan only: no scaffolding/install/provision/deploy until implementation instruction",
+    "Preserve financial rules, raw precision, fixed quotes and no automatic PI reimbursement"
   ],
   "update_protocol": {
     "when_to_update": [
@@ -1276,12 +1296,13 @@
     }
   },
   "future_rbac": {
-    "status": "I5_planning_identity_and_permission_foundation",
+    "status": "enterprise_dashboards_deferred_beyond_small_I5_demo",
     "tentative_iteration": "I5",
     "requirement": "Different dashboards by authorized role; enforce read/write/approve/export access at service/backend as well as UI",
     "roles_confirmed": false,
     "permission_matrix_confirmed": false,
     "no_production_access_control_claim": true,
-    "plan_file": "docs/it_5/ITERATION_05_PLAN.md"
+    "plan_file": "docs/it_5/ITERATION_05_PLAN.md",
+    "demo_scope": "Proposed invited individual accounts/shared demo workspace; backend authorization required; formal roles not yet confirmed"
   }
 }

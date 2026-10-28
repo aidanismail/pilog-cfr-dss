@@ -1,12 +1,10 @@
 # Mulai di sini — PILOG CFR DSS
 
-## Terbaru D-071 — I4 sudah dipush; plan I5 siap direview
+## Terbaru D-072 — demo I5 untuk 1–3 editor dari luar kantor
 
-I4 accepted oleh mentor melalui pengguna, full suite 239/239 lulus. Checkpoint **57257c07299cd74d7172a84d3ec158e5679a7c1e** sudah dipush dan refs/heads/dev remote diverifikasi sama. Repo PRIVATE. [Plan I5](../docs/it_5/ITERATION_05_PLAN.md) dan task I5 menjadi arah berikutnya.
+Pengguna sudah menjawab: akses dari luar kantor, belum mempunyai server/cloud, mempertimbangkan GitHub Pages, perkiraan 1–3 pengguna dan perlu membuat/mengubah kasus. Kotretan system design akan diunggah; belum dibaca. [Plan I5](../docs/it_5/ITERATION_05_PLAN.md) disederhanakan menjadi demo: satu web service menyajikan React build + FastAPI/engine I4, managed PostgreSQL, akun demo terbatas. Render + Neon kandidat, bukan provider yang sudah dipilih/provision. Pages hanya alternatif frontend statis; backend tetap memerlukan host lain. Jangan menjadikan repo private publik.
 
-I5 baru **rencana porting/deployment pilot**, bukan implementasi. Rekomendasi: FastAPI adapter engine Python existing, React/TypeScript/Vite, PostgreSQL dan Compose pada host private yang disetujui. Pertanyaan akses, infrastruktur/SSO dan pilot users/hak edit masih menunggu jawaban; ajukan di akhir sesuai pengguna. Current iteration I4 accepted; planned_iteration I5. Spesifikasi planned I4 lama disimpan sebagai iteration_04_planning_history, bukan kebutuhan aktif yang mengembalikan tarif OD.
-
-Jangan memasang dependency/scaffold API/React/DB/container atau melakukan deploy dari izin plan saja. Tidak mengubah rumus/gate/quote/data atau menghubungkan Fleetra. I4 tetap fallback/parity baseline; report I4-BRIEF.8 dan engine I4.1. Pending mentor historis I4 telah terselesaikan.
+I4 accepted/pushed pada 57257c0, full suite 239/239 lulus; I4.1/I4-BRIEF.8 tetap baseline/parity/fallback. I5 hanya rencana, belum izin scaffold/install/provision/deploy. Anggaran Rp0 versus layanan kecil always-on dan kotretan masih menunggu; jangan menanyakan ulang tiga jawaban yang sudah diterima. SSO/RBAC enterprise/VM/Compose wajib bukan syarat demo. Persistence, revision, login/izin backend dan pemisahan data tetap perlu. Tidak mengubah rumus/gate/quote/dataset atau menghubungkan Fleetra.
 
 ## Terbaru D-070 — I4 accepted; checkpoint dan perencanaan I5
 
