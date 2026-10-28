@@ -1,6 +1,8 @@
 # Local environments and Python build/cache files
 venv/
 .venv/
+outputs/ui_cases/
+outputs/ui_review/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -9,6 +11,13 @@ __pycache__/
 *.egg-info/
 .coverage
 htmlcov/
+
+# Local credentials and runtime logs
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+*.log
 
 # OS/editor files
 .DS_Store

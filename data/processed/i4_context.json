@@ -1,0 +1,219 @@
+{
+  "schema_version": "I4.1",
+  "mode": "simulation",
+  "case_id": "I4_GO_BONTANG_MUNDRA",
+  "voyage_dataset": "i4_voyage.csv",
+  "evaluation_cutoff": "2026-09-10T12:00:00+00:00",
+  "market_index": {
+    "argus": {
+      "low": "415",
+      "high": "425",
+      "unit": "USD/MT",
+      "basis": "FOB SEA granular",
+      "series": "Granular urea FOB bulk Southeast Asia",
+      "observation_date": "2026-09-10",
+      "source_status": "observed_report",
+      "source_reference": "references\\Market Reports\\Argus Nitrogen (2026-09-10).pdf :: PDF page 2",
+      "sha256": "3df6d375959bbbaef14a96451175496a50da10b5fce0099fe68dfaba600d0029"
+    },
+    "fertecon": {
+      "low": "410.00",
+      "high": "410.00",
+      "unit": "USD/MT",
+      "basis": "FOB SEA granular",
+      "series": "FOB SE Asia urea granular FGUAA04",
+      "observation_date": "2026-09-10",
+      "source_status": "observed_report",
+      "source_reference": "references\\Market Reports\\Fertecon Nitrogen Market Report 2026-09-10.pdf :: PDF page 1",
+      "sha256": "82ae9713cedfba03ac2c0e7831e5334c4eda847be7088e1f7655e26504778702"
+    }
+  },
+  "oe_hps": {
+    "value": "420",
+    "unit": "USD/MT",
+    "source_status": "simulation_only_synthetic",
+    "source_reference": "I4 PI-floor fixture, not PI actual OE/HPS"
+  },
+  "freight_tender": {
+     "value": "24.8957",
+     "unit": "USD/MT",
+     "source_status": "simulation_only_derived_fixed_tender_rate",
+     "source_reference": "I4 deterministic pricing indication; intentionally fixed during input preparation",
+     "formula_version": "I4.1",
+     "pricing_basis": {
+       "basis": "tce_net_voyage_before_running",
+       "quote_commission_basis": "simulation_assumed_net",
+       "target_tce": {
+         "value": "13000",
+         "unit": "USD/day",
+         "source_status": "simulation_only_proxy",
+         "source_reference": "data/raw/Voyage Estimate.xlsx :: AQABA!L38",
+         "note": "Historical hire input reinterpreted ONLY as simulation target TCE; not actual Fearnpulse quote or owned-vessel hire expense"
+       }
+     },
+     "voyage_dataset_sha256": {
+       "i4_voyage.csv": "e9bf7d97b8cf534fb12a99b68f3563036017dc48ff5fac2f60ccb3830945d971"
+     },
+     "note": "Fixed for simulation evaluation only; no commercial approval or buyer acceptance inferred."
+   },
+  "pricing": {
+    "basis": "tce_net_voyage_before_running",
+    "quote_commission_basis": "simulation_assumed_net",
+    "target_tce": {
+      "value": "13000",
+      "unit": "USD/day",
+      "source_status": "simulation_only_proxy",
+      "source_reference": "data/raw/Voyage Estimate.xlsx :: AQABA!L38",
+      "note": "Historical hire input reinterpreted ONLY as simulation target TCE; not actual Fearnpulse quote or owned-vessel hire expense"
+    }
+  },
+  "market_sources": {
+    "fearnpulse": {
+      "url": "https://fearnpulse.com/#2",
+      "capture_date": "2026-10-22T07:56:27.568046+00:00",
+      "status": "dynamic_page_no_verified_numeric_quote",
+      "fallback": "labelled AQABA L38 target-TCE proxy, not a Fearnpulse observation"
+    },
+    "baltic": {
+      "url": "https://www.balticexchange.com/en/data-services/market-information0/dry-services.html",
+      "capture_date": "2026-10-22T07:56:27.568046+00:00",
+      "profile": "Handysize 38 at 12kn; benchmark sea profile only"
+    }
+  },
+  "od_reference": {
+    "value": "29.184092855946123",
+    "unit": "USD/MT",
+    "source_status": "observed_workbook_reference",
+    "source_reference": "docs/it_4/Simulasi Tarif Internasional_Mei 2025.xlsx :: Output - Freight!F12 / Process - Intl!AG65",
+    "sha256": "d346c6dc3dbe3fdd21642daabec7baf67f7bdcbf06aa33d2dc857ff400889464",
+    "quote_basis": "one_way_shipment",
+    "cost_coverage": "includes_return",
+    "loading_port": "Bontang",
+    "discharging_port": "Mundra",
+    "cargo_mt": "30000",
+    "vessel_class": "Handysize",
+    "source_period": "filename May2025; output also labels November2024; retained as supplied, not current-market quote"
+  },
+  "vessel_policy": {
+    "Handysize": [
+      "20000",
+      "40000"
+    ],
+    "Supramax": [
+      "50000",
+      "60000"
+    ]
+  },
+  "bids": [
+    {
+      "bid_id": "R1-B1",
+      "buyer_id": "BUYER-1",
+      "round": 1,
+      "sequence": 1,
+      "alpha_usd_mt": "-10",
+      "status": "active",
+      "source_status": "simulation_only_synthetic"
+    },
+    {
+      "bid_id": "R1-B2",
+      "buyer_id": "BUYER-2",
+      "round": 1,
+      "sequence": 2,
+      "alpha_usd_mt": "-8",
+      "status": "active",
+      "source_status": "simulation_only_synthetic"
+    },
+    {
+      "bid_id": "R1-B3",
+      "buyer_id": "BUYER-3",
+      "round": 1,
+      "sequence": 3,
+      "alpha_usd_mt": "-5",
+      "status": "active",
+      "source_status": "simulation_only_synthetic"
+    },
+    {
+      "bid_id": "R2-B1",
+      "buyer_id": "BUYER-1",
+      "round": 2,
+      "sequence": 1,
+      "alpha_usd_mt": "2",
+      "status": "active",
+      "source_status": "simulation_only_synthetic"
+    },
+    {
+      "bid_id": "R2-B2",
+      "buyer_id": "BUYER-2",
+      "round": 2,
+      "sequence": 2,
+      "alpha_usd_mt": "3",
+      "status": "active",
+      "source_status": "simulation_only_synthetic"
+    },
+    {
+      "bid_id": "R2-B3",
+      "buyer_id": "BUYER-3",
+      "round": 2,
+      "sequence": 3,
+      "alpha_usd_mt": "1",
+      "status": "active",
+      "source_status": "simulation_only_synthetic"
+    },
+    {
+      "bid_id": "R3-B1",
+      "buyer_id": "BUYER-1",
+      "round": 3,
+      "sequence": 1,
+      "alpha_usd_mt": "12",
+      "status": "active",
+      "source_status": "simulation_only_synthetic"
+    },
+    {
+      "bid_id": "R3-B2",
+      "buyer_id": "BUYER-2",
+      "round": 3,
+      "sequence": 2,
+      "alpha_usd_mt": "8",
+      "status": "active",
+      "source_status": "simulation_only_synthetic"
+    },
+    {
+      "bid_id": "R3-B3",
+      "buyer_id": "BUYER-3",
+      "round": 3,
+      "sequence": 3,
+      "alpha_usd_mt": "6",
+      "status": "active",
+      "source_status": "simulation_only_synthetic"
+    }
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "fuel_up",
+      "label": "BBM naik 25%",
+      "fuel_price_increase_fraction": "0.25",
+      "extra_port_days": "0",
+      "source_status": "simulation_only_assumption"
+    },
+    {
+      "scenario_id": "port_delay",
+      "label": "Delay pelabuhan 30 hari",
+      "fuel_price_increase_fraction": "0",
+      "extra_port_days": "30",
+      "source_status": "simulation_only_assumption"
+    }
+  ],
+  "source_manifest": {
+    "data\\raw\\Voyage Estimate.xlsx": "ca5c044ffbc19fe541d296681787cfb56bd6df4682815e4fff2a542513e36b87",
+    "docs\\it_4\\Simulasi Tarif Internasional_Mei 2025.xlsx": "d346c6dc3dbe3fdd21642daabec7baf67f7bdcbf06aa33d2dc857ff400889464",
+    "data\\raw\\Voyage_Estimate_all_sheets_variable_value_units.xlsx": "79cc215cb1d3805fa8283d05cce6ca11498d4175abdb0570497967f047a2285f"
+  },
+  "limitations": [
+    "Urea/Handysize/rute baru adalah kasus simulasi, bukan voyage aktual template.",
+    "Sistem menghitung biaya satu arah; biaya balik berada di luar model. OD tarif satu arah memakai biaya internal termasuk balik.",
+    "3.906 NM acuan workbook; belum diverifikasi independen.",
+    "Port/other dan profil pelabuhan adalah proxy berlabel; bukan tarif/kapal aktual.",
+    "Fearnpulse belum menghasilkan quote numerik terverifikasi; target TCE memakai proxy historis AQABA, bukan angka Fearnpulse.",
+    "Laycan/terminal/DWCC/availability belum dibuktikan oleh screen DWT."
+  ]
+}

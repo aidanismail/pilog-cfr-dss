@@ -1,3 +1,4 @@
-# The DSS engine and its unittest suite use the Python standard library.
-# Only the optional educational workbook builder needs this package.
+# Engine DSS dan unittest hanya menggunakan pustaka standar Python.
+# Dependensi berikut untuk persiapan input dari workbook/PDF dan workbook belajar.
 openpyxl>=3.1,<4
+pypdf>=5,<7

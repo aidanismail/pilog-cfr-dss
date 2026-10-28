@@ -1,14 +1,72 @@
 # Panduan Agentic Coding - PILOG CFR DSS
 
+## Terbaru D-070 — I4 accepted, push diotorisasi
+
+Pengguna mengonfirmasi I4 accepted dan mengizinkan commit/push origin/dev. Larangan push historis sudah digantikan untuk checkpoint ini; repo PRIVATE diverifikasi. 239/239 regresi lengkap lulus 28 Oktober (252,554 detik), menggantikan status targeted reruns lama. Sesudah checkpoint, rencanakan porting/deployment I5 dengan engine/rule tetap. I5 baru plan, belum izin implementasi/deployment publik. Pertanyaan akses/hosting/pengguna diminta di akhir. Jangan git init vault, force push/main, membawa secrets/cache atau menganggap acceptance I4 izin transaksi/MVP penuh.
+
+## Terbaru D-068/D-069 — aturan format angka
+
+Gunakan reporting/formatting.py::number_text untuk output UI/brief I4: format Indonesia dua desimal HALF_UP. Minimum preskriptif impas/recovery memakai minimum=True (CEILING) agar tidak kurang dari kebutuhan. ID/putaran/tanggal/versi tetap; input/raw/JSON/audit detail mempertahankan presisi. Jangan memakai string tampilan untuk matematika atau mereprice fixed quote. I4-BRIEF.8 menandai format baru, formula/gate tetap I4.1. K0..K3 selesai; bukti regresi dengan targeted reruns/browser dan raw-parity tiga run ada di review. Jangan mengklaim satu run suite 239/239: empat assertion format lama diperbarui dan diulang lulus setelah run lengkap 235 pass.
+
+## Terbaru D-066/D-067 — kejelasan UI selesai
+
+Plan §7.15/task J/review mengendalikan tampilan terbaru: pemilih tunggal di Step 1, Step 2 hanya hasil dari shared case, sumber harga terpisah, nilai efektif manual/reforecast dan copy ringkas. `ui/presentation.py` hanya memproyeksikan effective values/provenance; tidak memiliki rumus. Empat analisis memakai report dan helper reporting existing, tidak mengklaim probabilitas/hedging/operasi lengkap. Jangan mengembalikan footer yang diminta pengguna dihapus, kolom Pemakaian ambigu atau pemilih kedua. Tanggal/source/manual/proxy/unit/error penting dipertahankan. 21 AppTest + 18 integrasi + browser lulus; 347 protected hash identik. Rumus/gate/quote/report backend tetap, run D-065 tetap acuan. Server uji berhenti dan sesi pengguna terpisah tidak disentuh.
+
+## Terbaru D-064/D-065 — penguatan commercial review
+
+Acuan plan §7.14, task H dan review I4. Reforecast biaya harus membuat salinan dengan quote/price_id/fixed_at/bid/base rows tetap, record COST-FORECAST.1 terikat hash dan alasan/waktu. Jangan otomatis mengganti freight agar GO. Penawaran manual berbeda dari indikasi memerlukan alasan; revisi penawaran baru melepas bid lama dan menerapkan biaya terbaru sebagai base baru. Hanya calculations memiliki matematika kontribusi/driver/impas/per hari.
+
+Kasus baru memakai I4-COMMERCIAL.1 dan report I4-BRIEF.7. Tiga contoh GO/floor NO GO/economic NO GO disediakan. GO berarti ekonomi baseline lolos, bukan bukti penerimaan pasar/award/kesiapan berlayar. Perbandingan empat profil pada freight sama tidak memilih kapal otomatis. Stress gabungan bukan veto baru; Gate A/B, threshold >=0, komisi nol dan OD distance-only tetap. Histori/sumber tidak ditulis ulang. RBAC tetap tahap mendatang dan server tes temporer harus berhenti setelah tes. Baca review untuk bukti final dan batas, bukan menghitung ulang rating lama sebagai acceptance.
+
+## Terbaru D-062/D-063 — revisi G selesai teknis
+
+Plan §7.13/task G/review mengikat implementasi komisi 0% (ketiga jenis), OD hanya jarak NM (Input - OD Intl!H11), tabel/editor per putaran dengan FOB/CFR read-only engine, fuel/diesel lengkap, copy ringkas dan logo aset public asli. I4-INPUT.2/OD-DISTANCE.1/I4-BRIEF.6; 200 tes, dua tes UI final ulang, browser smoke dan 108 assertion independen lulus. Gate A/B dan fungsi hitungan inti tetap. Jangan mengembalikan tarif OD ke kasus baru atau mengubah fixed/histori agar tampak nol komisi; legacy replay tetap mendukung input aslinya. RBAC dashboard per peran untuk iterasi mendatang (sementara I5), hak/role belum ditentukan. G0..G5 selesai teknis, acceptance pengguna/MVP belum dinyatakan. Streamlit harus tetap berhenti setelah kerja. Detail D-061/D-060 di bawah adalah histori.
+
+## Terbaru D-059/D-060 — revisi sumber/UI selesai teknis
+
+Pengguna memberi execute 27 Oktober, menerima seluruh profil workbook sampai Supramax dan 1-year T/C sebagai target TCE. Empat profil Sheet1/AQABA/Sby/Godau aktif; kelompok Supramax serta Handymax/lebih kecil, klasifikasi fisik Handysize/Handymax/Supramax. Godau memakai proxy pasar Handysize 38k yang terlihat. **F0..F6 selesai: 180 tes, browser smoke, 82 assertion independen dua kasus.** Baca plan **§7.12/§7.12.10**, task/review/current-reader. Sumber fisik workbook, pasar Fearnpulse; Baltic hanya pengetahuan/histori. Jangan memasukkan Baltic ke kasus aktif atau menyebut tariff TC sebagai quote voyage/HPP/hire tambahan. Timestamp source/fetch/calc/fix berbeda, jangan backfill legacy unknown. Rule tambahan TENDER-CLOCK.1: putaran 180 detik tetap, receipt `[open,close)`, bid baru tidak reset; last valid timestamp mengalahkan sequence yang diedit. Legacy tanpa clock tetap replay. I4-BRIEF.5/PRICE.1 baru, formula/gate dasar tetap. Tidak ada transaksi/RBAC/MVP atau auto-award yang diizinkan. Larangan execute D-058 di bawah merupakan histori yang sudah digantikan D-059.
+
+## Terbaru D-056/D-057 — UI lokal selesai teknis
+
+Pengguna menerima pilihan manual profil dan memberi EXECUTE seluruh UI, mengikuti biru/putih `Desktop - 1.png` dengan tampilan sederhana/tegas. I4-U0..U5 selesai teknis: Streamlit 1.66.1, workflow service, persiapan voyage tanpa bid, fixed freight, editor tender/risiko, brief lima bagian, draft/unduhan dan pengujian. **151/151 tes lulus**, smoke browser GO/NO GO dan unduhan MD/JSON/ZIP lulus. Baca plan **§7.11**, task, review dan README. Rumus, rule, workbook/OD dan histori tetap; hanya validator/orchestration existing direfactor agar persiapan berbagi engine. Handysize siap; Supramax tidak dipalsukan menjadi profil lengkap/optimizer. Catatan lama tanpa UI/perencanaan belum execute adalah histori yang digantikan D-056. UI tetap internal/single-user lokal; bukan e-auction buyer, transaksi, MVP atau acceptance mentor. Jangan memakai field net_revenue_usd sebagai neto setelah voyage.
+
+## Revisi terkini — D-053, stakeholder brief I4-BRIEF.4
+
+I4-D1..D4 selesai teknis, 123 tes lulus. Plan §7.10 menggantikan layout/copy lama §7.9. Gross PI/PILOG dipisah, biaya/komisi/neto PILOG tampil; neto PI null, OE/HPS bukan HPP. Hasil neto setelah voyage = contribution_usd, **bukan net_revenue_usd** (setelah komisi saja). Hanya calculations menghitung nominal; commercial_financials additive dengan versi I4-FINANCIALS.1. Lima bagian satu brief, bukan lima output baru. Mode simulation/advisory/source/human status tetap pada JSON/audit; brief memakai bahasa estimasi langsung dan satu catatan basis/kewenangan, tanpa banner jargon. Data/rule/gate/fixed freight/OD/histori utuh. UI belum diimplementasikan. Baca current-reader/task/review terbaru; rating agent bukan approval mentor. Riwayat C/R di bawah bukan kontrak layout aktif.
+
+## Pembaruan penguatan brief — D-051, 23 Oktober 2026
+
+I4-C1..C5 selesai teknis: I4-BRIEF.3, 109/109 tes, dua run final dan self-review pada review I4. Baca current-reader/task/state sebelum memakai histori R/baseline di bawah. Headline, cause-specific layout, actions/deliverable/trigger dan metadata run ditambahkan; tidak mengubah rumus/gate/dataset/harga tetap/OD. UI tetap dilarang dalam scope ini. Rating subjektif GO 9/10, NO GO 9,5/10 bukan approval atau skor otomatis checklist; penerimaan mentor belum tercatat.
+
+## Revisi hasil I4 — selesai teknis 23 Oktober 2026
+
+D-048 mengizinkan execute revisi; I4-R1..R7 selesai, **91/91 tes lulus**. Baca `.agents/00_READ_CURRENT.md`, plan §7–9, task dan review I4. Formula/rule I4.1 tetap; brief I4-BRIEF.2 dan metrics I4-METRICS.1.
+
+**Semua output internal PI/PILOG**, bukan materi/portal buyer. Buyer melihat freight, bukan OE/HPS, gap **FOB−OE/HPS**, alpha minimum, bid buyer lain atau ekonomi PILOG. Label bukan implementasi kontrol akses produksi.
+
+Freight tampil per baris latest/all-bid. Fixture default kini menyimpan harga tetap turunan pricing; perubahan biaya/target TCE tidak otomatis mengubahnya. Legacy input tanpa fixed record tetap jalur indikasi dengan label jujur. Tambahan metrik/actions tidak mengubah gate/threshold. Sumber, OD dan histori dipertahankan. 67 tes adalah baseline lama; bukti revisi di review, bukan klaim acceptance mentor/MVP.
+
+## Otorisasi terbaru — D-045, 22 Oktober 2026
+
+**Pengguna memberi EXECUTE untuk seluruh I4-1 sampai I4-7 setelah pemeriksaan akhir rencana selesai, tanpa menunggu pengguna membaca ulang.** Pemeriksaan dokumentasi lulus; implementasi/tes simulasi lokal diizinkan. Batas lama menunggu execute di catatan sebelumnya adalah histori yang telah dipenuhi. Tidak ada izin transaksi, auto-award, integrasi produksi atau MVP; OD/workbook sumber dan histori I3 dipertahankan. Acuan tetap `docs/it_4/ITERATION_04_PLAN.md` dan task turunannya.
+
 Dokumen ini berlaku untuk setiap agent yang bekerja di repository `pilog-cfr-dss`.
+
+## Batas aktif — I4 diimplementasikan, menunggu review mentor
+
+Per 22 Oktober 2026, **acuan utama I4 adalah `docs/it_4/ITERATION_04_PLAN.md`**; task `.agents/tasks/ITERATION_04.md` menurunkan rencana, bukan aturan alternatif. Kasus: urea granular bulk, kapal milik, 30.000 MT, Handysize, Bontang → Mundra/WCI, **satu arah laden-only**. Liquid/gas round voyage adalah konteks mentor, bukan scope tanker/gas I4.
+
+**D-042: tarif OD berlaku untuk satu pengiriman satu arah; rumus biaya internalnya sengaja memasukkan perjalanan balik.** Jangan menyebut tarif OD sebagai tarif round voyage/dua pengiriman. OD read-only dan tidak dibagi dua/direbase; jelaskan perbedaan cakupan biaya sistem versus OD, bukan selisih sebagai margin/penghematan. D-043 mengizinkan perbedaan tanggal/tahun sumber untuk simulasi tanpa hard gate freshness/provenance, termasuk tanggal dua laporan indeks. Unit, basis produk/FOB, angka finite dan technical checks tetap wajib; bid aktif mengikuti cutoff kasus, bukan tanggal komputer. D-044 mengikat plan/task dan acceptance criteria.
+
+Audit pengguna selesai dan izin D-045 telah dilaksanakan. **I4 diimplementasikan; 67/67 tes lulus**, termasuk 38 regresi I2/I3. Baca `.agents/reviews/ITERATION_04.md` dan task I4 untuk bukti. Input numerik/snapshot tersedia; 3.906 NM tetap acuan workbook, bukan aktual terverifikasi. Workbook sumber/OD, I2/I3, PNG/Draw.io/deck tidak diubah. Target TCE memakai proxy AQABA berlabel karena quote Fearnpulse belum terverifikasi. D-046 mencatat kontrak pricing engineering; bukan approval komersial.
 
 ## Konteks dan batas produk
 
-PILOG CFR DSS adalah Decision Support System (DSS) untuk membantu Business Development/Commercial. **Scope aktif Iterasi 3** ialah menerima kandidat dari tender PI lalu mengevaluasi **GO/NO GO pelaksanaan CFR PILOG**; bukan memilih pemenang tender atau membandingkan profit FOB versus CFR. Model FOB/CFR pra-penawaran di Iterasi 2 adalah **historis**, tetap dipertahankan sebagai regresi. Charter masih di luar simulasi kapal milik I3.
+PILOG CFR DSS adalah Decision Support System (DSS) untuk membantu Business Development/Commercial. **Scope aktif I4** ialah persiapan freight, perhitungan seluruh bid/ranking kandidat tender PI, lalu **GO/NO GO pelaksanaan CFR PILOG**. Gate A = last active + FOB >= OE/HPS; Gate B = gross-DWT screen + kontribusi baseline >= 0. Stress negatif dijelaskan, tidak veto baseline lolos. Tidak menetapkan award atau membandingkan profit FOB versus CFR. Tidak perlu hardcoded PI winner ID. Model FOB/CFR pra-penawaran di Iterasi 2 adalah **historis**, tetap dipertahankan sebagai regresi. Charter masih di luar simulasi kapal milik I3.
 
 Sistem bersifat **prescriptive DSS**: ia menghitung alternatif, menerapkan constraint/rule yang disetujui, lalu mengusulkan tindakan beserta alasan. Sistem tidak menggantikan Commercial, Operations, Finance, Legal, Procurement, Risk, atau mentor domain.
 
-Saat ini **Simulasi Iterasi 3 telah diimplementasikan dan diuji, tetapi belum diterima mentor**. Fixture I3 adalah **urea granular bulk Bontang→ECI sintetis**, bukan transaksi operasional. Cargo/DWCC **45.000 MT dipakai untuk seluruh hitungan**; tidak ada alokasi 46.000 MT. Indeks, OE/HPS, bid, kandidat, dan asumsi ekonomi yang tidak dapat diturunkan dari CSV wajib berlabel `simulation_only`; provenance input ditampilkan, sedangkan persetujuan domain nyata masih menunggu mentor. Baca `.agents/00_READ_CURRENT.md`, `docs/it_3/ITERATION_03_TENDER_DSS_PLAN.md`, dan `.agents/tasks/ITERATION_03.md` sebelum mengubah kode.
+**Konteks historis, bukan input aktif I4:** Simulasi Iterasi 3 telah diimplementasikan dan diuji, tetapi belum diterima mentor. Fixture I3 adalah **urea granular bulk Bontang→ECI sintetis**, bukan transaksi operasional. Cargo/DWCC **45.000 MT dipakai untuk seluruh hitungan**; tidak ada alokasi 46.000 MT. Indeks, OE/HPS, bid, kandidat, dan asumsi ekonomi yang tidak dapat diturunkan dari CSV wajib berlabel `simulation_only`; provenance input ditampilkan, sedangkan persetujuan domain nyata masih menunggu mentor. Untuk pekerjaan aktif, baca `.agents/00_READ_CURRENT.md`, `docs/it_4/ITERATION_04_PLAN.md`, `.agents/tasks/ITERATION_04.md` dan `.agents/reviews/ITERATION_04.md`; kontrak I3 hanya untuk regresi.
 
 ## File yang wajib dibaca sebelum mengubah kode
 
@@ -31,7 +89,7 @@ Saat ini **Simulasi Iterasi 3 telah diimplementasikan dan diuji, tetapi belum di
 
 - Semua output harus berstatus `simulation` dan `advisory-only`.
 - Tidak ada write-back, auto-quotation, auto-fixture, auto-RFQ, auto-approval, hedge, transaksi, atau integrasi produksi.
-- Data kosong yang dibutuhkan hitungan, unit/basis tidak jelas, atau constraint teknis yang gagal tidak boleh diganti diam-diam dengan nol/true. **Output I3 hanya GO/NO GO; masalah data menjadi `NO_GO / DATA_ISSUE` dan harus dijelaskan sebagai belum aman untuk GO, bukan penolakan buyer.** I2 historis tetap memakai outcome HOLD/DEFER sesuai kontrak lamanya.
+- Data kosong yang dibutuhkan hitungan, unit/basis tidak jelas, atau constraint teknis yang gagal tidak boleh diganti diam-diam dengan nol/true. **Output I3/I4 hanya GO/NO GO; masalah data menjadi `NO_GO / DATA_ISSUE` dan harus dijelaskan sebagai belum aman untuk GO, bukan penolakan buyer.** I2 historis tetap memakai outcome HOLD/DEFER sesuai kontrak lamanya.
 - Jangan memaksakan target 60% FOB / 40% CFR sebagai outcome keputusan.
 - Jangan mengklaim bahwa data eksperimen adalah quote, approval, P&L, atau keputusan produksi.
 

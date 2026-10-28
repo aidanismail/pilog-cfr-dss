@@ -1,0 +1,27 @@
+key,value,unit,source_status,source_reference,note,role
+cargo_description,UREA GRANULAR BULK,text,confirmed_simulation_case,Mentor/user I4 plan and D-040/D-042,,input
+cargo_category,dry_bulk,text,confirmed_simulation_case,Mentor/user I4 plan and D-040/D-042,,input
+loading_port,Bontang,text,confirmed_simulation_case,Mentor/user I4 plan and D-040/D-042,,input
+discharging_port,Mundra,text,confirmed_simulation_case,Mentor/user I4 plan and D-040/D-042,,input
+vessel_class,Handysize,text,confirmed_simulation_case,Mentor/user I4 plan and D-040/D-042,,input
+vessel_mode,owned,text,confirmed_simulation_case,Mentor/user I4 plan and D-040/D-042,,input
+voyage_boundary,laden_only,text,confirmed_simulation_case,Mentor/user I4 plan and D-040/D-042,,input
+cargo_mt,30000,MT,confirmed_simulation_case,Mentor/user I4 plan and D-040/D-042,,input
+distance_nm,3906,NM,workbook_reference,docs/it_4/Simulasi Tarif Internasional_Mei 2025.xlsx :: Input - OD Intl!H11,"One-way reference, not independently verified navigation distance",input
+dwt_mt,38200,MT,benchmark_assumption,https://www.balticexchange.com/en/data-services/market-information0/dry-services.html :: Handysize 38 at 12 knots,Sea consumption includes ME+AE; not actual PILOG vessel. IFO/MDO prices below are proxies.,input
+speed_knots,12,knot,benchmark_assumption,https://www.balticexchange.com/en/data-services/market-information0/dry-services.html :: Handysize 38 at 12 knots,Sea consumption includes ME+AE; not actual PILOG vessel. IFO/MDO prices below are proxies.,input
+sea_fo_mt_day,18,MT/day,benchmark_assumption,https://www.balticexchange.com/en/data-services/market-information0/dry-services.html :: Handysize 38 at 12 knots,Sea consumption includes ME+AE; not actual PILOG vessel. IFO/MDO prices below are proxies.,input
+sea_do_mt_day,0.1,MT/day,benchmark_assumption,https://www.balticexchange.com/en/data-services/market-information0/dry-services.html :: Handysize 38 at 12 knots,Sea consumption includes ME+AE; not actual PILOG vessel. IFO/MDO prices below are proxies.,input
+bunkers_allowance_mt,1800,MT,inherited_simulation_proxy,data/raw/Voyage Estimate.xlsx :: AQABA!D18,Historical template input carried to new case; not current Handysize/route observation,reference_unused_gross_dwt_only
+constants_allowance_mt,500,MT,inherited_simulation_proxy,data/raw/Voyage Estimate.xlsx :: AQABA!D19,Historical template input carried to new case; not current Handysize/route observation,reference_unused_gross_dwt_only
+fo_price_usd_mt,568,USD/MT,inherited_simulation_proxy,data/raw/Voyage Estimate.xlsx :: AQABA!G24,Historical template input carried to new case; not current Handysize/route observation,input
+do_price_usd_mt,701,USD/MT,inherited_simulation_proxy,data/raw/Voyage Estimate.xlsx :: AQABA!G28,Historical template input carried to new case; not current Handysize/route observation,input
+running_usd_day,5612,USD/day,inherited_simulation_proxy,data/raw/Voyage Estimate.xlsx :: AQABA!F44,Historical template input carried to new case; not current Handysize/route observation,input
+port_do_mt_day,3.36,MT/day,derived_simulation_proxy,data/raw/Voyage Estimate.xlsx :: AQABA!J6 = 0.7*0.1*2000*24/1000,Port engine proxy separate from Baltic sea-only benchmark; not a full Baltic vessel profile,input
+loading_rate_mt_day,5000,MT/day,inherited_simulation_proxy,data/raw/Voyage Estimate.xlsx :: Sby!D12 embedded divisor: =D20/5000,Reviewed Sby structure carried to synthetic route; not actual terminal rate,input
+discharge_rate_mt_day,5000,MT/day,inherited_simulation_proxy,data/raw/Voyage Estimate.xlsx :: Sby!F12 embedded divisor: =D20/5000,Reviewed Sby structure carried to synthetic route; not actual terminal rate,input
+waiting_days,0,day,simulation_only_assumption,I4 fixture,Explicit baseline no extra waiting; stress adds port delay,input
+port_other_total_usd,200000,USD,simulation_only_assumption,data/raw/Voyage Estimate.xlsx :: AQABA!J33; mentor aggregate interpretation from Sby audit,"Use once as TOTAL port/other for this simulation, excludes bunker/running. Do not copy Sby 250000 additionally or claim actual Mundra tariff.",input
+freight_commission_fraction,0.025,fraction,simulation_only_assumption,data/raw/Voyage Estimate.xlsx :: AQABA!H41 embedded percentage: =F41*2.5%,Percentage extracted from formula; NOT cached USD amount. Cumulative gross-revenue basis is a simulation assumption; not verified contract.,input
+broker_fraction,0.0125,fraction,simulation_only_assumption,data/raw/Voyage Estimate.xlsx :: AQABA!L46 embedded percentage: =L42*1.25%*B41,Percentage extracted from formula; NOT cached USD amount. Cumulative gross-revenue basis is a simulation assumption; not verified contract.,input
+additional_commission_fraction,0.025,fraction,simulation_only_assumption,data/raw/Voyage Estimate.xlsx :: AQABA!L48 embedded percentage: =L42*2.5%*B41,Percentage extracted from formula; NOT cached USD amount. Cumulative gross-revenue basis is a simulation assumption; not verified contract.,input

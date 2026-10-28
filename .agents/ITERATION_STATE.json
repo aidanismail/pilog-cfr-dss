@@ -1,5 +1,422 @@
 {
   "schema_version": "1.0.0",
+  "iteration_04_acceptance": {
+    "decision_id": "D-070",
+    "mentor_decision": {
+      "status": "accepted",
+      "date": "2026-10-28",
+      "reported_by": "user",
+      "scope": "Iteration 4 advisory logic/UI; not commercial execution approval"
+    },
+    "release_tests": {
+      "count": 239,
+      "passed": 239,
+      "seconds": 252.554,
+      "date": "2026-10-28"
+    },
+    "git_checkpoint": {
+      "authorized": true,
+      "branch": "dev",
+      "remote": "origin",
+      "repository": "https://github.com/aidanismail/pilog-cfr-dss",
+      "visibility": "PRIVATE",
+      "status": "ready_to_commit_and_push"
+    },
+    "next_iteration": {
+      "id": "I5",
+      "scope": "porting and deployment plan only",
+      "implementation_authorized": false
+    }
+  },
+  "two_decimal_presentation_revision": {
+    "decision_id": "D-068",
+    "completion_decision_id": "D-069",
+    "updated_on": "2026-10-28",
+    "status": "implemented_pending_user_review",
+    "plan_section": "7.16",
+    "completed_tasks": [
+      "I4-K0",
+      "I4-K1",
+      "I4-K2",
+      "I4-K3"
+    ],
+    "remaining_tasks": [],
+    "presentation": {
+      "locale": "id-ID",
+      "decimal_places": 2,
+      "rounding": "ROUND_HALF_UP",
+      "minimum_rounding": "ROUND_CEILING",
+      "minimum_rate_change_is_presentation_only": true,
+      "ids_rounds_dates_versions_not_decimalized": true,
+      "raw_inputs_json_snapshots_and_decimal_precision_unchanged": true
+    },
+    "report_version": "I4-BRIEF.8",
+    "formula_rule_version": "I4.1",
+    "final_runs": [
+      "outputs/runs/i4_20261028T041553450693Z_24f54cfe",
+      "outputs/runs/i4_20261028T041553477775Z_f99f9273",
+      "outputs/runs/i4_20261028T041553508858Z_2554d7fc"
+    ],
+    "verification": {
+      "new_formatter_unit_tests_passed": 6,
+      "full_suite_tests_run": 239,
+      "full_suite_passed_in_initial_run": 235,
+      "initial_format_assertion_failures": 4,
+      "updated_tests_rerun_passed": 4,
+      "updated_tests_rerun_seconds": 2.441,
+      "runtime_changed_after_full_suite": false,
+      "full_suite_repeated_after_expectation_updates": false,
+      "current_results_status": "verified_with_targeted_reruns",
+      "browser_smoke": "PASS",
+      "javascript_errors": 0,
+      "actions": [
+        "GO",
+        "NO_GO",
+        "NO_GO"
+      ],
+      "raw_result_groups_and_fixed_quotes_identical_to_previous_three_snapshots": true,
+      "protected_existing_files": 357,
+      "protected_changed": 0,
+      "additional_run_files": 30
+    },
+    "agent_test_servers_stopped": true,
+    "user_streamlit_untouched": true,
+    "human_acceptance": null,
+    "business_thresholds_or_prices_changed": false
+  },
+  "ui_source_clarity_revision": {
+    "decision_id": "D-066",
+    "completion_decision_id": "D-067",
+    "updated_on": "2026-10-28",
+    "status": "implemented_pending_user_review",
+    "plan_section": "7.15",
+    "completed_tasks": [
+      "I4-J0",
+      "I4-J1",
+      "I4-J2",
+      "I4-J3",
+      "I4-J4",
+      "I4-J5"
+    ],
+    "remaining_tasks": [],
+    "single_profile_selector_step": 1,
+    "step_2_uses_shared_case": true,
+    "source_views": [
+      "shipment/physical workbook profile and OD distance",
+      "class-specific daily target",
+      "active bunker prices and reference Singapore series",
+      "FOB SEA commodity index"
+    ],
+    "manual_and_reforecast_values_show_active_provenance": true,
+    "ambiguous_usage_column_removed": true,
+    "supporting_analysis": {
+      "ui_group": "Analisis pendukung",
+      "sections": [
+        "Exposure",
+        "Risiko",
+        "Dampak logistik",
+        "Konsekuensi harga"
+      ],
+      "scope": "existing model outputs only; advanced exposure/probability/hedging/operational readiness not built"
+    },
+    "repeated_footer_removed": true,
+    "backend_formulas_rules_prices_and_reporters_changed": false,
+    "new_source_fetches": 0,
+    "new_presentation_runs": 0,
+    "verification": {
+      "ui_apptests_passed": 21,
+      "commercial_integration_tests_passed": 18,
+      "related_unique_tests_passed": 39,
+      "final_copy_apptest_rerun_passed": 1,
+      "browser_smoke": "PASS",
+      "browser_actions": [
+        "GO",
+        "NO_GO",
+        "NO_GO"
+      ],
+      "javascript_errors": 0,
+      "narrow_viewport_width_px": 390,
+      "protected_files_compared": 347,
+      "protected_files_changed": 0,
+      "protected_files_missing": 0,
+      "visual_review_complete": true,
+      "full_suite_repeated": false,
+      "prior_full_suite_baseline": 227
+    },
+    "agent_test_servers_stopped": true,
+    "user_streamlit_untouched": true,
+    "human_acceptance": null,
+    "mvp_or_production_acceptance_asserted": false
+  },
+  "commercial_review_revision": {
+    "decision_id": "D-064",
+    "completion_decision_id": "D-065",
+    "updated_on": "2026-10-28",
+    "status": "implemented_pending_user_review",
+    "plan_section": "7.14",
+    "completed_tasks": [
+      "I4-H0",
+      "I4-H1",
+      "I4-H2",
+      "I4-H3",
+      "I4-H4",
+      "I4-H5",
+      "I4-H6"
+    ],
+    "remaining_tasks": [],
+    "execution_authorized": true,
+    "versions": {
+      "commercial": "I4-COMMERCIAL.1",
+      "cost_forecast": "COST-FORECAST.1",
+      "diagnostics": "COMMERCIAL-REVIEW.1",
+      "report": "I4-BRIEF.7",
+      "formula_rule": "I4.1"
+    },
+    "capabilities": [
+      "Immutable fixed-quote cost reforecast bound to original rows and quote",
+      "Explicit manual offer with reason; new offer and tender require revision",
+      "Same-freight profile comparison with total and daily contribution",
+      "Cause-specific economic NO GO and rounded-safe break-even options",
+      "Combined bunker and delay scenario; no stress veto"
+    ],
+    "business_rules_or_thresholds_changed": false,
+    "default_cli_cases": [
+      "go",
+      "no-go-floor",
+      "no-go-economics"
+    ],
+    "final_runs": [
+      "outputs/runs/i4_20261028T021809595351Z_bfa7fe02",
+      "outputs/runs/i4_20261028T021809662091Z_eb22eb09",
+      "outputs/runs/i4_20261028T021809725801Z_8b811529"
+    ],
+    "test_evidence": {
+      "full_suite_tests": 227,
+      "passed": 227,
+      "elapsed_seconds": 232.173,
+      "browser_smoke": "PASS",
+      "browser_actions": [
+        "GO",
+        "NO_GO",
+        "NO_GO"
+      ],
+      "javascript_errors": 0,
+      "independent_assertions": 538,
+      "independent_mismatches": 0,
+      "calculation_helpers_used": false,
+      "exact_quote_bid_base_csv_parity_for_go_economic_no_go": true,
+      "recovery_actions_tested": true
+    },
+    "economic_no_go_example": {
+      "synthetic": true,
+      "port_other_original_usd": "200000",
+      "port_other_reforecast_usd": "450000",
+      "freight_usd_mt": "25.4513",
+      "cargo_mt": "30000",
+      "revenue_usd": "763539.0000",
+      "total_cash_cost_usd": "786339.35250",
+      "contribution_usd": "-22800.35250",
+      "gate_a": "PASS",
+      "gate_b": "FAIL",
+      "minimum_cost_reduction_usd": "22800.36",
+      "hypothetical_new_break_even_offer_usd_mt": "26.2114"
+    },
+    "source_verification": {
+      "original_workbook_matches_experiments": true,
+      "sha256": "ca5c044ffbc19fe541d296681787cfb56bd6df4682815e4fff2a542513e36b87",
+      "historical_run_input_hashes_matching": 87,
+      "historical_runs": 26,
+      "missing": 0,
+      "mismatches": 0,
+      "full_pre_disconnect_baseline_unavailable_after_recovery": true,
+      "od_or_source_write_attempted": false
+    },
+    "self_review": {
+      "product_internal_iteration": 8.5,
+      "brief_go": 8.5,
+      "brief_no_go_economics": 9,
+      "brief_no_go_floor": 8.5,
+      "scale": 10,
+      "is_human_acceptance": false
+    },
+    "scope_limits": [
+      "Economic recommendation only, not award or vessel readiness",
+      "Target-derived quote not evidence of buyer acceptance or competitiveness",
+      "One-way model, gross-DWT screen, historical/proxy sources and synthetic scenarios",
+      "No new margin/freshness gate or automatic repricing",
+      "RBAC later, no commercial transactions or MVP approval"
+    ],
+    "agent_test_servers_stopped": true,
+    "user_existing_streamlit_process_untouched": true,
+    "human_acceptance": null,
+    "git_staged_committed_or_pushed": false
+  },
+  "fearnpulse_ui_revision": {
+    "decision_id": "D-059",
+    "updated_on": "2026-10-27",
+    "status": "implemented_pending_user_review",
+    "plan_file": "docs/it_4/ITERATION_04_PLAN.md",
+    "plan_section": "7.12",
+    "completed_tasks": [
+      "I4-F0",
+      "I4-F1",
+      "I4-F2",
+      "I4-F3",
+      "I4-F4",
+      "I4-F5",
+      "I4-F6"
+    ],
+    "remaining_tasks": [],
+    "execution_authorized": true,
+    "runtime_or_input_changed": true,
+    "new_runtime_tests_run": true,
+    "public_source_research": {
+      "fearnpulse_browser_and_public_responses_read": true,
+      "report_date_observed": "2026-10-21",
+      "class_tc_observation_date": "2026-10-21",
+      "singapore_bunker_ts_observation_date": "2026-07-01",
+      "integrated_into_active_engine": true,
+      "snapshot_id": "fp_3333919c57574ffa88f25393a4e9766e",
+      "fetched_at": "2026-10-27T02:23:33.559156+00:00"
+    },
+    "proposed_physical_profiles": [
+      {
+        "sheet": "Sheet1",
+        "dwt_mt": "36009",
+        "class": "Handysize",
+        "source": "data/raw/Voyage Estimate.xlsx",
+        "confirmation_pending": false
+      },
+      {
+        "sheet": "AQABA",
+        "dwt_mt": "58000",
+        "class": "Supramax",
+        "source": "data/raw/Voyage Estimate.xlsx",
+        "confirmation_pending": false
+      },
+      {
+        "sheet": "Sby",
+        "dwt_mt": "58000",
+        "class": "Supramax",
+        "source": "data/raw/Voyage Estimate.xlsx",
+        "confirmation_pending": false
+      },
+      {
+        "sheet": "Godau",
+        "dwt_mt": "47175",
+        "class": "Handymax",
+        "market_proxy": "Handysize 38000 DWT",
+        "source": "data/raw/Voyage Estimate.xlsx",
+        "confirmation_pending": false
+      }
+    ],
+    "open_confirmations": [],
+    "approved_profiles": [
+      "Sheet1",
+      "AQABA",
+      "Sby",
+      "Godau"
+    ],
+    "round_duration_seconds": 180,
+    "round_clock_mode": "fixed_window_no_bid_extension",
+    "required_changes": [
+      "Fetched Fearnpulse values bound to active calculations and displayed",
+      "No Baltic-derived inputs in new active cases; historical sources preserved",
+      "Two source cards, useful tables and reduced technical captions",
+      "Four complete workbook profiles with explicit class and market proxy mapping",
+      "Separate observed/report/fetched/calculated/fixed events; local actor fields without production RBAC",
+      "Fixed 180-second round windows; latest valid submitted timestamp, without bid extension or automatic award"
+    ],
+    "completion_decision_id": "D-060",
+    "completed_evidence": {
+      "full_suite_passed": 180,
+      "baseline": 151,
+      "additional": 29,
+      "browser_smoke": "PASS: four-profile comparison and switching, GO/NO_GO, downloads, invalid input and 390px viewport",
+      "javascript_errors": 0,
+      "independent_decimal_assertions": 82,
+      "independent_cases": 2,
+      "mismatches": 0,
+      "report_version": "I4-BRIEF.5",
+      "price_version": "PRICE.1",
+      "clock_extension": "TENDER-CLOCK.1",
+      "formula_rule_version": "I4.1",
+      "source_preservation": {
+        "baseline_files": 205,
+        "unchanged": 196,
+        "expected_changed": 9,
+        "added": 54,
+        "removed": 0,
+        "old_data_changed": 0,
+        "old_run_files_changed": 0
+      }
+    }
+  },
+  "ui_development_plan": {
+    "decision_id": "D-056",
+    "updated_on": "2026-10-27",
+    "status": "implemented_revised_under_D059_pending_user_review",
+    "plan_file": "docs/it_4/ITERATION_04_PLAN.md",
+    "plan_section": "7.11",
+    "task_file": ".agents/tasks/ITERATION_04.md",
+    "recommended_stack": "Streamlit local UI with existing deterministic Python Decimal engine",
+    "completed_tasks": [
+      "I4-U0",
+      "I4-U1",
+      "I4-U2",
+      "I4-U3",
+      "I4-U4",
+      "I4-U5"
+    ],
+    "remaining_tasks": [],
+    "open_confirmation": null,
+    "vessel_choice": "Manual selection and comparison of four complete workbook profiles up to Supramax; explicit Godau market proxy",
+    "execution_authorized": true,
+    "implementation_started": true,
+    "dependencies_installed": true,
+    "installed_environment": ".venv; Python 3.12.14; Streamlit 1.66.1; Playwright 1.64.1",
+    "entrypoint": "apps/streamlit_app.py",
+    "latest_ui_copy_revision": "2026-10-27: two source cards, source tables/date events, four profiles, compact main copy; I4-BRIEF.5",
+    "local_url": "http://127.0.0.1:8501",
+    "test_evidence": {
+      "full_suite_passed": 151,
+      "baseline": 123,
+      "new_service_tests": 16,
+      "new_parity_tests": 5,
+      "new_app_tests": 7,
+      "browser_smoke": "PASS: GO/NO_GO, applied-input error, editor suppression, actual MD/JSON/ZIP downloads, matching run identity, desktop and 390px viewport",
+      "javascript_errors": 0,
+      "browser_storage": "isolated temporary directory",
+      "screenshots": "outputs/ui_review",
+      "old_files_compared": 180,
+      "old_files_unchanged": 178,
+      "expected_refactors": [
+        "src/pilog_cfr_dss/validation/iteration_04.py",
+        "src/pilog_cfr_dss/orchestration/iteration_04.py"
+      ],
+      "new_src_test_files": 9,
+      "old_files_deleted": 0,
+      "od_hash_check": "File locked; no write attempted and no new hash verification claimed",
+      "evidence_period": "Historical initial UI implementation before D-059; latest evidence in fearnpulse_ui_revision.completed_evidence"
+    },
+    "business_rules_changed": false,
+    "baseline_tests_previously_passed": 123,
+    "new_runtime_tests_run_for_planning": false,
+    "documentation_verification": {
+      "git_diff_check_passed": true,
+      "state_json_parsed": true,
+      "protected_runtime_data_run_files_compared": 180,
+      "protected_files_changed_added_or_removed": 0
+    },
+    "boundaries": [
+      "Internal single-user local interface, not a buyer e-auction or MVP",
+      "Four complete workbook profiles, manual choice; gross-DWT-only screen, not operational vessel assurance",
+      "Pre-tender voyage preparation must not inject fabricated bids",
+      "Fixed tender freight must not change on rerun or buyer alpha edits",
+      "Workbook, OD, source data and historical runs preserved",
+      "Latest UI planning request supersedes historical no-UI-planning restriction only for this plan"
+    ]
+  },
   "project": {
     "name": "PILOG CFR DSS",
     "owner": "PT Pupuk Logistik Indonesia - Business Development",
@@ -39,42 +456,473 @@
     ]
   },
   "current_iteration": {
-    "id": "I3",
-    "name": "PI post-tender CFR GO/NO GO simulation",
-    "status": "implemented_pending_mentor_review",
-    "entry_condition": "User approved I3 plan and synthetic-data implementation on 2026-10-08; I2 technical baseline preserved, mentor acceptance of I2 not inferred",
-    "exit_condition": "Mentor records accepted or needs-revision in .agents/reviews/ITERATION_03.md",
-    "technical_status": "post-tender I3: 38 of 38 tests passing; two synthetic end-to-end fixtures yield GO and NO_GO; no production inputs or approvals",
-    "review_file": ".agents/reviews/ITERATION_03.md",
-    "latest_run": "outputs/runs/i3_20261008T032331853553Z_i3_go_urea",
+    "id": "I4",
+    "name": "Push-demand tender and one-way CFR GO/NO GO simulation",
+    "status": "accepted",
+    "entry_condition": "D-045 explicit execute after final plan verification; no further user rereview wait required",
+    "exit_condition": "Mentor records accepted or needs-revision in .agents/reviews/ITERATION_04.md; Final Simulation Validation and MVP approval separate",
+    "technical_status": "Release: 239/239 full-suite tests pass in 252.554 seconds on 2026-10-28. Prior four format updates covered by this clean run; I4 accepted by mentor via user. Checkpoint Git authorized before I5 planning.",
+    "review_file": ".agents/reviews/ITERATION_04.md",
+    "latest_run": "outputs/runs/i4_20261028T041553450693Z_24f54cfe",
     "presentation_runs": [
-      "outputs/runs/i3_20261008T032331853553Z_i3_go_urea",
-      "outputs/runs/i3_20261008T032331863983Z_i3_no_go_urea"
+      "outputs/runs/i4_20261028T041553450693Z_24f54cfe",
+      "outputs/runs/i4_20261028T041553477775Z_f99f9273",
+      "outputs/runs/i4_20261028T041553508858Z_2554d7fc"
     ],
-    "repository_cleanup": {
-      "date": "2026-09-24",
-      "status": "completed_locally_not_staged_or_pushed",
-      "retained_run_count": 1,
-      "historical_generated_runs_removed": 9,
-      "publication_check": "Confirm mentor/company permission and GitHub repository visibility before staging Aqaba-derived dataset or run snapshot"
+    "mentor_decision": {
+      "status": "accepted",
+      "date": "2026-10-28",
+      "reported_by": "user",
+      "scope": "Iteration 4 advisory logic/UI; not commercial execution approval"
     },
-    "data_directory_cleanup": {
-      "date": "2026-10-20",
-      "status": "completed_locally_not_staged_or_pushed",
-      "target_directories": ["data/raw", "data/processed"],
-      "runtime_inputs_moved": 7,
-      "empty_directories_removed": ["data/cases", "data/reference", "data/learning", "data/snapshots"],
-      "input_bytes_preserved": true,
-      "evaluation_results_preserved": ["I2", "I3_GO", "I3_NO_GO"],
-      "verification": "38/38 tests pass; I3 default CLI, I3 explicit case CLI, and I2 default CLI succeed using temporary output directories",
-      "workbook": "Latest user-saved workbook moved to data/raw after Excel was closed; SHA-256 before and after the move is identical",
-      "pending": null,
-      "business_rules_changed": false,
-      "git_staged_committed_or_pushed": false
+    "git_staged_committed_or_pushed": false,
+    "source_preservation": {
+      "protected_baseline_file_count": 54,
+      "changed": 0,
+      "original_workbook_and_od_read_only": true
     },
-    "mentor_decision": null
+    "limitations": [
+      "Fearnpulse TC quotes verified in saved public response; using 1-year TC as assumed-net-before-running target remains an explicit modelling assumption; Godau uses smaller-class market proxy",
+      "3906 NM workbook reference not independently verified",
+      "Gross-DWT-only screen; not actual vessel/terminal/availability assurance",
+      "Source years may differ; simulated economics not current quotation or full-cycle profit"
+    ],
+    "output_revision": {
+      "id": "I4-output-revision-20261023",
+      "status": "implemented_pending_mentor_review",
+      "updated_on": "2026-10-23",
+      "plan_file": "docs/it_4/ITERATION_04_PLAN.md",
+      "task_file": ".agents/tasks/ITERATION_04.md",
+      "review_file": ".agents/reviews/ITERATION_04.md",
+      "decision_id": "D-047",
+      "user_approved_direction": true,
+      "implementation_started": true,
+      "required_bid_column": "freight_visible_to_buyers_usd_mt",
+      "scope": [
+        "latest-bid brief and all-bid audit with visible freight",
+        "model indication versus fixed simulation selling rate",
+        "derived break-even metrics without new gates",
+        "cause-specific explanations and human next actions",
+        "executive brief and detailed audit consistency"
+      ],
+      "business_rules_or_thresholds_changed": false,
+      "completed_tasks": [
+        "I4-R1",
+        "I4-R2",
+        "I4-R3",
+        "I4-R4",
+        "I4-R5",
+        "I4-R6",
+        "I4-R7"
+      ],
+      "remaining_tasks": [],
+      "baseline_test_count": 67,
+      "revised_tests_run": true,
+      "revised_runs": [
+        "outputs/runs/i4_20261023T032726917879Z_0b68f914",
+        "outputs/runs/i4_20261023T032726925552Z_11050f4c"
+      ],
+      "implementation_completed": true,
+      "execution_authorized": true,
+      "execution_decision_id": "D-048",
+      "internal_only_fields": [
+        "oe_hps_usd_mt",
+        "tender.bids.oe_gap_usd_mt",
+        "metrics.minimum_alpha_usd_mt",
+        "PILOG economics",
+        "other buyers bids"
+      ],
+      "buyer_visible_freight": true,
+      "revised_test_count": 91,
+      "additional_test_count": 24,
+      "baseline_economics_and_gates_unchanged": true,
+      "source_preservation": {
+        "files_compared": 164,
+        "unchanged": 152,
+        "expected_changed": 12,
+        "unexpected_changed": 0,
+        "od_write_attempted": false
+      },
+      "independent_reconciliation": {
+        "numeric_value_comparisons_per_case": 131,
+        "cases": 2,
+        "snapshot_replay": true,
+        "metric_identities": true
+      },
+      "brief_version": "I4-BRIEF.2",
+      "metrics_version": "I4-METRICS.1",
+      "buyer_export_or_production_access_control_implemented": false
+    },
+    "commercial_brief_hardening": {
+      "id": "I4-commercial-brief-hardening-20261023",
+      "status": "implemented_pending_mentor_review",
+      "decision_id": "D-050",
+      "plan_file": "docs/it_4/ITERATION_04_PLAN.md",
+      "plan_sections": [
+        "7.9",
+        "8.4",
+        "9.3"
+      ],
+      "task_file": ".agents/tasks/ITERATION_04.md",
+      "target": "Evidence-backed commercial decision brief quality with honest subjective rating, not automatic ten-of-ten or accuracy/mentor guarantee",
+      "planning_complete": true,
+      "implementation_started": true,
+      "ui_planning_in_scope": false,
+      "ui_implementation_in_scope": false,
+      "business_rules_or_thresholds_changed": false,
+      "completed_tasks": [
+        "I4-C1",
+        "I4-C2",
+        "I4-C3",
+        "I4-C4",
+        "I4-C5"
+      ],
+      "planned_tasks": [],
+      "baseline_test_count": 91,
+      "tests_for_new_plan_run": true,
+      "latest_existing_runs": [
+        "outputs/runs/i4_20261023T032726917879Z_0b68f914",
+        "outputs/runs/i4_20261023T032726925552Z_11050f4c"
+      ],
+      "external_transactions_or_mvp_authorized": false,
+      "execution_authorized": true,
+      "execution_decision_id": "D-051",
+      "rating_requested": true,
+      "implementation_completed": true,
+      "completion_decision_id": "D-052",
+      "revised_test_count": 109,
+      "additional_test_count": 18,
+      "report_version": "I4-BRIEF.3",
+      "formula_rule_version": "I4.1",
+      "metrics_version": "I4-METRICS.1",
+      "final_runs": [
+        "outputs/runs/i4_20261023T043545943633Z_ca4143a7",
+        "outputs/runs/i4_20261023T043545954594Z_bcf876c1"
+      ],
+      "independent_reconciliation": {
+        "numeric_values_per_case": 155,
+        "cases": 2,
+        "total_numeric_and_structural_assertions": 404,
+        "mismatches": 0,
+        "engine_helpers_used": false,
+        "scope": "two final concrete snapshots, not proof of all possible business inputs"
+      },
+      "subjective_output_rating": {
+        "GO": 9,
+        "NO_GO": 9.5,
+        "scale": 10,
+        "reviewer": "agent self-review through executive/commercial/operations lenses, not actual PILOG approval",
+        "reason_not_ten": "GO density/wide table and independent stakeholder comprehension not tested; accepted simulation proxy limitations are not new blockers"
+      },
+      "source_preservation": {
+        "files_compared_excluding_cache": 145,
+        "unchanged": 139,
+        "expected_changed": 6,
+        "unexpected_changed": 0,
+        "input_data_changed": false,
+        "old_run_bytes_changed": false,
+        "od_write_attempted": false,
+        "od_rehashed": false
+      },
+      "acceptance": {
+        "technical_complete": true,
+        "mentor_decision": null,
+        "independent_reader_comprehension_tested": false
+      }
+    },
+    "stakeholder_brief_revision": {
+      "id": "I4-stakeholder-brief-20261023",
+      "status": "implemented_pending_mentor_review",
+      "decision_id": "D-053",
+      "plan_section": "7.10",
+      "tasks": [
+        "I4-D1",
+        "I4-D2",
+        "I4-D3",
+        "I4-D4"
+      ],
+      "completed_tasks": [
+        "I4-D1",
+        "I4-D2",
+        "I4-D3",
+        "I4-D4"
+      ],
+      "baseline_test_count": 109,
+      "ui_in_scope": false,
+      "rules_changed": false,
+      "inputs_changed": false,
+      "net_definition": "PILOG contribution after voyage costs and gross-freight commission; PI net not modelled; no relabel of net_revenue_usd",
+      "presentation": "One main decision brief with four supporting lenses; no repetitive simulation/review/audit wording, preserve exact source/mode/approval truth in technical evidence",
+      "tests_run": true,
+      "test_count": 123,
+      "additional_test_count": 14,
+      "report_version": "I4-BRIEF.4",
+      "financials_version": "I4-FINANCIALS.1",
+      "formula_rule_version": "I4.1",
+      "metrics_version": "I4-METRICS.1",
+      "completion_decision_id": "D-054",
+      "final_runs": [
+        "outputs/runs/i4_20261023T072029597821Z_79698a9f",
+        "outputs/runs/i4_20261023T072029607228Z_de76cd6a"
+      ],
+      "review_file": ".agents/reviews/ITERATION_04.md",
+      "independent_verification": {
+        "numeric_comparisons_per_case": 189,
+        "cases": 2,
+        "total_assertions": 504,
+        "mismatches": 0,
+        "calculation_helpers_used_for_independent_recalculation": false,
+        "snapshot_replay": true,
+        "original_economics_and_decisions_identical": true
+      },
+      "source_preservation": {
+        "files_compared": 166,
+        "unchanged": 158,
+        "expected_changed": 8,
+        "unexpected_changed": 0,
+        "missing": 0,
+        "data_changed": false,
+        "old_outputs_changed": false,
+        "od_write_attempted": false,
+        "od_rehashed": false
+      },
+      "subjective_review": {
+        "GO": 9.5,
+        "NO_GO": 9.5,
+        "scale": 10,
+        "reviewer": "agent role-based self-review, not actual PILOG stakeholder acceptance",
+        "remaining": "long complete brief, wide bid table, real stakeholder comprehension not yet tested"
+      },
+      "human_acceptance": null,
+      "production_or_mvp_readiness_asserted": false
+    }
+  },
+  "planned_iteration": {
+    "id": "I4",
+    "status": "accepted",
+    "updated_on": "2026-10-27",
+    "plan_file": "docs/it_4/ITERATION_04_PLAN.md",
+    "task_file": ".agents/tasks/ITERATION_04.md",
+    "runtime_implemented": true,
+    "execution_authorized": true,
+    "user_data_audit_status": "completed_reported_by_user",
+    "case_basis_approval": "User confirms one-way dry-bulk laden-only, 30000 MT Handysize Bontang-Mundra; D-045 authorizes implementation after plan verification; now implemented",
+    "route": {
+      "loading_port": "Bontang",
+      "discharging_port": "Mundra",
+      "destination_region": "WCI",
+      "supersedes_proposed_destination": "ECI/Vizag",
+      "prior_cargo_mt": "45000",
+      "approved_cargo_mt": "30000",
+      "vessel_class": "Handysize",
+      "voyage_boundary": "laden_only",
+      "cargo_basis_status": "approved_for_I4_simulation_implemented_in_versioned_inputs",
+      "planned_distance_nm": "3906",
+      "distance_source": "docs/it_4/Simulasi Tarif Internasional_Mei 2025.xlsx :: Input - OD Intl!H11; destination E11",
+      "distance_status": "workbook_reference_external_verification_attempted_not_confirmed",
+      "cargo_category": "dry_bulk",
+      "distance_verification": {
+        "checked_on": "2026-10-22",
+        "result": "no independently verifiable Bontang-Mundra sea-route output obtained; 3906 NM is neither confirmed nor disproved",
+        "endpoint_caveat": "general Bontang port entries can refer to Badak LNG; fertilizer terminal and Mundra endpoint must match the intended case",
+        "needed_for_planning_verification": "provider export/screenshot with origin/destination endpoints, route/passage, one-way NM and date",
+        "actual_distance_requires": "voyage-specific track/report, not a generic route estimate",
+        "runtime_data_changed": false
+      }
+    },
+    "od_role": "informational_comparison_in_commercial_brief_not_a_go_no_go_gate",
+    "od_basis_difference": "Both system freight and original OD are quoted per one-way shipment. System I4 costs laden-only; OD internal costing includes return. Disclose cost coverage, not a two-shipment quote mismatch. No OD rebase/division by two or savings claim.",
+    "data_alignment_proposal": {
+      "status": "implemented_with_labelled_proxies_and_source_notes",
+      "shared_case": "Bontang-Mundra, 30000 MT, Handysize, one-way quoted shipment; I4 cost boundary laden-only, OD internal costing includes return",
+      "od_reference": "original supplied OD only; no recalculation, rebase, derived tariff or copied-engine comparator",
+      "limitation": "same quoted shipment basis does not prove identical cost coverage; source years may differ for simulation; I3 quantity and index-date validator is historical and must not be imposed on I4",
+      "source_workbooks_unchanged": true,
+      "fearnpulse_url": "https://fearnpulse.com/#2",
+      "fearnpulse_role": "dated market target TCE proxy, not actual owned-vessel hire cash cost",
+      "baltic_url": "https://www.balticexchange.com/en/data-services/market-information0/dry-services.html",
+      "baltic_role": "separate versioned benchmark vessel/route profiles, no silent replacement of case vessel"
+    },
+    "risk_rule": "GO if all mandatory checks pass and baseline contribution >= 0; negative stress contribution is a disclosed risk, not an automatic NO_GO",
+    "brief_requirement": "concise Indonesian business language and engine-derived mandatory-check table; both freight rates quoted one-way, OD internal costs include return; mixed source years disclosed, not a freshness gate; stress informative; detailed audit separate",
+    "hedging_scope": "future_iteration_candidate_only_no_active_hedge_or_assumed_compensation",
+    "decision_ids": [
+      "D-031",
+      "D-032",
+      "D-033",
+      "D-034",
+      "D-036",
+      "D-037",
+      "D-038",
+      "D-039",
+      "D-040",
+      "D-041",
+      "D-042",
+      "D-043",
+      "D-044",
+      "D-045",
+      "D-046",
+      "D-047",
+      "D-048",
+      "D-049",
+      "D-050",
+      "D-051",
+      "D-052",
+      "D-053",
+      "D-054"
+    ],
+    "voyage_boundary_policy": {
+      "dry_bulk": "one_way",
+      "liquid_or_gas": "round_voyage",
+      "scope": "mentor project convention; I4 implements dry-bulk laden Bontang-Mundra only, not tanker/gas calculations"
+    },
+    "od_comparability": {
+      "status": "same_quoted_shipment_basis_different_cost_coverage",
+      "reason": "OD quoted for one-way shipment, with return sailing included in its internal costs; system I4 uses one-way laden costs",
+      "brief": "show both one-way rates and explicit cost-coverage note; no OD pass/fail, savings percentage or margin from rate difference",
+      "delta": "technical-audit-only if needed, not economic benefit",
+      "affects_go_no_go": false,
+      "return_multiplier_explained_by_mentor": true,
+      "od_workbook_read_only": true
+    },
+    "input_snapshot_contract": {
+      "status": "implemented_and_replay_tested",
+      "meaning": "persist selected input values, units, series/profile, observation/capture dates, basis, sources and simulation assumptions for deterministic replay",
+      "distinct_from": "commercial fixed freight before tender",
+      "changes_require": "new version/run; do not mutate old run snapshots",
+      "selection_timing": "prepared after D-045 execute; captured exact fixture and CSV bytes per run",
+      "live_fetch_required_each_run": false
+    },
+    "plan_authority": {
+      "primary": "docs/it_4/ITERATION_04_PLAN.md",
+      "execution_tasks": ".agents/tasks/ITERATION_04.md",
+      "relationship": "task board implements the main plan, not an alternative business specification",
+      "conflicts": "latest user/mentor clarification controls; synchronize documents before implementation"
+    },
+    "od_quote_basis": "USD_per_MT_per_one_way_shipment",
+    "od_cost_coverage": "internal costing intentionally includes return sailing per mentor clarification",
+    "simulation_data_quality_policy": {
+      "authority": "mentor via user, 2026-10-22",
+      "different_source_years_allowed": true,
+      "different_index_observation_dates_allowed": true,
+      "freshness_or_missing_asof_is_hard_gate": false,
+      "preserve_original_dates_and_missing_metadata": true,
+      "case_clock": "explicit simulation evaluation cutoff, not computer wall clock",
+      "still_required": [
+        "valid units and finite numeric values",
+        "appropriate product and FOB price basis",
+        "nonzero speed and handling rate",
+        "no duplicate cost mechanisms",
+        "critical inputs sufficient for arithmetic",
+        "valid bid state at case cutoff"
+      ],
+      "limits": "logic-testing only; no current-market quote or real commercial approval inferred"
+    },
+    "candidate_policy": {
+      "default": "rank eligible latest-active bids as simulation review candidates without mandatory hardcoded PI winner ID",
+      "pi_selection": "if supplied, must reference valid eligible active bid; never overrides arithmetic",
+      "ties": "reported together; no automatic tender award"
+    },
+    "execution_sequence": [
+      "I4-1_data_contract_mapping",
+      "I4-2_inputs_snapshots_pricing_contract",
+      "I4-3_validation_calculations_od_reference",
+      "I4-4_tender_gate_a",
+      "I4-5_scenarios_gate_b",
+      "I4-6_cli_brief_audit_snapshot",
+      "I4-7_regression_e2e_review"
+    ],
+    "output_contract": [
+      "commercial_decision_brief.md",
+      "calculation_audit.md",
+      "result.json",
+      "input_snapshot/"
+    ],
+    "execution_authorization": {
+      "date": "2026-10-22",
+      "source": "user explicitly requested EXECUTE all I4 tasks after plan completion, waived user rereview wait",
+      "plan_verification": "passed: no broken local links or whitespace errors; no source/runtime edits during planning; workflow unchanged",
+      "scope": "local I4 simulation implementation, tests, artifacts and review only"
+    },
+    "evidence": {
+      "review_file": ".agents/reviews/ITERATION_04.md",
+      "test_count": 200,
+      "regression_count": 38,
+      "new_test_count": 85,
+      "presentation_runs": [
+        "outputs/runs/i4_20261027T083341905433Z_47d34430",
+        "outputs/runs/i4_20261027T083344921937Z_61d088cc"
+      ],
+      "preparation_rebuild": "26 numeric/text value-unit mappings and economics identical; workbook hashes unchanged",
+      "baseline_test_count": 67,
+      "revision_additional_test_count": 24,
+      "revision_review": ".agents/reviews/ITERATION_04.md",
+      "commercial_hardening_additional_test_count": 18,
+      "commercial_hardening_review": ".agents/reviews/ITERATION_04.md",
+      "report_version": "I4-BRIEF.6",
+      "financials_version": "I4-FINANCIALS.1",
+      "stakeholder_revision_additional_test_count": 14,
+      "latest_revision": "D-062/D-063; see latest_takeaways_review.evidence"
+    },
+    "pricing_contract": {
+      "version": "I4.1",
+      "target_tce": "net of voyage expenses and commissions before running",
+      "formula": "(voyage_expenses_usd + target_tce_usd_day * total_days) / (cargo_mt * (1 - commission_fraction))",
+      "rounding": "ROUND_CEILING 0.0001 USD/MT",
+      "quote_basis": "simulation_assumed_net",
+      "running_cost": "subtracted once in contribution, not extra hire expense",
+      "fallback": "Historical AQABA L38 proxy retained for legacy replay only; active new cases bind Fearnpulse snapshot TC by profile, explicit Godau proxy"
+    }
   },
   "iteration_history": [
+    {
+      "id": "I3",
+      "name": "PI post-tender CFR GO/NO GO simulation",
+      "status": "implemented_pending_mentor_review",
+      "entry_condition": "User approved I3 plan and synthetic-data implementation on 2026-10-08; I2 technical baseline preserved, mentor acceptance of I2 not inferred",
+      "exit_condition": "Mentor records accepted or needs-revision in .agents/reviews/ITERATION_03.md",
+      "technical_status": "post-tender I3: 38 of 38 tests passing; two synthetic end-to-end fixtures yield GO and NO_GO; no production inputs or approvals",
+      "review_file": ".agents/reviews/ITERATION_03.md",
+      "latest_run": "outputs/runs/i3_20261008T032331853553Z_i3_go_urea",
+      "presentation_runs": [
+        "outputs/runs/i3_20261008T032331853553Z_i3_go_urea",
+        "outputs/runs/i3_20261008T032331863983Z_i3_no_go_urea"
+      ],
+      "repository_cleanup": {
+        "date": "2026-09-24",
+        "status": "completed_locally_not_staged_or_pushed",
+        "retained_run_count": 1,
+        "historical_generated_runs_removed": 9,
+        "publication_check": "Confirm mentor/company permission and GitHub repository visibility before staging Aqaba-derived dataset or run snapshot"
+      },
+      "data_directory_cleanup": {
+        "date": "2026-10-20",
+        "status": "completed_locally_not_staged_or_pushed",
+        "target_directories": [
+          "data/raw",
+          "data/processed"
+        ],
+        "runtime_inputs_moved": 7,
+        "empty_directories_removed": [
+          "data/cases",
+          "data/reference",
+          "data/learning",
+          "data/snapshots"
+        ],
+        "input_bytes_preserved": true,
+        "evaluation_results_preserved": [
+          "I2",
+          "I3_GO",
+          "I3_NO_GO"
+        ],
+        "verification": "38/38 tests pass; I3 default CLI, I3 explicit case CLI, and I2 default CLI succeed using temporary output directories",
+        "workbook": "Latest user-saved workbook moved to data/raw after Excel was closed; SHA-256 before and after the move is identical",
+        "pending": null,
+        "business_rules_changed": false,
+        "git_staged_committed_or_pushed": false
+      },
+      "mentor_decision": null
+    },
     {
       "id": "I2",
       "status": "technically_implemented_pending_mentor_review",
@@ -215,8 +1063,8 @@
     {
       "id": "GAP-001",
       "severity": "critical",
-      "description": "Canonical pricing data does not yet include approved Index and Alpha lineage; current values are manual simulation inputs.",
-      "status": "accepted_simulation_constraint"
+      "description": "I4 commodity index extracted from two supplied FOB SEA granular reports; buyer alpha and OE/HPS remain labelled synthetic fixtures.",
+      "status": "lineage_recorded_simulation_constraint_not_production_approval"
     },
     {
       "id": "GAP-002",
@@ -233,8 +1081,8 @@
     {
       "id": "GAP-004",
       "severity": "high",
-      "description": "Bontang -> ECI is an experimental route override over Aqaba-derived voyage values.",
-      "status": "requires_domain_validation"
+      "description": "Active I4 uses workbook vessel profiles, dated Fearnpulse TC/bunker inputs and workbook reference distance; port/cost transfer and TC target mapping remain explicit assumptions. Baltic retained only in historical inputs.",
+      "status": "accepted_simulation_constraint_requires_domain_review_before_commercial_use"
     },
     {
       "id": "GAP-005",
@@ -256,7 +1104,10 @@
     }
   ],
   "active_tasks": [
-    "I3-0 through I3-5 technically implemented and tested; I3-6 mentor review pending"
+    "Commit and push accepted I4 to dev/origin; explicitly authorized",
+    "Plan I5 porting/deployment preserving Python engine, not implementation",
+    "Ask access network, hosting and pilot-user requirements at end",
+    "No automatic PI freight-loss compensation, production transaction or MVP approval inferred"
   ],
   "update_protocol": {
     "when_to_update": [
@@ -271,5 +1122,111 @@
       "unapproved confidential commercial data",
       "authoritative numeric output invented by an LLM"
     ]
+  },
+  "latest_takeaways_review": {
+    "decision_id": "D-061",
+    "updated_on": "2026-10-27",
+    "status": "implemented_pending_user_review",
+    "plan_section": "7.13",
+    "plan_file": "docs/it_4/ITERATION_04_PLAN.md",
+    "completed_tasks": [
+      "I4-G0",
+      "I4-G1",
+      "I4-G2",
+      "I4-G3",
+      "I4-G4",
+      "I4-G5"
+    ],
+    "remaining_tasks": [],
+    "execution_started": true,
+    "runtime_inputs_or_runs_changed": true,
+    "new_runtime_tests_run": true,
+    "commission_fraction_required": {
+      "freight_commission_fraction": "0",
+      "broker_fraction": "0",
+      "additional_commission_fraction": "0"
+    },
+    "od_role": "route_distance_only",
+    "od_distance": {
+      "file": "docs/it_4/Simulasi Tarif Internasional_Mei 2025.xlsx",
+      "sheet": "Input - OD Intl",
+      "cell": "H11",
+      "value": "3906",
+      "unit": "NM",
+      "unit_authority": "user confirmation",
+      "loading_port": "Bontang",
+      "discharging_port": "Mundra",
+      "product": "Urea",
+      "independent_navigation_verification": false
+    },
+    "ui_changes": [
+      "Separate tender tables by round with read-only FOB/CFR from calculation layer",
+      "Expanded fuel oil/diesel oil consumption labels",
+      "Remove repeated header/step explanations",
+      "Distinguish selected physical profile from market benchmark and active usage"
+    ],
+    "required_business_questions": [],
+    "streamlit_should_remain_stopped": true,
+    "execution_decision_id": "D-062",
+    "completion_decision_id": "D-063",
+    "source_inputs_changed": false,
+    "logo": "public/Pupuk_Indonesia_Logistik.png",
+    "logo_original_bytes_preserved": true,
+    "implementation_versions": {
+      "case_basis": "I4-INPUT.2",
+      "distance": "OD-DISTANCE.1",
+      "report": "I4-BRIEF.6",
+      "formula_rule": "I4.1"
+    },
+    "latest_runs": [
+      "outputs/runs/i4_20261027T083341905433Z_47d34430",
+      "outputs/runs/i4_20261027T083344921937Z_61d088cc"
+    ],
+    "evidence": {
+      "suite_tests": 200,
+      "baseline": 180,
+      "added_tests": 20,
+      "final_related_app_tests_repeated": 2,
+      "browser_smoke": "PASS: logo, four profiles/comparison, three round cards, GO/NO_GO, invalid input, editor, actual MD/JSON/ZIP, 390px",
+      "javascript_errors": 0,
+      "independent_assertions": 108,
+      "independent_cases": 2,
+      "mismatches": 0,
+      "source_preservation": {
+        "existing_data_files_unchanged": 23,
+        "existing_run_files_unchanged": 176,
+        "logo_unchanged": true,
+        "deleted_files": 0,
+        "changed_src": 7,
+        "new_src": 2,
+        "changed_tests": 3,
+        "new_tests": 2,
+        "new_run_artifacts": 20
+      }
+    },
+    "final_verification": {
+      "git_diff_check_passed": true,
+      "json_and_run_metadata_passed": true,
+      "existing_data_identical": 23,
+      "existing_run_files_identical": 176,
+      "logo_original_identical": true,
+      "agent_test_servers_stopped": true,
+      "preexisting_user_server": {
+        "port": 8501,
+        "started_at": "2026-10-27T06:45:12.641Z",
+        "launcher": "streamlit.exe run apps/streamlit_app.py",
+        "agent_launch": false,
+        "modified_or_stopped": false
+      },
+      "stop_requirement_scope": "Agent-launched servers; existing user-launched server left under user's control"
+    }
+  },
+  "future_rbac": {
+    "status": "recorded_not_implemented",
+    "tentative_iteration": "I5",
+    "requirement": "Different dashboards by authorized role; enforce read/write/approve/export access at service/backend as well as UI",
+    "roles_confirmed": false,
+    "permission_matrix_confirmed": false,
+    "no_production_access_control_claim": true
   }
 }
