@@ -1,0 +1,30 @@
+[
+  {
+    "scenario_id": "FOB-BASELINE",
+    "sales_term": "FOB",
+    "vessel_class": null,
+    "vessel_mode": null,
+    "feasible": true,
+    "comparable": null,
+    "contribution_usd": null,
+    "calculation_status": "PRICE_BASELINE_ONLY",
+    "reasons": [
+      "FOB_PRICE_AVAILABLE_NOT_PROFIT"
+    ]
+  },
+  {
+    "scenario_id": "CFR-PILOG",
+    "sales_term": "CFR",
+    "vessel_class": "Supramax",
+    "vessel_mode": "PILOG",
+    "feasible": true,
+    "comparable": true,
+    "contribution_usd": "108446.1035119047619047619049",
+    "calculation_status": "CALCULATED",
+    "reasons": [
+      "CLASS_SELECTED_BY_GROSS_DWT:Supramax",
+      "ACTUAL_CARGO_CAPACITY_NOT_PROVEN",
+      "CALCULATED_FROM_DATASET_SIMULATION_BOUNDARY"
+    ]
+  }
+]

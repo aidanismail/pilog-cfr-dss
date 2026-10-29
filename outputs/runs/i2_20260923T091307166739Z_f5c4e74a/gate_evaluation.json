@@ -1,0 +1,39 @@
+{
+  "gate_1": {
+    "outcome": "CFR_ELIGIBLE",
+    "reasons": [
+      "PRE_OFFER_CASE_READY",
+      "BUYER_NOT_APPROACHED_IS_NORMAL"
+    ]
+  },
+  "gate_2": {
+    "outcome": "CFR_CANDIDATE_PENDING_HUMAN_REVIEW",
+    "scenario_results": [
+      {
+        "scenario_id": "FOB-BASELINE",
+        "outcome": "PRICE_BASELINE_ONLY",
+        "reasons": [
+          "FOB_PRICE_AVAILABLE_NOT_PROFIT",
+          "FOB_COMMODITY_PROFIT_NOT_ASSESSED"
+        ]
+      },
+      {
+        "scenario_id": "CFR-PILOG",
+        "outcome": "POSITIVE_FREIGHT_CONTRIBUTION_FOR_REVIEW",
+        "reasons": [
+          "CLASS_SELECTED_BY_GROSS_DWT:Supramax",
+          "ACTUAL_CARGO_CAPACITY_NOT_PROVEN",
+          "CALCULATED_FROM_DATASET_SIMULATION_BOUNDARY"
+        ]
+      }
+    ],
+    "selected_scenario_id": "CFR-PILOG",
+    "reason_codes": [
+      "PRELIMINARY_DWT_SCREEN_PASS",
+      "POSITIVE_PILOG_FREIGHT_CONTRIBUTION",
+      "SIMULATION_ASSUMPTIONS_PRESENT",
+      "FOB_COMMODITY_PROFIT_NOT_ASSESSED"
+    ],
+    "next_action": "Validasi kapal, biaya, harga, dan kewenangan dengan atasan/PI seller; baru setelah disetujui dekati buyer."
+  }
+}

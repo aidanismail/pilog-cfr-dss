@@ -1,0 +1,411 @@
+{
+  "scenario_economics": {
+    "CFR-PILOG": {
+      "status": "CALCULATED",
+      "cargo_mt": "45000",
+      "total_voyage_days": "33.41964285714285714285714285",
+      "owned_running_cost_usd": "187551.0357142857142857142857",
+      "fuel_oil_cost_usd": "317987.0238095238095238095237",
+      "diesel_cost_usd": "29765.83696428571428571428571",
+      "bunker_cost_usd": "347752.8607738095238095238094",
+      "port_and_other_cost_usd": "200000",
+      "total_freight_cost_usd": "735303.8964880952380952380951",
+      "freight_cost_per_mt_usd": "16.34008658862433862433862434",
+      "freight_selling_rate_usd_mt": "20",
+      "gross_freight_revenue_usd": "900000",
+      "commission_components_usd": {
+        "freight_commission": "22500.000",
+        "broker_fee": "11250.0000",
+        "additional_commission": "22500.000"
+      },
+      "commission_usd": "56250.0000",
+      "net_freight_contribution_usd": "108446.1035119047619047619049",
+      "cfr_adjustment_usd_mt": "0",
+      "cfr_usd_mt": "273",
+      "formulae": {
+        "running": "total voyage days * owned running cost USD/day",
+        "bunker": "fuel oil cost + diesel oil cost",
+        "total_cost": "owned running + bunker + port/other aggregate",
+        "revenue": "freight selling rate USD/MT * DWCC cargo MT",
+        "commission": "gross freight revenue * sum(three commission fractions)",
+        "contribution": "gross freight revenue - commission - total cost",
+        "cfr": "FOB + freight selling rate + one explicit adjustment"
+      }
+    }
+  },
+  "case_id": "I2-PRE-OFFER-45K",
+  "mode": "simulation",
+  "status": "advisory-only",
+  "formula_version": "I2.R2.1",
+  "rule_version": "I2.R2.1",
+  "dataset_sha256": "f5c4e74a4f9395da0bfd4814bf9de23e4ca5e56a6941e0c8070fd0b9f4a7c9bb",
+  "catalog_sha256": "5989760a7b3503276c541ea1facdc9c0987329cf3d5dbc67cfdaa57dbaf5572b",
+  "manual_sha256": "11ce94779e42761340e4362fa677be1fb6957066ef312a120f3ae42c32321c90",
+  "vessel_policy_sha256": "3589118a094d977e895b5c67838fce1eead6c26c87b2e3b901430b74d7a6c5e0",
+  "vessel_policy_version": "I2-R2-DWT-1",
+  "route": {
+    "origin": "Bontang",
+    "destination": "ECI"
+  },
+  "quantity_basis": {
+    "key": "dwcc_cargo_quantity_mt",
+    "cargo_mt": "45000",
+    "applies_to": [
+      "port_days",
+      "dwt_screen",
+      "freight_revenue",
+      "commission",
+      "freight_cost_per_mt"
+    ]
+  },
+  "decision_stage": "pre_offer",
+  "buyer_response": "not_approached",
+  "contracting_roles": {
+    "commodity_seller": "PI Group entity",
+    "freight_provider": "PILOG"
+  },
+  "vessel_class_screen": {
+    "Handysize": {
+      "screen_pass": false,
+      "reason": "CARGO_EXCEEDS_CLASS_MAX_DWT",
+      "class_min_dwt_mt": "20000",
+      "class_max_dwt_mt": "40000",
+      "case_vessel_dwt_mt": "58000",
+      "cargo_mt": "45000",
+      "proof_level": "preliminary_gross_dwt_only"
+    },
+    "Supramax": {
+      "screen_pass": true,
+      "reason": "PRELIMINARY_DWT_SCREEN_PASS",
+      "class_min_dwt_mt": "50000",
+      "class_max_dwt_mt": "60000",
+      "case_vessel_dwt_mt": "58000",
+      "cargo_mt": "45000",
+      "proof_level": "preliminary_gross_dwt_only"
+    }
+  },
+  "vessel_class_selection": {
+    "selected_class": "Supramax",
+    "preliminary_candidate_class": "Supramax",
+    "selected_scenario_id": "CFR-PILOG",
+    "status": "CFR_CANDIDATE_PENDING_HUMAN_REVIEW"
+  },
+  "simulation_assumptions": [
+    "CSV values are one experimental case; Bontang-to-ECI route inputs are not validated transaction data.",
+    "Buyer has not been approached; no offer, acceptance, or sale contract is assumed.",
+    "PILOG-owned/operated vessel is the only cost mode in this revision.",
+    "Three commission rates are applied cumulatively to gross freight revenue as a simulation assumption.",
+    "Other voyage costs aggregate excludes bunker and running cost; port and agency breakdown remains unconfirmed.",
+    "DWT-only screening is preliminary; actual cargo capacity, vessel availability, draft, terminal and laycan remain for human review.",
+    "Positive freight contribution is a review signal, not an approved minimum margin or evidence of PI Group commodity profit."
+  ],
+  "quality": {
+    "status": "WARN",
+    "checks": [
+      {
+        "code": "ROUTE_IDENTITY",
+        "status": "PASS",
+        "fields": [],
+        "detail": "Origin dan destination dari dataset"
+      },
+      {
+        "code": "CRITICAL_NUMERIC",
+        "status": "PASS",
+        "fields": [],
+        "detail": "Input fisik minimum harus positif"
+      },
+      {
+        "code": "CRITICAL_NONNEGATIVE",
+        "status": "PASS",
+        "fields": [],
+        "detail": "Biaya dan konsumsi yang diperlukan tidak boleh negatif"
+      },
+      {
+        "code": "PORT_LOAD_FACTOR",
+        "status": "PASS",
+        "fields": [],
+        "detail": "Faktor beban pelabuhan harus berada pada 0..1"
+      },
+      {
+        "code": "COMMISSION_RATE",
+        "status": "PASS",
+        "fields": [],
+        "detail": "Komisi harus berupa fraksi nonnegatif dengan total kurang dari 1"
+      },
+      {
+        "code": "OPTIONAL_PARSE",
+        "status": "PASS",
+        "fields": [],
+        "detail": "Nilai opsional tidak dapat dibaca"
+      },
+      {
+        "code": "CONTROLLED_PRICING",
+        "status": "PASS",
+        "fields": [],
+        "detail": "Index, Alpha, dan adjustment harus bernilai numerik dengan unit USD/MT; adjustment punya alasan"
+      },
+      {
+        "code": "SOURCE_METADATA_DEFERRED",
+        "status": "WARN",
+        "fields": [
+          "source",
+          "as_of",
+          "owner"
+        ],
+        "detail": "Sumber/as-of/approval domain belum menjadi Gate pada simulasi ini"
+      }
+    ]
+  },
+  "pricing": {
+    "fob_usd_mt": "253",
+    "cfr_indicative_usd_mt": "273",
+    "index_usd_mt": "250",
+    "alpha_usd_mt": "3",
+    "adjustment_usd_mt": "0",
+    "freight_rate_dataset_status": "selling_rate",
+    "fob_commodity_profit_status": "NOT_ASSESSED"
+  },
+  "calculation_trace": {
+    "status": "PARTIAL_PHYSICAL_ESTIMATE",
+    "formula_version": "I2.R2.1",
+    "results": {
+      "laden_sea_days": {
+        "value": "6.086309523809523809523809524",
+        "unit": "day",
+        "formula": "distance_nm / (speed_knots * 24)",
+        "inputs": [
+          "laden_distance_nm",
+          "laden_speed_knots"
+        ]
+      },
+      "ballast_sea_days": {
+        "value": "15.33333333333333333333333333",
+        "unit": "day",
+        "formula": "distance_nm / (speed_knots * 24)",
+        "inputs": [
+          "ballast_distance_nm",
+          "ballast_speed_knots"
+        ]
+      },
+      "loading_days": {
+        "value": "4.5",
+        "unit": "day",
+        "formula": "cargo_mt / loading_rate_mt_day",
+        "inputs": [
+          "dwcc_cargo_quantity_mt",
+          "loading_rate_mt_day"
+        ]
+      },
+      "discharge_days": {
+        "value": "7.5",
+        "unit": "day",
+        "formula": "cargo_mt / discharge_rate_mt_day",
+        "inputs": [
+          "dwcc_cargo_quantity_mt",
+          "discharge_rate_mt_day"
+        ]
+      },
+      "canal_days": {
+        "value": "0",
+        "unit": "day",
+        "formula": "dataset input",
+        "inputs": [
+          "canal_transit_days"
+        ]
+      },
+      "total_voyage_days": {
+        "value": "33.41964285714285714285714285",
+        "unit": "day",
+        "formula": "sum(laden sea, ballast sea, loading, discharge, canal)",
+        "inputs": [
+          "laden_sea_days",
+          "ballast_sea_days",
+          "loading_days",
+          "discharge_days",
+          "canal_days"
+        ]
+      },
+      "fuel_oil_laden_mt": {
+        "value": "176.5029761904761904761904762",
+        "unit": "MT",
+        "formula": "laden_sea_days * fuel_oil_consumption_laden_mt_day",
+        "inputs": [
+          "laden_sea_days",
+          "fuel_oil_consumption_laden_mt_day"
+        ]
+      },
+      "fuel_oil_ballast_mt": {
+        "value": "383.3333333333333333333333332",
+        "unit": "MT",
+        "formula": "ballast_sea_days * fuel_oil_consumption_ballast_mt_day",
+        "inputs": [
+          "ballast_sea_days",
+          "fuel_oil_consumption_ballast_mt_day"
+        ]
+      },
+      "diesel_laden_sea_mt": {
+        "value": "0.6086309523809523809523809524",
+        "unit": "MT",
+        "formula": "laden_sea_days * diesel_consumption_at_sea_laden_mt_day",
+        "inputs": [
+          "laden_sea_days",
+          "diesel_consumption_at_sea_laden_mt_day"
+        ]
+      },
+      "diesel_ballast_sea_mt": {
+        "value": "1.533333333333333333333333333",
+        "unit": "MT",
+        "formula": "ballast_sea_days * diesel_consumption_at_sea_ballast_mt_day",
+        "inputs": [
+          "ballast_sea_days",
+          "diesel_consumption_at_sea_ballast_mt_day"
+        ]
+      },
+      "diesel_port_mt": {
+        "value": "40.320",
+        "unit": "MT",
+        "formula": "port_days * 24 * power_kw * load_factor * kg_kwh / 1000",
+        "inputs": [
+          "loading_days",
+          "discharge_days",
+          "auxiliary_engine_power_kw",
+          "in_port_working_load_factor",
+          "in_port_diesel_factor_kg_kwh"
+        ]
+      },
+      "fuel_oil_sea_cost_usd": {
+        "value": "317987.0238095238095238095237",
+        "unit": "USD",
+        "formula": "(fuel_oil_laden_mt + fuel_oil_ballast_mt) * fuel_oil_price_usd_mt",
+        "inputs": [
+          "fuel_oil_laden_mt",
+          "fuel_oil_ballast_mt",
+          "fuel_oil_price_usd_mt"
+        ]
+      },
+      "diesel_sea_and_port_cost_usd": {
+        "value": "29765.83696428571428571428571",
+        "unit": "USD",
+        "formula": "(diesel_laden_sea_mt + diesel_ballast_sea_mt + diesel_port_mt) * diesel_oil_price_usd_mt",
+        "inputs": [
+          "diesel_laden_sea_mt",
+          "diesel_ballast_sea_mt",
+          "diesel_port_mt",
+          "diesel_oil_price_usd_mt"
+        ]
+      }
+    },
+    "limitations": [
+      "Port diesel follows the dataset factor; confirm engine and port-operation basis.",
+      "Fuel oil at loading/discharging port is excluded until its stock-versus-consumption meaning is confirmed.",
+      "Vessel choice uses a separate gross-DWT-only screen; bunker/constants allowance, draft, stowage, terminal constraints, and actual availability are not proven.",
+      "No hire, running cost, port tariff, aggregate other cost, or commission is added to this physical estimate."
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario_id": "FOB-BASELINE",
+      "sales_term": "FOB",
+      "vessel_class": null,
+      "vessel_mode": null,
+      "feasible": true,
+      "comparable": null,
+      "contribution_usd": null,
+      "calculation_status": "PRICE_BASELINE_ONLY",
+      "reasons": [
+        "FOB_PRICE_AVAILABLE_NOT_PROFIT"
+      ]
+    },
+    {
+      "scenario_id": "CFR-PILOG",
+      "sales_term": "CFR",
+      "vessel_class": "Supramax",
+      "vessel_mode": "PILOG",
+      "feasible": true,
+      "comparable": true,
+      "contribution_usd": "108446.1035119047619047619049",
+      "calculation_status": "CALCULATED",
+      "reasons": [
+        "CLASS_SELECTED_BY_GROSS_DWT:Supramax",
+        "ACTUAL_CARGO_CAPACITY_NOT_PROVEN",
+        "CALCULATED_FROM_DATASET_SIMULATION_BOUNDARY"
+      ]
+    }
+  ],
+  "gate_1": {
+    "outcome": "CFR_ELIGIBLE",
+    "reasons": [
+      "PRE_OFFER_CASE_READY",
+      "BUYER_NOT_APPROACHED_IS_NORMAL"
+    ]
+  },
+  "gate_2": {
+    "outcome": "CFR_CANDIDATE_PENDING_HUMAN_REVIEW",
+    "scenario_results": [
+      {
+        "scenario_id": "FOB-BASELINE",
+        "outcome": "PRICE_BASELINE_ONLY",
+        "reasons": [
+          "FOB_PRICE_AVAILABLE_NOT_PROFIT",
+          "FOB_COMMODITY_PROFIT_NOT_ASSESSED"
+        ]
+      },
+      {
+        "scenario_id": "CFR-PILOG",
+        "outcome": "POSITIVE_FREIGHT_CONTRIBUTION_FOR_REVIEW",
+        "reasons": [
+          "CLASS_SELECTED_BY_GROSS_DWT:Supramax",
+          "ACTUAL_CARGO_CAPACITY_NOT_PROVEN",
+          "CALCULATED_FROM_DATASET_SIMULATION_BOUNDARY"
+        ]
+      }
+    ],
+    "selected_scenario_id": "CFR-PILOG",
+    "reason_codes": [
+      "PRELIMINARY_DWT_SCREEN_PASS",
+      "POSITIVE_PILOG_FREIGHT_CONTRIBUTION",
+      "SIMULATION_ASSUMPTIONS_PRESENT",
+      "FOB_COMMODITY_PROFIT_NOT_ASSESSED"
+    ],
+    "next_action": "Validasi kapal, biaya, harga, dan kewenangan dengan atasan/PI seller; baru setelah disetujui dekati buyer."
+  },
+  "recommendation": {
+    "action": "CFR_CANDIDATE_PENDING_HUMAN_REVIEW",
+    "reasons": [
+      "PRELIMINARY_DWT_SCREEN_PASS",
+      "POSITIVE_PILOG_FREIGHT_CONTRIBUTION",
+      "SIMULATION_ASSUMPTIONS_PRESENT",
+      "FOB_COMMODITY_PROFIT_NOT_ASSESSED"
+    ],
+    "next_action": "Validasi kapal, biaya, harga, dan kewenangan dengan atasan/PI seller; baru setelah disetujui dekati buyer.",
+    "human_approval_required": true,
+    "approval_status": "PENDING_HUMAN_REVIEW"
+  },
+  "unresolved_definitions": [
+    "FOB_COMMODITY_COST_AND_MARGIN",
+    "MINIMUM_COMMERCIAL_MARGIN_DEFERRED",
+    "COMMISSION_CONTRACT_BASIS",
+    "OTHER_VOYAGE_COST_BREAKDOWN",
+    "ACTUAL_VESSEL_AVAILABILITY_AND_SAFE_LOADING"
+  ],
+  "run_id": "i2_20260923T091307166739Z_f5c4e74a",
+  "generated_at_utc": "2026-09-23T09:13:07.167739+00:00",
+  "input_snapshot": {
+    "dataset": {
+      "file": "input_snapshot/dataset.csv",
+      "sha256": "f5c4e74a4f9395da0bfd4814bf9de23e4ca5e56a6941e0c8070fd0b9f4a7c9bb"
+    },
+    "catalog": {
+      "file": "input_snapshot/catalog.csv",
+      "sha256": "5989760a7b3503276c541ea1facdc9c0987329cf3d5dbc67cfdaa57dbaf5572b"
+    },
+    "manual": {
+      "file": "input_snapshot/manual.json",
+      "sha256": "11ce94779e42761340e4362fa677be1fb6957066ef312a120f3ae42c32321c90"
+    },
+    "vessel_policy": {
+      "file": "input_snapshot/vessel_policy.json",
+      "sha256": "3589118a094d977e895b5c67838fce1eead6c26c87b2e3b901430b74d7a6c5e0"
+    }
+  }
+}

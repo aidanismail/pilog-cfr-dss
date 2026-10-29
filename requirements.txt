@@ -1,7 +1,4 @@
-pandas
-openpyxl
-pydantic
-pyarrow
-streamlit
-pytest
-plotly
+# Engine DSS dan unittest hanya menggunakan pustaka standar Python.
+# Dependensi berikut untuk persiapan input dari workbook/PDF dan workbook belajar.
+openpyxl>=3.1,<4
+pypdf>=5,<7

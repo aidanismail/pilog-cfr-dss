@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device" version="24.7.17">
+  <diagram id="i4-source-workflow" name="I4 - Sumber data dan alur">
+    <mxGraphModel dx="2400" dy="1350" grid="1" gridSize="10" page="1" pageWidth="2400" pageHeight="1350">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="heading" value="PILOG CFR DSS | ALUR SISTEM DAN SUMBER DATA" vertex="1" parent="1" style="text;html=0;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=43;fontColor=#283748;fontStyle=1;">
+          <mxGeometry x="30" y="25" width="2340" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Basis disetujui: Bontang-Mundra | 30.000 MT | Handysize | Round voyage | OD asli tidak diubah" vertex="1" parent="1" style="text;html=0;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=27;fontColor=#283748;">
+          <mxGeometry x="30" y="95" width="2340" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="legend" value="ABU: sumber   |   BIRU: otomasi hitungan   |   UNGU: DSS   |   KUNING: manusia" vertex="1" parent="1" style="text;html=0;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=25;fontColor=#283748;">
+          <mxGeometry x="30" y="1190" width="2340" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="foot" value="Simulasi / advisory-only. Baseline dan cek wajib lolos: GO; stress rugi dijelaskan. Hedging belum diterapkan." vertex="1" parent="1" style="text;html=0;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=25;fontColor=#283748;">
+          <mxGeometry x="30" y="1240" width="2340" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="foot2" value="Rencana final; menunggu audit data pengguna dan perintah execute. Dataset serta engine I4 belum dibangun." vertex="1" parent="1" style="text;html=0;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=23;fontColor=#283748;">
+          <mxGeometry x="30" y="1285" width="2340" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="sourceLabel" value="SUMBER DATA" vertex="1" parent="1" style="text;html=0;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=23;fontColor=#283748;">
+          <mxGeometry x="30" y="145" width="1200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="flowLabel" value="PENGOLAHAN DAN KEPUTUSAN" vertex="1" parent="1" style="text;html=0;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=23;fontColor=#283748;">
+          <mxGeometry x="350" y="605" width="1200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e0" value="" edge="1" parent="1" source="voyageSource" target="prep" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="" edge="1" parent="1" source="fearn" target="prep" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="550" />
+              <mxPoint x="180" y="550" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" value="" edge="1" parent="1" source="baltic" target="prep" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="860" y="575" />
+              <mxPoint x="180" y="575" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="" edge="1" parent="1" source="odSource" target="prep" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1200" y="385" />
+              <mxPoint x="15" y="385" />
+              <mxPoint x="15" y="610" />
+              <mxPoint x="180" y="610" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" value="" edge="1" parent="1" source="odSource" target="compare" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.6833333;entryY=0;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1200" y="560" />
+              <mxPoint x="915" y="560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="" edge="1" parent="1" source="reports" target="index" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="" edge="1" parent="1" source="index" target="bids" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="" edge="1" parent="1" source="piInput" target="bids" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.7;entryY=0;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1880" y="540" />
+              <mxPoint x="1600" y="540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" value="Bid" edge="1" parent="1" source="fixture" target="bids" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.9;entryY=0;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2220" y="595" />
+              <mxPoint x="1660" y="595" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" value="Shock" edge="1" parent="1" source="fixture" target="stress" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.9333333;entryY=0;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2220" y="515" />
+              <mxPoint x="2010" y="515" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" value="" edge="1" parent="1" source="prep" target="voyage" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="" edge="1" parent="1" source="voyage" target="compare" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="" edge="1" parent="1" source="compare" target="freeze" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" value="" edge="1" parent="1" source="freeze" target="bids" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" value="" edge="1" parent="1" source="bids" target="stress" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" value="" edge="1" parent="1" source="stress" target="brief" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" value="Tidak ada bid lolos" edge="1" parent="1" source="bids" target="brief" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;dashed=1;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1540" y="900" />
+              <mxPoint x="2220" y="900" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e17" value="Input penting belum cukup: NO GO" edge="1" parent="1" source="prep" target="brief" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5666667;entryY=1;entryDx=0;entryDy=0;dashed=1;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="180" y="955" />
+              <mxPoint x="2240" y="955" />
+              <mxPoint x="2240" y="810" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e18" value="" edge="1" parent="1" source="brief" target="review" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2385" y="730" />
+              <mxPoint x="2385" y="1078" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e19" value="" edge="1" parent="1" source="review" target="finish" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#617182;fontFamily=Arial;fontSize=22;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="voyageSource" value="Voyage Estimate + audit&#10;Fisik, operasi, biaya&#10;Koreksi mentor / Sby" vertex="1" parent="1" style="shape=cylinder;size=20;boundedLbl=1;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#F4F6F8;strokeColor=#81909D;fontColor=#283748;">
+          <mxGeometry x="30" y="180" width="300" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="fearn" value="Fearnpulse (#2)&#10;Acuan pasar USD/hari&#10;Seri + tanggal snapshot" vertex="1" parent="1" style="shape=cylinder;size=20;boundedLbl=1;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#F4F6F8;strokeColor=#81909D;fontColor=#283748;">
+          <mxGeometry x="370" y="180" width="300" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="baltic" value="Baltic Exchange&#10;Referensi profil kapal&#10;Bukan kapal aktual" vertex="1" parent="1" style="shape=cylinder;size=20;boundedLbl=1;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#F4F6F8;strokeColor=#81909D;fontColor=#283748;">
+          <mxGeometry x="710" y="180" width="300" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="odSource" value="OD ASLI&#10;Kontrak payung: rute/tarif&#10;Tetap, tidak diubah" vertex="1" parent="1" style="shape=cylinder;size=20;boundedLbl=1;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#F4F6F8;strokeColor=#81909D;fontColor=#283748;">
+          <mxGeometry x="1050" y="180" width="300" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="reports" value="Argus + Fertecon&#10;Indeks urea FOB SEA&#10;Rentang harga + tanggal" vertex="1" parent="1" style="shape=cylinder;size=20;boundedLbl=1;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#F4F6F8;strokeColor=#81909D;fontColor=#283748;">
+          <mxGeometry x="1390" y="180" width="300" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="piInput" value="Input PI&#10;OE/HPS dan lot barang&#10;Manual / input simulasi" vertex="1" parent="1" style="shape=cylinder;size=20;boundedLbl=1;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#F4F6F8;strokeColor=#81909D;fontColor=#283748;">
+          <mxGeometry x="1730" y="180" width="300" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="fixture" value="JSON SIMULASI&#10;Buyer alpha + putaran&#10;Asumsi BBM / delay" vertex="1" parent="1" style="shape=cylinder;size=20;boundedLbl=1;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#F4F6F8;strokeColor=#81909D;fontColor=#283748;">
+          <mxGeometry x="2070" y="180" width="300" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="index" value="Hitung indeks urea&#10;Midpoint tiap penerbit&#10;Lalu rata-rata keduanya" vertex="1" parent="1" style="rounded=1;arcSize=12;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#E8F3FF;strokeColor=#3979AE;fontColor=#283748;">
+          <mxGeometry x="1390" y="395" width="300" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="prep" value="1. Siapkan data kasus&#10;Unit, kapal dan rute&#10;Mengikuti basis OD" vertex="1" parent="1" style="rounded=1;arcSize=12;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#E8F3FF;strokeColor=#3979AE;fontColor=#283748;">
+          <mxGeometry x="30" y="650" width="300" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="voyage" value="2. Voyage economics&#10;Hari, BBM, biaya&#10;Tarif freight + kontribusi" vertex="1" parent="1" style="rounded=1;arcSize=12;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#E8F3FF;strokeColor=#3979AE;fontColor=#283748;">
+          <mxGeometry x="370" y="650" width="300" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="compare" value="3. Bandingkan OD asli&#10;Periksa basis dan selisih&#10;Informasi, bukan gate" vertex="1" parent="1" style="rounded=1;arcSize=12;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#EEE7FA;strokeColor=#7952A5;fontColor=#283748;">
+          <mxGeometry x="710" y="650" width="300" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="freeze" value="4. Finalisasi freight&#10;PI + PILOG menyepakati&#10;Freight tetap saat tender" vertex="1" parent="1" style="rounded=1;arcSize=12;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#FFF2CF;strokeColor=#B28A2E;fontColor=#283748;">
+          <mxGeometry x="1050" y="650" width="300" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="bids" value="5. Tender + Gate A&#10;FOB = indeks + alpha&#10;FOB &gt;= OE/HPS; ranking" vertex="1" parent="1" style="rounded=1;arcSize=12;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#EEE7FA;strokeColor=#7952A5;fontColor=#283748;">
+          <mxGeometry x="1390" y="650" width="300" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="stress" value="6. Skenario + Gate B&#10;Cek kapal dan baseline&#10;BBM naik / delay: risiko" vertex="1" parent="1" style="rounded=1;arcSize=12;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#EEE7FA;strokeColor=#7952A5;fontColor=#283748;">
+          <mxGeometry x="1730" y="650" width="300" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="brief" value="7. GO / NO GO&#10;Brief komersial ringkas&#10;Tabel cek + OD + risiko" vertex="1" parent="1" style="rounded=1;arcSize=12;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#EEE7FA;strokeColor=#7952A5;fontColor=#283748;">
+          <mxGeometry x="2070" y="650" width="300" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="review" value="Review manusia&#10;PI menetapkan award&#10;PILOG menyetujui freight" vertex="1" parent="1" style="rounded=1;arcSize=12;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#FFF2CF;strokeColor=#B28A2E;fontColor=#283748;">
+          <mxGeometry x="2070" y="1020" width="300" height="115" as="geometry" />
+        </mxCell>
+        <mxCell id="finish" value="Handover / tindak lanjut&#10;GO disetujui: tahap 6-8&#10;NO GO: revisi / tender lagi" vertex="1" parent="1" style="rounded=1;arcSize=12;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;spacing=14;fontFamily=Arial;fontSize=25;strokeWidth=2;fillColor=#E1EFE5;strokeColor=#4C825B;fontColor=#283748;">
+          <mxGeometry x="1640" y="1020" width="320" height="115" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

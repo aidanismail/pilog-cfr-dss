@@ -1,0 +1,62 @@
+No,Variable,Value
+1,Cargo description,ROCK PHOSPHAT SF 28-35'
+2,Loading port,Bontang
+3,Discharging port,ECI
+4,Laden distance (NM),2045
+5,Ballast distance (NM),5520
+6,Laden speed (knots),14
+7,Ballast speed (knots),15
+8,Fuel oil consumption - laden (MT/day),29
+9,Fuel oil consumption - ballast (MT/day),25
+10,Diesel consumption - at sea laden (MT/day),0.1
+11,Diesel consumption - at sea ballast (MT/day),0.1
+12,In-port working load factor,0.7
+13,In-port diesel factor (kg/kWh),0.1
+14,Auxiliary engine power (kW),2000
+15,DWT (MT),58000
+16,Bunkers allowance (MT),1800
+17,Constants allowance (MT),500
+18,DWCC / cargo quantity (MT),45000
+19,Loading rate (MT/day),10000
+20,Discharge rate (MT/day),6000
+21,Canal transit days,0
+22,Fuel oil at loading port (MT),0
+23,Fuel oil at discharging port (MT),0
+24,Fuel oil price (USD/MT),568
+25,Diesel oil price (USD/MT),701
+26,Other voyage costs total (USD),200000
+27,Daily cost assumption (USD/day),11000
+28,Hire rate (USD/day),13000
+29,Freight rate (USD/MT),20
+30,Freight commission rate,0.025
+31,Running costs (USD/day),5612
+33,Exchange rate (IDR/USD),15800
+34,Hire comparison days,15
+35,Broker fee rate,0.0125
+36,Additional commission rate,0.025
+37,Benchmark vessel,Baltic Supramax Index
+38,Scrubber fitted,No
+39,At-sea fuel type,Marine Fuel Oil (MFO)
+40,Marine Gas Oil at sea,No
+41,Reference DWT (MT),63500
+42,SSW draft (m),13.42
+43,TPC (MT/cm),61.4
+44,Maximum vessel age (years),15
+45,Length overall / LOA (m),199.98
+46,Beam (m),32.24
+47,Grain capacity (CBM),80500
+48,Bale capacity (CBM),76200
+49,Cargo holds,5
+50,Cargo hatches,5
+51,Cranes,4
+52,Crane capacity each (MT),30
+53,Grabs,4
+54,Grab capacity each (CBM),12
+55,MFO consumption at 14 knots - laden (MT/day),29
+56,MFO consumption at 14 knots - ballast (MT/day),25
+57,MFO consumption at 13 knots - laden (MT/day),24
+58,MFO consumption at 13 knots - ballast (MT/day),21
+59,MFO consumption at 12 knots - laden (MT/day),20
+60,MFO consumption at 12 knots - ballast (MT/day),17
+61,MFO consumption at 11 knots - laden (MT/day),16.5
+62,MFO consumption at 11 knots - ballast (MT/day),14
