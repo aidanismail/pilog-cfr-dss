@@ -29,6 +29,10 @@ def source_label(record: dict, sheet: str = "") -> str:
         return "Fearnpulse"
     if status == "observed_workbook_profile_transfer":
         return "Voyage Estimate · " + sheet
+    if status == "simulation_only_workbook_vessel_profile":
+        return "Asumsi profil kapal · " + sheet
+    if status == "simulation_only_workbook_case":
+        return "Asumsi demo · " + sheet
     if status == "observed_workbook_distance":
         return "OD · jarak"
     if status == "inherited_simulation_proxy":

@@ -99,7 +99,9 @@ class MarketPipelineTests(unittest.TestCase):
         self.assertEqual(self.case.fingerprint, fingerprint)
         self.assertFalse(self.case.fixed)
         self.assertNotEqual(rows[0]["baseline"]["bunker_usd"], rows[1]["baseline"]["bunker_usd"])
-        self.assertTrue(next(r for r in rows if r["sheet"] == "Godau")["class_proxy"])
+        self.assertTrue(all(not r["class_proxy"] for r in rows))
+        self.assertEqual({r["market_series"] for r in rows},
+                         {record["series"] for record in self.snapshot["tc_rates"].values()})
 
     def test_scheduled_case_requires_time_and_excludes_closing_instant(self):
         result = self.evaluate_case()
@@ -113,7 +115,9 @@ class MarketPipelineTests(unittest.TestCase):
         result = self.evaluate_case()
         text = commercial_brief(result)
         self.assertIn("Waktu dan sumber harga", text)
-        self.assertIn("2026-07-01", text)
-        self.assertIn("2026-10-21", text)
+        for quote in self.snapshot["bunkers"].values():
+            self.assertIn(quote["source_observed_on"], text)
+        family = self.case.context["vessel_profile"]["market_family"]
+        self.assertIn(self.snapshot["tc_rates"][family]["source_observed_on"], text)
         self.assertIn("3 menit", text)
         self.assertTrue(all(row["calculated_at"] and row["freight_fixed_at"] for row in result["price_records"]["bids"]))

@@ -1,5 +1,7 @@
 """Read OD route distances only; never import the workbook's freight prices."""
 import hashlib
+from copy import deepcopy
+from functools import lru_cache
 from io import BytesIO
 import json
 from decimal import Decimal, InvalidOperation
@@ -48,8 +50,8 @@ def resolve_distance(payload: dict, origin: str, destination: str, product: str)
     return matches[0]
 
 
-def read_distance(path: Path, origin: str, destination: str, product: str) -> dict:
-    source = path.read_bytes()
+@lru_cache(maxsize=2)
+def _distance_payload(source: bytes) -> dict:
     workbook = load_workbook(BytesIO(source), read_only=True, data_only=True)
     try:
         sheet = workbook[SHEET]
@@ -57,6 +59,12 @@ def read_distance(path: Path, origin: str, destination: str, product: str) -> di
         payload = {"sheet": SHEET, "unit": "NM", "last_row": sheet.max_row, "cells": cells}
     finally:
         workbook.close()
+    return payload
+
+
+def read_distance(path: Path, origin: str, destination: str, product: str) -> dict:
+    source = path.read_bytes()
+    payload = deepcopy(_distance_payload(source))
     resolved = resolve_distance(payload, origin, destination, product)
     reference = "docs/it_4/" + path.name + " :: " + SHEET + "!" + resolved["cell"]
     return {"version": "OD-DISTANCE.1", **resolved, "unit": "NM", "sheet": SHEET,

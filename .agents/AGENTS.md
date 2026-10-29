@@ -1,10 +1,26 @@
 # Panduan Agentic Coding - PILOG CFR DSS
 
-## Aktif D-072 — rencana demo I5, belum implementasi
+## Aktif D-076 — randomisasi input contoh, bukan keputusan
 
-Baca docs/it_5/ITERATION_05_PLAN.md dan .agents/tasks/ITERATION_05.md. Jawaban pengguna: akses luar kantor, tidak ada infrastruktur tersedia, ide Pages, 1–3 pengguna perlu create/edit. Kotretan system design akan diunggah; jangan mengklaim sudah dibaca. Rekomendasi proporsional: satu web service untuk React build + FastAPI/engine existing, managed PostgreSQL dan akun demo individual. Render + Neon baru kandidat. GitHub Pages hanya frontend statis, bukan host Python; repo tetap private. SSO/role enterprise, VM sendiri, Compose wajib dan object storage terpisah ditunda.
+Pengguna meminta pengacakan editor bid/risiko. Implementasi application/tender_examples.py memakai seed 64-bit, market_summary/minimum alpha existing, tiga buyer/putaran, nonnegative FOB dan clock kasus 180 detik. Tidak memilih desired outcome, mengacak quote/OE/indeks/biaya baseline atau menaruh RNG di calculations/decisions.
 
-I4 accepted/pushed 57257c0, 239/239 tes release lulus. Jangan mengubah matematika ke JS/PHP atau mengganti gate/model. I5 hanya plan: tanpa scaffold/install/provision/deploy sampai instruksi implementasi. Anggaran free versus always-on kecil dan desain pengguna belum final; tanyakan hanya pertanyaan yang masih perlu di akhir. Auth/izin backend, persistent state, conflict/retry handling tetap dirancang; bukan alasan membangun arsitektur enterprise.
+UI menahan contoh pada session draft sampai Terapkan. Acak ulang tersedia sesudah ada bid, editor keys mengikuti seed. record_applied_example menyimpan seed/version/basis/hash, actual clock/cutoff/PI selection dan edited_before_apply; apply_tender/apply_scenarios/revise menghapus metadata stale. Snapshot input terpakai adalah kebenaran; seed tidak dianggap mereproduksi edit manusia. Sidebar dan CLI scripted fixtures tetap. Full 262 tes lulus; browser/evidence final di state/task. Empat workbook/profil/fixed quote/gate tetap, deployment belum diizinkan.
+
+## Aktif D-075 — diversifikasi profil selesai teknis
+
+Pengguna memberi EXECUTE dua Handysize dan dua Supramax. Workbook aktif/mirror sekarang HS36/HS38/SUP54/SUP58; spesifikasi fisik sintetis berlabel, tidak diklaim dari Fearnpulse. Stable technical IDs lama tetap lewat PROFILE_IDS alias, case/quote/snapshot historis tidak berubah. Keluarga pasar kelas ditentukan DWT: dua Handysize → benchmark Handysize, dua Supramax → benchmark Supramax. Benchmark bukan harga penawaran kapal aktual; tidak mengarang quote berbeda dalam kelas.
+
+Format workbook/cargo/rute/OD/gate tidak diubah pada revisi ini. VE-PROFILES.3/source_status simulation_only_workbook_vessel_profile membedakan input demo dari observasi pasar. Full 254 tes lulus; task/state mencatat browser final. D-074 di bawah adalah histori pemisahan voyage/kapal. Deployment, persistence dan porting tetap belum dieksekusi.
+
+## Aktif D-074 — implementasi kasus workbook, bukan deploy
+
+Pengguna mengizinkan edit isi/nama keempat sheet dan integrasi Step 1; jangan ubah style, warna, merge, ukuran kolom/baris atau posisi tabel. Pernyataan D-073 belum izin kode digantikan khusus V1..V4 ini. Tidak ada izin deploy/porting. Baca docs/it_5/ITERATION_05_PLAN.md §6.1 dan task I5.
+
+Kasus urea Bontang→Mundra/Davao/Bangkok/Hai Phong, muatan 30k/28k/32k/29k MT; handling/waiting/port biaya contoh berlabel, OD asli tidak diubah. Workbook aktif data/raw/Voyage Estimate.xlsx, mirror Experiments identik; arsip I4 docs/it_4/Voyage Estimate I4.xlsx menjaga replay/preparer lama. Source parsing terpisah voyage/kapal. Stable vessel codes B3 menjaga ID CLI lama saat tab diubah; UI gunakan kelas/DWT/speed, jangan memakai nama rute sebagai nama kapal.
+
+Dua pemilih independen; market target mengikuti kelas, bunker tetap Fearnpulse. JSON processed bukan satu-satunya sumber active app; cache berbasis hash dan penggantian workbook ke kasus lama memerlukan aksi/revisi eksplisit. Jangan mutasi fixed quote/bid/history. Contoh sidebar memuat ulang template voyage/kapal terpilih agar input manual invalid tidak merusak contoh. §6.2/task/state memuat evidence.
+
+Streamlit dipertahankan; FastAPI/React/RBAC enterprise ditunda. Simpan/reopen lintas sesi belum diputuskan. Jangan mengklaim cloud durable atau multi-user-safe. Sebut batas asumsi, gunakan Python Decimal, dan berikan kritik beralasan. Sumber I4 57257c0/239 tes release tetap baseline, bukan evidence revisi baru.
 
 ## Terbaru D-070 — I4 accepted, push diotorisasi
 

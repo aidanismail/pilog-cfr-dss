@@ -1,10 +1,24 @@
 # Mulai di sini — PILOG CFR DSS
 
-## Terbaru D-072 — demo I5 untuk 1–3 editor dari luar kantor
+## Terbaru D-076 — contoh bid/risiko acak dalam draft
 
-Pengguna sudah menjawab: akses dari luar kantor, belum mempunyai server/cloud, mempertimbangkan GitHub Pages, perkiraan 1–3 pengguna dan perlu membuat/mengubah kasus. Kotretan system design akan diunggah; belum dibaca. [Plan I5](../docs/it_5/ITERATION_05_PLAN.md) disederhanakan menjadi demo: satu web service menyajikan React build + FastAPI/engine I4, managed PostgreSQL, akun demo terbatas. Render + Neon kandidat, bukan provider yang sudah dipilih/provision. Pages hanya alternatif frontend statis; backend tetap memerlukan host lain. Jangan menjadikan repo private publik.
+29 Oktober: tombol awal Isi contoh bid tiga putaran kini memakai generator sintetis ber-seed, bukan fixture GO. Setelah ada bid/draft tersedia Acak ulang bid & risiko. Alpha di sekitar floor turunan indeks/OE, risk shock/delay bervariasi; input belum mengubah canonical case sebelum Terapkan. Seed/version dan hash generated/applied tersimpan di tender_example; edit manusia ditandai, edit/revisi berikutnya membersihkan provenance lama.
 
-I4 accepted/pushed pada 57257c0, full suite 239/239 lulus; I4.1/I4-BRIEF.8 tetap baseline/parity/fallback. I5 hanya rencana, belum izin scaffold/install/provision/deploy. Anggaran Rp0 versus layanan kecil always-on dan kotretan masih menunggu; jangan menanyakan ulang tiga jawaban yang sudah diterima. SSO/RBAC enterprise/VM/Compose wajib bukan syarat demo. Persistence, revision, login/izin backend dan pemisahan data tetap perlu. Tidak mengubah rumus/gate/quote/dataset atau menghubungkan Fleetra.
+Tidak ada RNG pada ranking/evaluasi/replay, atau perubahan gate/fixed quote/workbook/market snapshots pengguna. Sidebar/CLI contoh GO/NO GO tetap deterministik. Alpha memengaruhi Gate A, risiko stress bukan veto Gate B; NO GO ekonomi tetap memerlukan kontribusi baseline negatif. Full suite 262/262 lulus; task/state memuat browser final. Deploy/porting belum dilakukan.
+
+## Terbaru D-075 — dua Handysize dan dua Supramax
+
+29 Oktober: diversifikasi profil diotorisasi/diimplementasikan. HS36 36.000 DWT/11,5 knot, HS38 38.000/12,5, SUP54 54.000/12 dan SUP58 58.000/13. Consumption/port diesel/running juga berbeda; seluruh physical specification adalah asumsi demo, bukan datasheet Fearnpulse. Source status simulation_only_workbook_vessel_profile dan VE-PROFILES.3. Snapshot Fearnpulse existing tetap: dua keluarga TC dan bunker, tidak ada premium rate per kapal yang dikarang.
+
+Format workbook, empat voyage/port/cargo, OD dan gate tetap. Mirror Experiments serta catalog disinkronkan; ID CLI lama tetap melalui alias kode, fixed/histori tidak dimutasi. Full suite 254/254 lulus; task/plan/state memuat verifikasi browser final. Deploy/porting masih belum dilakukan. Saat aplikasi lama terbuka, Gunakan workbook terbaru memulai kasus baru tanpa bid lama.
+
+## Terbaru D-074 — empat voyage dan profil kapal terpisah
+
+Pengguna menerima empat kasus urea dari Bontang dan mengizinkan perubahan isi/nama sheet, dengan format/warna/posisi/ukuran workbook tetap. V1..V3 diimplementasikan: Mundra 30k, Davao 28k, Bangkok 32k, Hai Phong 29k MT. Data handling/waiting/port adalah asumsi demo, OD distance-only tetap. Workbook aktif data/raw/Voyage Estimate.xlsx dan mirror Experiments identik; sumber I4 diarsipkan docs/it_4/Voyage Estimate I4.xlsx. Tidak menyamakan bahan input contoh dengan data aktual terminal.
+
+Step 1: Pilih Voyage Estimate dan Pilih profil kapal independen. Source reader/cache mengikuti hash workbook, file JSON processed dapat disinkronkan offline melalui scripts/sync_voyage_inputs.py. Nama profil menunjukkan kelas/DWT/speed, nama sheet hanya sumber. Contoh GO/NO GO mengikuti pilihan voyage/kapal dan memuat ulang input workbook valid. Fixed quote harus direvisi sebelum berganti basis; snapshot/histori tetap.
+
+V1..V4 selesai teknis: 252/252 full suite lulus, 37 targeted final lulus; 16 pasangan/replay, Excel-engine parity empat sheet dan browser tiga hasil/unduhan/390px PASS/0 JS error. I5 masih tanpa deployment/porting. Streamlit tetap jalur yang disetujui, system design/persistence/provider menyusul. Rumus/gate I4.1 dan pembulatan tetap. Jangan menyalakan app pengguna atau menghubungkan Fleetra.
 
 ## Terbaru D-070 — I4 accepted; checkpoint dan perencanaan I5
 

@@ -96,15 +96,34 @@ class WorkbookProfilesTests(unittest.TestCase):
     def test_all_four_profiles_classified_and_laden_inputs_mapped(self):
         result = read_profiles(ROOT / "data/raw/Voyage Estimate.xlsx")
         profiles = {p["sheet"]: p for p in result["profiles"]}
-        self.assertEqual(set(profiles), {"Sheet1", "AQABA", "Sby", "Godau"})
-        self.assertEqual(profiles["Sheet1"]["fields"]["dwt_mt"], "36009")
-        self.assertEqual(profiles["AQABA"]["fields"]["speed_knots"], "14")
-        self.assertEqual(profiles["Sby"]["fields"]["speed_knots"], "12")
-        self.assertEqual(profiles["Godau"]["vessel_class"], "Handymax")
-        self.assertTrue(profiles["Godau"]["market_class_proxy"])
-        self.assertEqual(D(profiles["Sheet1"]["fields"]["port_do_mt_day"]), D("3.36"))
+        self.assertEqual(set(profiles), {"Bontang-Mundra", "Bontang-Davao", "Bontang-Bangkok", "Bontang-Hai Phong"})
+        self.assertEqual(profiles["Bontang-Mundra"]["fields"]["dwt_mt"], "36000")
+        self.assertEqual(profiles["Bontang-Davao"]["fields"]["speed_knots"], "12.5")
+        self.assertEqual(profiles["Bontang-Bangkok"]["fields"]["speed_knots"], "12")
+        self.assertEqual(profiles["Bontang-Hai Phong"]["vessel_class"], "Supramax")
+        self.assertFalse(any(p["market_class_proxy"] for p in profiles.values()))
+        self.assertEqual(D(profiles["Bontang-Mundra"]["fields"]["port_do_mt_day"]), D("2.52"))
         self.assertTrue(all(D(p["fields"]["dwt_mt"]) <= 60000 for p in profiles.values()))
         self.assertNotIn("baltic", json.dumps(result).lower())
+
+    def test_two_handysize_two_supramax_have_distinct_physical_assumptions(self):
+        from collections import Counter
+        result = read_profiles(ROOT / "data/raw/Voyage Estimate.xlsx")
+        profiles = result["profiles"]
+        self.assertEqual(Counter(p["vessel_class"] for p in profiles), {"Handysize":2,"Supramax":2})
+        self.assertEqual({p["fields"]["dwt_mt"] for p in profiles},{"36000","38000","54000","58000"})
+        for key in ("speed_knots","sea_fo_mt_day","sea_do_mt_day","port_do_mt_day","running_usd_day"):
+            self.assertEqual(len({p["fields"][key] for p in profiles}),4,key)
+        self.assertTrue(all(p["source_status"] == "simulation_only_workbook_vessel_profile" for p in profiles))
+        self.assertTrue(all("sintetis" in p["note"] for p in profiles))
+        self.assertEqual({p["profile_id"] for p in profiles},{"ve_sheet1","ve_aqaba","ve_sby","ve_godau"})
+        self.assertEqual([p["market_family"] for p in profiles],["Handysize","Handysize","Supramax","Supramax"])
+
+    def test_historical_handymax_profile_remains_readable_without_reclassifying_it(self):
+        result = read_profiles(ROOT / "docs/it_4/Voyage Estimate I4.xlsx")
+        handymax = next(p for p in result["profiles"] if p["sheet"]=="Godau")
+        self.assertEqual(handymax["vessel_class"],"Handymax")
+        self.assertTrue(handymax["market_class_proxy"])
 
 
 class FixedRoundTests(unittest.TestCase):

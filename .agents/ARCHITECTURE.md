@@ -1,10 +1,22 @@
 # Modular Architecture and Directory Workflow
 
-## Target I5 — demo kecil yang masih direncanakan
+## D-076 — generator contoh di lapisan application
 
-Plan docs/it_5/ITERATION_05_PLAN.md: satu web service menyajikan React build dan FastAPI/auth/revision → application service/repository → engine I4. Managed PostgreSQL menyimpan canonical state serta JSON/MD/audit/snapshot kecil immutable; ZIP dibuat dari bytes tersimpan. Staging file sementara bukan persistence. Object storage/VM/Compose wajib/replica ditunda; Compose opsional lokal. Render + Neon kandidat, bukan layanan aktif. Pages hanya alternatif host frontend dan memerlukan backend terpisah.
+application/tender_examples.py::generate_example membaca floor metric existing lalu membangun sembilan bid/risiko sintetis dari seed. Generate tidak memutasi kasus. UI menyimpan pending example dengan basis_fingerprint di session; Terapkan memakai apply_tender/apply_scenarios lalu record_applied_example, yang menyimpan hash/seed/basis dan menginvalidasi hasil lama. Manual edit/revise membersihkan metadata. calculations/decisions tetap deterministik; input_snapshot memuat actual applied data untuk replay tanpa RNG. Source workbook dan market snapshot tidak ditulis. Tidak mengubah zero-commission, OD distance-only atau quote fixed.
 
-1–3 editor dari luar kantor; individual login dengan shared demo workspace merupakan usulan minimal, bukan role korporat yang sudah ditetapkan. Mutable InteractiveCase dihidrasi per operasi dari state/revision, bukan global antar-user. Raw Decimal strings/formatter/gate tetap. I4 57257c0 parity/fallback. API/web/DB/infra belum dibuat; kotretan pengguna dan provider/anggaran belum final.
+## D-075 — physical profile demo dan benchmark kelas
+
+Reader VE-PROFILES.3 memakai B3 HS36/HS38/SUP54/SUP58 dan DWT/speed/consumption/running/formula J6 workbook. PROFILE_IDS mempertahankan ID CLI lama; archive I4 tetap terbaca termasuk Handymax historis. apply_profile meneruskan source_status simulation_only_workbook_vessel_profile ke lineage/UI, sedangkan market_family memilih snapshot Fearnpulse Handysize atau Supramax. physical fields tidak diambil dari TC rate, tidak ada interpolasi premium/hire tambahan. Full suite 254 lulus; sumber/bukti final di plan §6.3 dan iteration state.
+
+## Target I5 — Streamlit dengan dua sumber pilihan
+
+D-074: Voyage Estimate.xlsx → sources/voyage_estimates.py (rute/muatan/rates/waiting/komponen port, OD-distance binding) dan sources/voyage_profiles.py (B3 stable code, DWT/speed/consumption/running) → application/market_case.py → InteractiveCase → engine I4. UI memiliki dua pemilih independen. Profile dipasangkan ke seri Fearnpulse; bunker source tetap. Source catalogs di-cache menurut hash file dan dikembalikan sebagai salinan, bukan mutable state pengguna global. scripts/sync_voyage_inputs.py memperbarui JSON derived tanpa network.
+
+Empat sheet aktif telah bernama rute. Komponen biaya menggunakan I33:I37; J33 adalah total sekali (sheet bekas AQABA mempunyai merge J33:J37 yang dipertahankan). Parser tidak menghitung bunker/running sebagai port atau mengandalkan cached formula Excel. Handling didapat dari divisor formula sederhana yang didukung. OD tetap file asli/read-only. Histori source I4 di docs/it_4/Voyage Estimate I4.xlsx; preparer lama memakai arsip, bukan nama sheet baru.
+
+Default constructors menerima voyage_id opsional, fixed guard tetap; explicit workbook reload membuat basis baru. Perbandingan kapal mempertahankan rute, sidebar contoh membangun ulang source valid dengan pilihan tetap. Context/audit memuat voyage dan profil terpisah. Rumus/gate I4.1 tetap.
+
+Hosting Streamlit belum dilakukan. Persistence/reopen dan role tidak diasumsikan siap; API/React ditunda. Sesi UI dan folder draft lokal masih tidak boleh diklaim sebagai persistent multi-user storage.
 
 ## Formatter bersama — D-068/D-069
 

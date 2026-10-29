@@ -47,7 +47,8 @@ def build(output: Path) -> None:
     files = [output / "i4_voyage.csv", output / "i4_context.json", output / "i4_no_go.json"]
     if any(p.exists() for p in files):
         raise ValueError("I4 inputs already exist; choose a new --output-dir instead of overwriting experiments.")
-    raw = ROOT / "data/raw/Voyage Estimate.xlsx"
+    # Replay the accepted I4 template, whose original tab names are preserved.
+    raw = ROOT / "docs/it_4/Voyage Estimate I4.xlsx"
     od_path = ROOT / "docs/it_4/Simulasi Tarif Internasional_Mei 2025.xlsx"
     register = ROOT / "data/raw/Voyage_Estimate_all_sheets_variable_value_units.xlsx"
     sources = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in [raw, od_path, register]}
@@ -56,7 +57,7 @@ def build(output: Path) -> None:
     od = load_workbook(od_path, read_only=True, data_only=True)
     aq = w["AQABA"]
     od_input = od["Input - OD Intl"]
-    ref = "data/raw/Voyage Estimate.xlsx :: "
+    ref = "docs/it_4/Voyage Estimate I4.xlsx :: "
     observations = {}
     report_paths = {
         "argus": ROOT.parent / "references/Market Reports/Argus Nitrogen (2026-09-10).pdf",

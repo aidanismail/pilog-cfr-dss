@@ -95,12 +95,30 @@ def main():
                     assert picker.evaluate("e => e.getBoundingClientRect().top < document.querySelector('#pilog-step-02').getBoundingClientRect().top")
                     picker.click()
                     picker.press("ArrowDown")
-                    page.get_by_role("option").filter(has_text="Godau").click()
-                    expect(page.get_by_text("Godau Handymax memakai acuan pasar Handysize 38k sebagai proxy kelas.", exact=True)).to_be_visible()
+                    page.get_by_role("option").filter(has_text="54.000").click()
+                    expect(page.get_by_text("Supramax · 54.000,00 DWT · 12,00 knot → acuan Supramax (58 000 dwt)", exact=True)).to_be_visible()
                     picker.click()
                     picker.press("ArrowDown")
-                    page.get_by_role("option").filter(has_text="Sheet1").click()
-                    expect(page.get_by_text("Godau Handymax memakai acuan pasar Handysize 38k sebagai proxy kelas.", exact=True)).to_have_count(0)
+                    page.get_by_role("option").filter(has_text="38.000").click()
+                    expect(page.get_by_text("Handysize · 38.000,00 DWT · 12,50 knot → acuan Handysize (38 000 dwt)", exact=True)).to_be_visible()
+                    picker.click()
+                    picker.press("ArrowDown")
+                    page.get_by_role("option").filter(has_text="36.000").click()
+                    expect(page.get_by_text("Handysize · 36.000,00 DWT · 11,50 knot → acuan Handysize (38 000 dwt)", exact=True)).to_be_visible()
+                    settle()
+                    expect(page.get_by_text("Handymax memakai acuan pasar Handysize 38k sebagai proxy kelas.", exact=True)).to_have_count(0)
+                    voyage_picker = page.get_by_label("Pilih Voyage Estimate", exact=True)
+                    expect(voyage_picker).to_have_count(1)
+                    voyage_picker.click()
+                    voyage_picker.press("ArrowDown")
+                    page.get_by_role("option").filter(has_text="Bontang → Davao").click()
+                    expect(page.get_by_text("Bontang → Davao", exact=True)).to_be_visible()
+                    expect(page.get_by_text("28.000,00", exact=True)).to_be_visible()
+                    capture("01_davao.png", "Data Pengiriman & Kapal")
+                    voyage_picker.click()
+                    voyage_picker.press("ArrowDown")
+                    page.get_by_role("option").filter(has_text="Bontang → Mundra").click()
+                    expect(page.get_by_text("Bontang → Mundra", exact=True)).to_be_visible()
                     page.get_by_role("tab", name="Harga bunker", exact=True).click()
                     expect(page.get_by_text("Singapore 380 CST → fuel oil · Singapore MGO → diesel oil.", exact=True)).to_be_visible()
                     capture("01_bunker.png", "Data Pengiriman & Kapal")
@@ -124,6 +142,10 @@ def main():
                         # Canvas headers/values are verified in AppTest; browser verifies each distinct round card.
                         expect(page.locator(f'.st-key-tender_round_{number} [data-testid="stDataFrame"]')).to_have_count(1)
                     capture("02_tender.png", "Tendering")
+                    # Random inputs are not required to yield GO. Use the explicit
+                    # scripted GO fixture for the existing GO/download checks.
+                    page.get_by_role("button", name="Muat contoh GO", exact=True).click()
+                    expect(page.get_by_text("Bid dan skenario risiko: contoh acak.", exact=True)).to_have_count(0, timeout=20000)
                     page.get_by_role("button", name="Evaluasi tender & DSS", exact=True).click()
                     expect(page.locator(".decision-banner .action")).to_have_text("GO", timeout=20000)
                     capture("03_go.png", "Commercial Decision Brief")
@@ -165,7 +187,7 @@ def main():
                     page.get_by_text("Perbarui estimasi biaya", exact=True).click()
                     expect(page.get_by_role("button", name="Evaluasi tender & DSS", exact=True)).to_be_disabled()
                     expect(page.get_by_role("button", name="Unduh decision brief", exact=True)).to_have_count(0)
-                    page.get_by_label("Total pelabuhan dan biaya lain (USD) — estimasi terbaru", exact=True).fill("450000")
+                    page.get_by_label("Total pelabuhan dan biaya lain (USD) — estimasi terbaru", exact=True).fill("600000")
                     page.get_by_label("Alasan perubahan biaya", exact=True).fill("Synthetic browser test updated port costs")
                     page.get_by_role("button", name="Terapkan estimasi biaya", exact=True).click()
                     expect(page.get_by_role("button", name="Terapkan estimasi biaya", exact=True)).to_have_count(0, timeout=20000)
@@ -186,6 +208,31 @@ def main():
                     expect(page.locator(".decision-banner .action")).to_have_text("NO GO", timeout=20000)
                     expect(page.get_by_text("Gate B belum dievaluasi.", exact=True)).to_be_visible()
                     capture("04_no_go.png", "Commercial Decision Brief")
+                    with page.expect_download() as before_random_download:
+                        page.get_by_role("button", name="Unduh hasil JSON", exact=True).click()
+                    before_random=json.loads(Path(before_random_download.value.path()).read_text(encoding="utf-8"))
+                    page.get_by_text("Edit bid & risiko", exact=True).click()
+                    page.get_by_role("button", name="Acak ulang bid & risiko", exact=True).click()
+                    settle()
+                    expect(page.get_by_text("Contoh acak belum diterapkan.", exact=True)).to_be_visible()
+                    expect(page.get_by_role("button", name="Unduh hasil JSON", exact=True)).to_have_count(0)
+                    page.get_by_role("button", name="Acak ulang bid & risiko", exact=True).click()
+                    settle()
+                    capture("04_random_editor.png", "Tendering")
+                    page.get_by_role("button", name="Terapkan bid & risiko", exact=True).click()
+                    expect(page.get_by_text("Bid dan skenario risiko: contoh acak.", exact=True)).to_be_visible()
+                    page.get_by_role("button", name="Evaluasi tender & DSS", exact=True).click()
+                    expect(page.get_by_role("button", name="Unduh hasil JSON", exact=True)).to_be_visible()
+                    with page.expect_download() as random_download:
+                        page.get_by_role("button", name="Unduh hasil JSON", exact=True).click()
+                    random_report=json.loads(Path(random_download.value.path()).read_text(encoding="utf-8"))
+                    random_context=random_report["input_lineage"]["context"]
+                    assert random_context["freight_tender"]==before_random["input_lineage"]["context"]["freight_tender"]
+                    assert len(random_context["bids"])==9 and len(random_context["scenarios"])==3
+                    assert random_context["tender_example"]["source_status"]=="simulation_only_randomized_example"
+                    assert not random_context["tender_example"]["edited_before_apply"]
+                    assert "DATA_ISSUE" not in random_report["recommendation"]["reason_codes"]
+                    capture("04_random_result.png", "Commercial Decision Brief")
                     page.get_by_role("button", name="Kasus baru", exact=True).click()
                     page.get_by_text("Ubah input kasus", exact=True).click()
                     page.get_by_label("Kecepatan muat (MT/hari)", exact=True).fill("0")
@@ -198,8 +245,11 @@ def main():
                     assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth"), "Page overflows viewport"
                     assert not errors, errors
                     result_files = list((Path(temporary) / "runs").glob("*/result.json"))
-                    actions = [json.loads(p.read_text(encoding="utf-8"))["recommendation"]["action"] for p in result_files]
-                    assert sorted(actions) == ["GO", "NO_GO", "NO_GO"], actions
+                    reports = [json.loads(p.read_text(encoding="utf-8")) for p in result_files]
+                    actions = [r["recommendation"]["action"] for r in reports]
+                    scripted = [r["recommendation"]["action"] for r in reports if not r["input_lineage"]["context"].get("tender_example")]
+                    assert sorted(scripted) == ["GO", "NO_GO", "NO_GO"], scripted
+                    assert len(reports)==4 and random_report["recommendation"]["action"] in {"GO","NO_GO"}, actions
                     browser.close()
                     print(json.dumps({"browser_smoke": "PASS", "actions": actions, "javascript_errors": errors,
                                   "screenshots": str(ARTIFACTS), "test_storage": "isolated temporary directory"}))

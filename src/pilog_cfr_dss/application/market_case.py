@@ -1,5 +1,7 @@
 """Compose a case from a workbook profile and a captured market snapshot."""
 from copy import deepcopy
+from functools import lru_cache
+import hashlib
 from datetime import timedelta
 import json
 from pathlib import Path
@@ -16,10 +18,52 @@ from pilog_cfr_dss.calculations.pricing_04 import economics
 from pilog_cfr_dss.calculations.commercial_review import net_daily, demo_port_cost
 from pilog_cfr_dss.calculations.capacity import gross_dwt_screen
 from decimal import localcontext
+from pilog_cfr_dss.sources.voyage_profiles import read_profiles
+from pilog_cfr_dss.sources.voyage_estimates import read_voyages
+
+
+@lru_cache(maxsize=8)
+def _profiles(path: str, digest: str) -> dict:
+    result = read_profiles(Path(path))
+    if result["source_sha256"] != digest:
+        raise ValueError("WORKBOOK_CHANGED_DURING_READ")
+    return result
+
+
+@lru_cache(maxsize=8)
+def _voyages(path: str, digest: str, od: str, od_digest: str) -> dict:
+    result = read_voyages(Path(path), Path(od))
+    if result["source_sha256"] != digest or any(v["distance_reference"]["source_sha256"] != od_digest for v in result["voyages"]):
+        raise ValueError("WORKBOOK_CHANGED_DURING_READ")
+    return result
 
 
 def catalog(root: Path) -> dict:
-    return json.loads((root / "data/processed/vessel_profiles_i4.json").read_text(encoding="utf-8"))
+    path = root / "data/raw/Voyage Estimate.xlsx"
+    return deepcopy(_profiles(str(path.resolve()), hashlib.sha256(path.read_bytes()).hexdigest()))
+
+
+def voyage_catalog(root: Path) -> dict:
+    path = root / "data/raw/Voyage Estimate.xlsx"
+    od = root / "docs/it_4/Simulasi Tarif Internasional_Mei 2025.xlsx"
+    return deepcopy(_voyages(str(path.resolve()), hashlib.sha256(path.read_bytes()).hexdigest(),
+                             str(od.resolve()), hashlib.sha256(od.read_bytes()).hexdigest()))
+
+
+def apply_voyage(case: InteractiveCase, voyage: dict, root: Path) -> None:
+    if case.fixed:
+        raise ValueError("BASIS_FIXED_CREATE_REVISION")
+    for row in case.rows:
+        if row["key"] in voyage["fields"]:
+            row.update(value=voyage["fields"][row["key"]], source_status=voyage["source_status"],
+                       source_reference=voyage["source_reference"] + " :: " + voyage["sheet"] + "!" + voyage["source_cells"][row["key"]],
+                       note=voyage["note"])
+    case.context["voyage_estimate"] = deepcopy(voyage)
+    case.context.setdefault("source_manifest", {})[voyage["source_reference"]] = voyage["source_sha256"]
+    case.context.pop("pi_selected_bid_id", None)
+    case.context.pop("demonstration", None)
+    case.context["bids"] = []
+    apply_case_basis(case, root)
 
 
 def apply_case_basis(case: InteractiveCase, root: Path) -> None:
@@ -51,7 +95,7 @@ def apply_profile(case: InteractiveCase, profile: dict, policy: dict) -> None:
     for row in case.rows:
         if row["key"] in fields:
             key = row["key"]
-            row.update(value=fields[key], source_status="observed_workbook_profile_transfer",
+            row.update(value=fields[key], source_status=profile.get("source_status", "observed_workbook_profile_transfer"),
                 source_reference=profile["source_reference"] + " :: " + profile["sheet"] + "!" + profile["source_cells"].get(key, "C16"),
                 note=profile["note"])
     case.context["vessel_profile"] = deepcopy(profile)
@@ -72,7 +116,7 @@ def apply_market(case: InteractiveCase, snapshot: dict) -> None:
         class_proxy=profile["market_class_proxy"])
     if profile["market_class_proxy"]:
         target["source_status"] = "observed_market_with_class_proxy"
-        target["note"] = "Handymax 47.175 DWT memakai acuan kelompok kecil Handysize 38k; bukan quote khusus Handymax."
+        target["note"] = "Handymax memakai acuan kelompok kecil Handysize 38k; bukan quote khusus Handymax."
     case.context["market_snapshot"] = snapshot
     case.context["pricing"]["target_tce"] = target
     case.context["market_sources"] = {"fearnpulse": {"snapshot_id": snapshot["snapshot_id"], "url": snapshot["url"],
@@ -86,24 +130,29 @@ def apply_market(case: InteractiveCase, snapshot: dict) -> None:
     case._invalidate(voyage=True)
 
 
-def new_market_case(root: Path, snapshot: dict, profile_id: str | None = None) -> InteractiveCase:
+def new_market_case(root: Path, snapshot: dict, profile_id: str | None = None,
+                    voyage_id: str | None = None) -> InteractiveCase:
     case = InteractiveCase.read(root / "data/processed/i4_context.json").revise()
     profiles = catalog(root)
-    profile = next((p for p in profiles["profiles"] if p["profile_id"] == (profile_id or "ve_sheet1")), None)
+    profile = next((p for p in profiles["profiles"] if p["profile_id"] == (profile_id or profiles["profiles"][0]["profile_id"])), None)
     if profile is None:
         raise ValueError("UNKNOWN_WORKBOOK_PROFILE")
+    voyages = voyage_catalog(root)
+    voyage = next((v for v in voyages["voyages"] if v["voyage_id"] == (voyage_id or voyages["voyages"][0]["voyage_id"])), None)
+    if voyage is None:
+        raise ValueError("UNKNOWN_WORKBOOK_VOYAGE")
     case.context.pop("market_sources", None)
     case.context["limitations"] = [
-        "Spesifikasi workbook ditransfer ke kasus urea Bontang-Mundra; bukan bukti kapal tersedia.",
+        "Voyage dan profil kapal dipilih terpisah dari workbook; bukan bukti kapal tersedia.",
         "OD hanya sumber jarak satu arah dalam NM; bukan sumber tarif freight atau biaya.",
-        "Jarak OD belum verifikasi navigasi independen; biaya pelabuhan masih transfer template.",
+        "Jarak OD belum verifikasi navigasi independen; muatan/handling/waktu tunggu/biaya pelabuhan adalah asumsi demo.",
         "1-year T/C dipakai sebagai target TCE net simulasi; basis komisi sumber tidak dinyatakan. Tidak ada hire cost tambahan.",
         "Tanggal observasi setiap seri dapat berbeda; waktu fetch bukan waktu harga pasar.",
         "Gross DWT belum membuktikan DWCC, terminal, laycan atau availability.",
     ]
+    apply_voyage(case, voyage, root)
     apply_profile(case, profile, profiles["policy"])
     apply_market(case, snapshot)
-    apply_case_basis(case, root)
     case.context["commercial_review_version"] = REVIEW_VERSION
     shocks = case.context["scenarios"]
     fuel = next((s for s in shocks if s["scenario_id"] == "fuel_up"), None)
@@ -153,7 +202,9 @@ def compare_profiles(case: InteractiveCase, root: Path, drafts_root: Path, commo
             number(bounds[0], "class min"), number(bounds[1], "class max"))
         from pilog_cfr_dss.orchestration.iteration_04 import serial
         results.append({"profile_id": profile["profile_id"], "sheet": profile["sheet"],
+            "profile_code": profile.get("profile_code", profile["profile_id"]),
             "vessel_class": profile["vessel_class"], "dwt_mt": profile["fields"]["dwt_mt"],
+            "speed_knots": profile["fields"]["speed_knots"],
             "market_series": candidate.context["pricing"]["target_tce"]["series"],
             "class_proxy": profile["market_class_proxy"], "target_tce_usd_day": candidate.context["pricing"]["target_tce"]["value"],
             "baseline": report["baseline"], "computed_freight_usd_mt": report["pricing"]["computed_freight_usd_mt"],
@@ -164,11 +215,11 @@ def compare_profiles(case: InteractiveCase, root: Path, drafts_root: Path, commo
 
 
 def demo_case(root: Path, snapshot: dict, drafts_root: Path, kind: str = "go", profile_id: str | None = None,
-              base_case: InteractiveCase | None = None) -> InteractiveCase:
+              base_case: InteractiveCase | None = None, voyage_id: str | None = None) -> InteractiveCase:
     if kind not in {"go", "no-go-floor", "no-go-economics"}:
         raise ValueError("UNKNOWN_DEMONSTRATION_CASE")
     case = (InteractiveCase(deepcopy(base_case.context), deepcopy(base_case.rows)) if base_case is not None
-            else new_market_case(root, snapshot, profile_id))
+            else new_market_case(root, snapshot, profile_id, voyage_id))
     prepared = case.prepare(drafts_root)
     case.fix_freight(drafts_root)
     seed_demo_bids(case, root, no_go=kind == "no-go-floor")

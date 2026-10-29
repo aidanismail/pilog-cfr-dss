@@ -1,10 +1,14 @@
 # Product Charter - PILOG CFR DSS
 
-## Tahap berikutnya — I5 demo web untuk 1–3 pengguna
+## D-075 — pilihan kapal yang beragam untuk demo
 
-Kebutuhan terkonfirmasi: aplikasi dapat dibuka dari luar kantor dan membuat/mengubah kasus, tanpa server yang sudah tersedia. Audiens awal mentor dan demonstrasi PIHC. Rekomendasi plan I5 disederhanakan menjadi satu URL HTTPS: React build + FastAPI/engine accepted dalam satu web service, managed PostgreSQL dan akun demo terbatas. Render + Neon kandidat, bukan keputusan provider. GitHub Pages dapat menjadi frontend alternatif, tidak menjalankan Python/backend dan tidak membuat materi internal aman hanya karena repo private.
+Pengguna dapat memilih dua profil Handysize dan dua Supramax yang berbeda DWT/speed/consumption/running, terpisah dari empat voyage. Profil berlabel asumsi demo; tidak menyatakan spesifikasi aktual PILOG atau kapal tersedia. Fearnpulse tetap benchmark harian per kelas dan bunker, bukan pembuat physical profile atau quote tiap kapal. Tidak membuat rate berbeda dalam kelas hanya untuk memperbesar variasi. Hasil perbandingan tetap dari engine, bukan pemilihan kapal otomatis. Format workbook, gate dan histori dilindungi; hosting/porting menyusul.
 
-Pertahankan keputusan/presisi/fixed quote/UX I4; fokus pada akses, persistence, revision, izin dan unduhan. SSO/RBAC enterprise, live auction dan high availability bukan syarat demo kecil. Kotretan pengguna akan diunggah; anggaran/provider belum final. I5 masih plan, belum implementasi/deploy atau produksi/MVP penuh. Memindahkan stack bukan syarat dasar akses browser maupun bukti skalabilitas.
+## Tahap berikutnya — I5 empat kasus yang jelas dan akses laptop lain
+
+D-074: sebelum deploy, Step 1 memisahkan Voyage Estimate dan Profil kapal. Pengguna dapat menilai empat rute urea Bontang (Mundra/Davao/Bangkok/Hai Phong), muatan berbeda, dengan empat paket spesifikasi secara independen. Tampilkan kelas/DWT/speed sebagai nama profil; sheet adalah sumber, bukan nama kapal. Data pelabuhan/handling/waiting merupakan asumsi demo yang diotorisasi, bukan observasi aktual. Fixed offer tidak dipindahkan ke voyage lain dan contoh GO/NO GO tidak memaksa default Mundra.
+
+Workbook boleh diubah isi/nama saja, format tetap. Reader/cache mengikuti versi hash, sumber I4 diarsipkan dan source snapshot/case tetap dapat direplay. Streamlit existing tetap jalur akses laptop lain; porting/RBAC ditunda. Deployment, penyimpanan permanen serta system design belum selesai/dipilih. Scope ini tidak mengubah gate/rumus atau kewenangan komersial.
 
 ## Mentor menerima I4 — D-070, 28 Oktober
 

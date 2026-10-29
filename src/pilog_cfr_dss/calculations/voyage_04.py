@@ -6,6 +6,14 @@ from pilog_cfr_dss.calculations.costs import daily_cost_usd
 from pilog_cfr_dss.models.iteration_04 import Case04
 
 
+def port_expenses_total(components) -> Decimal:
+    """Aggregate port/other components once, excluding bunker and running."""
+    values = tuple(components)
+    if not values or any(not v.is_finite() or v < 0 for v in values):
+        raise ValueError("INVALID_PORT_EXPENSE_COMPONENTS")
+    return sum(values, Decimal(0))
+
+
 def voyage(case: Case04, fuel_shock: Decimal = Decimal(0), extra_port_days: Decimal = Decimal(0)) -> dict[str, Decimal]:
     if not fuel_shock.is_finite() or not extra_port_days.is_finite() or min(fuel_shock, extra_port_days) < 0:
         raise ValueError("INVALID_STRESS")

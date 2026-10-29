@@ -1,6 +1,6 @@
 {
-  "profile_version": "VE-PROFILES.1",
-  "source_sha256": "ca5c044ffbc19fe541d296681787cfb56bd6df4682815e4fff2a542513e36b87",
+  "profile_version": "VE-PROFILES.3",
+  "source_sha256": "e217873df34b71e47efdac401aeb5e30e245fed523210eb7e693fbd10447c810",
   "policy": {
     "Handysize": [
       "1",
@@ -18,123 +18,147 @@
   "profiles": [
     {
       "profile_id": "ve_sheet1",
-      "sheet": "Sheet1",
+      "profile_code": "HS36",
+      "sheet": "Bontang-Mundra",
       "vessel_class": "Handysize",
       "vessel_group": "Handymax dan lebih kecil",
       "market_family": "Handysize",
       "market_class_proxy": false,
       "fields": {
-        "dwt_mt": "36009",
-        "speed_knots": "12",
-        "sea_fo_mt_day": "25",
-        "sea_do_mt_day": "0.1",
-        "running_usd_day": "5612",
-        "port_do_mt_day": "3.36"
+        "dwt_mt": "36000",
+        "speed_knots": "11.5",
+        "sea_fo_mt_day": "17",
+        "sea_do_mt_day": "0.12",
+        "running_usd_day": "4800",
+        "bunkers_allowance_mt": "1600",
+        "constants_allowance_mt": "500",
+        "port_do_mt_day": "2.52"
       },
+      "source_status": "simulation_only_workbook_vessel_profile",
       "source_reference": "data/raw/Voyage Estimate.xlsx",
-      "source_sha256": "ca5c044ffbc19fe541d296681787cfb56bd6df4682815e4fff2a542513e36b87",
+      "source_sha256": "e217873df34b71e47efdac401aeb5e30e245fed523210eb7e693fbd10447c810",
       "source_cells": {
         "dwt_mt": "C16",
         "speed_knots": "D3",
         "sea_fo_mt_day": "H6",
         "sea_do_mt_day": "I6",
         "running_usd_day": "F44",
+        "bunkers_allowance_mt": "D18",
+        "constants_allowance_mt": "D19",
         "port_do_mt_day": "J6"
       },
       "source_formula": {
-        "J6": "=0.7*0.1*2000*24/1000"
+        "J6": "=0.7*0.1*1500*24/1000"
       },
-      "note": "Profil workbook dipakai untuk kasus urea/rute I4; bukan bukti kapal tersedia."
+      "note": "Spesifikasi kapal sintetis untuk demo; bukan spesifikasi atau penawaran kapal tertentu dari Fearnpulse. Dapat dipasangkan dengan voyage terpilih, bukan bukti kapal tersedia."
     },
     {
       "profile_id": "ve_aqaba",
-      "sheet": "AQABA",
-      "vessel_class": "Supramax",
-      "vessel_group": "Supramax",
-      "market_family": "Supramax",
+      "profile_code": "HS38",
+      "sheet": "Bontang-Davao",
+      "vessel_class": "Handysize",
+      "vessel_group": "Handymax dan lebih kecil",
+      "market_family": "Handysize",
       "market_class_proxy": false,
       "fields": {
-        "dwt_mt": "58000",
-        "speed_knots": "14",
-        "sea_fo_mt_day": "29",
-        "sea_do_mt_day": "0.1",
-        "running_usd_day": "5612",
-        "port_do_mt_day": "3.36"
+        "dwt_mt": "38000",
+        "speed_knots": "12.5",
+        "sea_fo_mt_day": "20",
+        "sea_do_mt_day": "0.15",
+        "running_usd_day": "5200",
+        "bunkers_allowance_mt": "1700",
+        "constants_allowance_mt": "500",
+        "port_do_mt_day": "2.856"
       },
+      "source_status": "simulation_only_workbook_vessel_profile",
       "source_reference": "data/raw/Voyage Estimate.xlsx",
-      "source_sha256": "ca5c044ffbc19fe541d296681787cfb56bd6df4682815e4fff2a542513e36b87",
+      "source_sha256": "e217873df34b71e47efdac401aeb5e30e245fed523210eb7e693fbd10447c810",
       "source_cells": {
         "dwt_mt": "C16",
         "speed_knots": "D3",
         "sea_fo_mt_day": "H6",
         "sea_do_mt_day": "I6",
         "running_usd_day": "F44",
+        "bunkers_allowance_mt": "D18",
+        "constants_allowance_mt": "D19",
         "port_do_mt_day": "J6"
       },
       "source_formula": {
-        "J6": "=0.7*0.1*2000*24/1000"
+        "J6": "=0.7*0.1*1700*24/1000"
       },
-      "note": "Profil workbook dipakai untuk kasus urea/rute I4; bukan bukti kapal tersedia."
+      "note": "Spesifikasi kapal sintetis untuk demo; bukan spesifikasi atau penawaran kapal tertentu dari Fearnpulse. Dapat dipasangkan dengan voyage terpilih, bukan bukti kapal tersedia."
     },
     {
       "profile_id": "ve_sby",
-      "sheet": "Sby",
+      "profile_code": "SUP54",
+      "sheet": "Bontang-Bangkok",
+      "vessel_class": "Supramax",
+      "vessel_group": "Supramax",
+      "market_family": "Supramax",
+      "market_class_proxy": false,
+      "fields": {
+        "dwt_mt": "54000",
+        "speed_knots": "12",
+        "sea_fo_mt_day": "24",
+        "sea_do_mt_day": "0.18",
+        "running_usd_day": "6100",
+        "bunkers_allowance_mt": "1800",
+        "constants_allowance_mt": "500",
+        "port_do_mt_day": "3.36"
+      },
+      "source_status": "simulation_only_workbook_vessel_profile",
+      "source_reference": "data/raw/Voyage Estimate.xlsx",
+      "source_sha256": "e217873df34b71e47efdac401aeb5e30e245fed523210eb7e693fbd10447c810",
+      "source_cells": {
+        "dwt_mt": "C16",
+        "speed_knots": "D3",
+        "sea_fo_mt_day": "H6",
+        "sea_do_mt_day": "I6",
+        "running_usd_day": "F44",
+        "bunkers_allowance_mt": "D18",
+        "constants_allowance_mt": "D19",
+        "port_do_mt_day": "J6"
+      },
+      "source_formula": {
+        "J6": "=0.7*0.1*2000*24/1000"
+      },
+      "note": "Spesifikasi kapal sintetis untuk demo; bukan spesifikasi atau penawaran kapal tertentu dari Fearnpulse. Dapat dipasangkan dengan voyage terpilih, bukan bukti kapal tersedia."
+    },
+    {
+      "profile_id": "ve_godau",
+      "profile_code": "SUP58",
+      "sheet": "Bontang-Hai Phong",
       "vessel_class": "Supramax",
       "vessel_group": "Supramax",
       "market_family": "Supramax",
       "market_class_proxy": false,
       "fields": {
         "dwt_mt": "58000",
-        "speed_knots": "12",
-        "sea_fo_mt_day": "25",
-        "sea_do_mt_day": "0.1",
-        "running_usd_day": "5612",
-        "port_do_mt_day": "3.36"
+        "speed_knots": "13",
+        "sea_fo_mt_day": "28",
+        "sea_do_mt_day": "0.2",
+        "running_usd_day": "6500",
+        "bunkers_allowance_mt": "2000",
+        "constants_allowance_mt": "500",
+        "port_do_mt_day": "3.864"
       },
+      "source_status": "simulation_only_workbook_vessel_profile",
       "source_reference": "data/raw/Voyage Estimate.xlsx",
-      "source_sha256": "ca5c044ffbc19fe541d296681787cfb56bd6df4682815e4fff2a542513e36b87",
+      "source_sha256": "e217873df34b71e47efdac401aeb5e30e245fed523210eb7e693fbd10447c810",
       "source_cells": {
         "dwt_mt": "C16",
         "speed_knots": "D3",
         "sea_fo_mt_day": "H6",
         "sea_do_mt_day": "I6",
         "running_usd_day": "F44",
+        "bunkers_allowance_mt": "D18",
+        "constants_allowance_mt": "D19",
         "port_do_mt_day": "J6"
       },
       "source_formula": {
-        "J6": "=0.7*0.1*2000*24/1000"
+        "J6": "=0.7*0.1*2300*24/1000"
       },
-      "note": "Profil workbook dipakai untuk kasus urea/rute I4; bukan bukti kapal tersedia."
-    },
-    {
-      "profile_id": "ve_godau",
-      "sheet": "Godau",
-      "vessel_class": "Handymax",
-      "vessel_group": "Handymax dan lebih kecil",
-      "market_family": "Handysize",
-      "market_class_proxy": true,
-      "fields": {
-        "dwt_mt": "47175",
-        "speed_knots": "12",
-        "sea_fo_mt_day": "25",
-        "sea_do_mt_day": "0.1",
-        "running_usd_day": "5612",
-        "port_do_mt_day": "3.36"
-      },
-      "source_reference": "data/raw/Voyage Estimate.xlsx",
-      "source_sha256": "ca5c044ffbc19fe541d296681787cfb56bd6df4682815e4fff2a542513e36b87",
-      "source_cells": {
-        "dwt_mt": "C16",
-        "speed_knots": "D3",
-        "sea_fo_mt_day": "H6",
-        "sea_do_mt_day": "I6",
-        "running_usd_day": "F44",
-        "port_do_mt_day": "J6"
-      },
-      "source_formula": {
-        "J6": "=0.7*0.1*2000*24/1000"
-      },
-      "note": "Profil workbook dipakai untuk kasus urea/rute I4; bukan bukti kapal tersedia. Tarif Handymax memakai acuan kelompok kecil Handysize 38k (proxy kelas)."
+      "note": "Spesifikasi kapal sintetis untuk demo; bukan spesifikasi atau penawaran kapal tertentu dari Fearnpulse. Dapat dipasangkan dengan voyage terpilih, bukan bukti kapal tersedia."
     }
   ]
 }

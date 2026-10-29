@@ -1,15 +1,214 @@
 {
   "schema_version": "1.0.0",
+  "random_bid_risk_revision": {
+    "decision_id": "D-076",
+    "updated_on": "2026-10-29",
+    "status": "implemented_verified_pending_user_review",
+    "generator_version": "TENDER-EXAMPLE.1",
+    "seed_bits": 64,
+    "randomizes": [
+      "synthetic alpha offers for 3 buyers and 3 rounds",
+      "fuel shock",
+      "port delay",
+      "combined stress"
+    ],
+    "canonical_case_unchanged_until_apply": true,
+    "can_randomize_again_with_existing_bids": true,
+    "seed_generated_and_applied_hashes_recorded": true,
+    "human_edits_distinguished": true,
+    "provenance_cleared_after_manual_edit_or_revision": true,
+    "ranking_evaluation_and_replay_use_no_rng": true,
+    "alpha_floor_derived_from_index_and_oe": true,
+    "stress_is_not_baseline_veto": true,
+    "baseline_cost_index_oe_freight_unchanged": true,
+    "workbook_and_market_snapshots_unchanged": true,
+    "scripted_sidebar_cli_examples_unchanged": true,
+    "verification": {
+      "full_suite": {
+        "passed": 262,
+        "total": 262,
+        "seconds": 53.546
+      },
+      "fixed_seed_population_has_go_and_no_go": true,
+      "clock_and_price_validity": true,
+      "offline_replay": true,
+      "staging_quote_and_seed_ui_verified": true,
+      "browser": {
+        "status": "PASS",
+        "scripted_actions": [
+          "GO",
+          "NO_GO",
+          "NO_GO"
+        ],
+        "additional_random_action": "GO",
+        "random_draft_apply_download_verified": true,
+        "javascript_errors": 0,
+        "viewport_390px": true,
+        "server_stopped": true
+      }
+    },
+    "deployment_performed": false
+  },
+  "vessel_profile_revision": {
+    "decision_id": "D-075",
+    "updated_on": "2026-10-29",
+    "status": "implemented_verified_pending_user_review",
+    "profile_version": "VE-PROFILES.3",
+    "source_status": "simulation_only_workbook_vessel_profile",
+    "workbook_sha256": "e217873df34b71e47efdac401aeb5e30e245fed523210eb7e693fbd10447c810",
+    "previous_workbook_sha256": "3d9956270972de47f3ded7e90b7b17333c57ac534230b0865372c117febac84c",
+    "profiles": [
+      {
+        "code": "HS36",
+        "class": "Handysize",
+        "dwt_mt": "36000",
+        "speed_knots": "11.5",
+        "sea_fo_mt_day": "17",
+        "sea_do_mt_day": "0.12",
+        "port_do_mt_day": "2.52",
+        "running_usd_day": "4800"
+      },
+      {
+        "code": "HS38",
+        "class": "Handysize",
+        "dwt_mt": "38000",
+        "speed_knots": "12.5",
+        "sea_fo_mt_day": "20",
+        "sea_do_mt_day": "0.15",
+        "port_do_mt_day": "2.856",
+        "running_usd_day": "5200"
+      },
+      {
+        "code": "SUP54",
+        "class": "Supramax",
+        "dwt_mt": "54000",
+        "speed_knots": "12",
+        "sea_fo_mt_day": "24",
+        "sea_do_mt_day": "0.18",
+        "port_do_mt_day": "3.36",
+        "running_usd_day": "6100"
+      },
+      {
+        "code": "SUP58",
+        "class": "Supramax",
+        "dwt_mt": "58000",
+        "speed_knots": "13",
+        "sea_fo_mt_day": "28",
+        "sea_do_mt_day": "0.2",
+        "port_do_mt_day": "3.864",
+        "running_usd_day": "6500"
+      }
+    ],
+    "physical_specs_are_synthetic": true,
+    "fearnpulse_snapshot_id": "fp_0c09d954579d462399907cba2583d663",
+    "new_fearnpulse_fetch": false,
+    "benchmark_mapping": "Handysize profiles share Handysize class TC; Supramax profiles share Supramax class TC; bunker series unchanged; not vessel-specific quotes",
+    "voyage_inputs_unchanged": true,
+    "format_preserved": true,
+    "mirror_synced": true,
+    "od_and_I4_archive_unchanged": true,
+    "formula_gate_changes": false,
+    "verification": {
+      "full_suite": {
+        "passed": 254,
+        "total": 254,
+        "seconds": 45.411
+      },
+      "voyage_vessel_combinations": 16,
+      "excel_engine_parity": true,
+      "offline_replay": true,
+      "browser": "PASS",
+      "browser_javascript_errors": 0,
+      "browser_outcomes": [
+        "GO",
+        "NO_GO_floor",
+        "NO_GO_economics"
+      ],
+      "server_stopped": true
+    },
+    "hosted_deployment_performed": false
+  },
+  "voyage_workbook_revision": {
+    "decision_id": "D-074",
+    "updated_on": "2026-10-28",
+    "status": "implemented_verified_pending_user_review",
+    "scope": "Predeployment workbook contents/tab names and independent voyage/vessel selectors; no hosted deployment",
+    "workbook": "data/raw/Voyage Estimate.xlsx",
+    "archive": "docs/it_4/Voyage Estimate I4.xlsx",
+    "mirror": "../Experiments/Voyage Estimate.xlsx",
+    "workbook_sha256": "3d9956270972de47f3ded7e90b7b17333c57ac534230b0865372c117febac84c",
+    "original_archive_sha256": "ca5c044ffbc19fe541d296681787cfb56bd6df4682815e4fff2a542513e36b87",
+    "format_preserved": true,
+    "source_assumptions_labelled": true,
+    "completed_tasks": [
+      "I5-V0",
+      "I5-V1",
+      "I5-V2",
+      "I5-V3",
+      "I5-V4"
+    ],
+    "cases": [
+      {
+        "voyage_id": "bontang_mundra",
+        "cargo_mt": "30000",
+        "distance_nm": "3906"
+      },
+      {
+        "voyage_id": "bontang_davao",
+        "cargo_mt": "28000",
+        "distance_nm": "697"
+      },
+      {
+        "voyage_id": "bontang_bangkok",
+        "cargo_mt": "32000",
+        "distance_nm": "1751"
+      },
+      {
+        "voyage_id": "bontang_hai_phong",
+        "cargo_mt": "29000",
+        "distance_nm": "1577"
+      }
+    ],
+    "verification": {
+      "full_suite": {
+        "passed": 252,
+        "total": 252,
+        "seconds": 45.498
+      },
+      "final_targeted": {
+        "passed": 37,
+        "total": 37
+      },
+      "voyage_vessel_combinations": 16,
+      "offline_replay": true,
+      "excel_engine_parity": true,
+      "browser": {
+        "status": "PASS",
+        "outcomes": [
+          "GO",
+          "NO_GO_floor",
+          "NO_GO_economics"
+        ],
+        "javascript_errors": 0,
+        "downloads": true,
+        "viewport_390px": true,
+        "server_stopped": true
+      }
+    },
+    "math_rules_changed": false,
+    "od_workbook_changed": false,
+    "hosted_deployment_performed": false
+  },
   "planned_iteration": {
     "id": "I5",
-    "name": "Demo web CFR DSS for 1–3 remote editors",
-    "status": "planning_demo_scope_confirmed_pending_sketch_provider_budget",
-    "updated_on": "2026-10-28",
+    "name": "Deploy existing Streamlit for remote laptop use",
+    "status": "predeployment_random_examples_verified_deployment_pending",
+    "updated_on": "2026-10-29",
     "plan_file": "docs/it_5/ITERATION_05_PLAN.md",
     "task_file": ".agents/tasks/ITERATION_05.md",
     "planning_authorized": true,
-    "execution_authorized": false,
-    "runtime_implemented": false,
+    "execution_authorized": true,
+    "runtime_implemented": true,
     "baseline_iteration": "I4",
     "baseline_accepted": true,
     "baseline_commit": "57257c07299cd74d7172a84d3ec158e5679a7c1e",
@@ -17,19 +216,19 @@
     "baseline_pushed_and_verified": true,
     "baseline_tests_passed": 239,
     "recommended_stack": [
-      "Existing Python Decimal engine",
-      "FastAPI/Pydantic/Uvicorn serving API and React build",
-      "React TypeScript Vite",
-      "Managed PostgreSQL/SQLAlchemy/Alembic",
-      "Single hosted web service; reproducible packaging; optional local Compose"
+      "Existing Streamlit UI and Python Decimal engine I4",
+      "Private hosted Streamlit app; Community Cloud candidate",
+      "Per-session working files and download artifacts",
+      "Case export/import OR persistent storage; user choice pending"
     ],
     "access_and_hosting_confirmed": false,
     "roles_confirmed": false,
     "pilot_concurrency_confirmed": true,
     "questions_pending_answers": [
-      "Must initial hosting be Rp0, or is a small always-on hosting budget available for the PIHC demo?"
+      "Must cases remain in a server-side case list after restart, or is editable case-package download/import sufficient?",
+      "Hosting budget not yet confirmed; private Community Cloud is a candidate, not selected"
     ],
-    "implementation_scope": "preserve I4 parity; minimal remote demo with persistence, invited accounts, API and React; enterprise RBAC deferred",
+    "implementation_scope": "Deploy existing Streamlit later; authorized predeployment workbook and independent voyage/vessel selectors; preserve formulas/gates",
     "deployment_performed": false,
     "access_requirements_confirmed": true,
     "access_scope": "outside office",
@@ -42,9 +241,9 @@
     "case_create_edit_required": true,
     "enterprise_rbac_required_for_demo": false,
     "hosting_recommendation": {
-      "topology": "one HTTPS application web service plus managed database",
-      "app_candidate": "Render",
-      "database_candidate": "Neon",
+      "topology": "Hosted existing Streamlit; no separate API/frontend required",
+      "app_candidate": "Streamlit Community Cloud private app",
+      "database_candidate": null,
       "provider_selected": false,
       "budget_confirmed": false
     },
@@ -52,7 +251,23 @@
       "status": "user drafting; pending upload",
       "read": false
     },
-    "decision_id": "D-072"
+    "decision_id": "D-076",
+    "persistence_choice": {
+      "status": "pending_user_answer",
+      "option_a": "download/import editable case package; import not yet implemented",
+      "option_b": "persistent case storage directly from Streamlit; no FastAPI required"
+    },
+    "deferred_components": [
+      "FastAPI",
+      "React/PHP rewrite",
+      "enterprise RBAC/SSO",
+      "mandatory managed DB"
+    ],
+    "supersedes_porting_plan": "D-071/D-072; prior API/React batches never implemented",
+    "execution_authorization_scope": "D-074/D-075/D-076 predeployment workbook, profiles, independent selectors and randomized bid/risk editor only",
+    "deployment_execution_authorized": false,
+    "runtime_implementation_scope": "V1..V4, PROFILE1..3 and BID1..3 implemented and verified; hosted deployment not implemented",
+    "active_workbook_sha256": "e217873df34b71e47efdac401aeb5e30e245fed523210eb7e693fbd10447c810"
   },
   "iteration_04_acceptance": {
     "decision_id": "D-070",
@@ -1177,11 +1392,11 @@
     }
   ],
   "active_tasks": [
-    "Integrate forthcoming user system-design sketch; do not claim it was read",
-    "Finalize demo provider/budget: 1–3 remote editors, no existing infrastructure",
-    "I4 accepted/pushed at 57257c0; preserve baseline for parity and fallback",
-    "I5 plan only: no scaffolding/install/provision/deploy until implementation instruction",
-    "Preserve financial rules, raw precision, fixed quotes and no automatic PI reimbursement"
+    "User review of completed randomized bid/risk editor and source trace",
+    "Keep explicit GO/NO GO fixtures for presentations; random examples have no desired outcome",
+    "Choose persistence and hosting for Streamlit deployment; no deployment performed",
+    "Preserve fixed quote, baseline costs, market/workbook inputs and deterministic gates",
+    "System-design sketch and API/RBAC porting deferred"
   ],
   "update_protocol": {
     "when_to_update": [
@@ -1296,13 +1511,14 @@
     }
   },
   "future_rbac": {
-    "status": "enterprise_dashboards_deferred_beyond_small_I5_demo",
+    "status": "role_requirements_unconfirmed_deferred",
     "tentative_iteration": "I5",
     "requirement": "Different dashboards by authorized role; enforce read/write/approve/export access at service/backend as well as UI",
     "roles_confirmed": false,
     "permission_matrix_confirmed": false,
     "no_production_access_control_claim": true,
     "plan_file": "docs/it_5/ITERATION_05_PLAN.md",
-    "demo_scope": "Proposed invited individual accounts/shared demo workspace; backend authorization required; formal roles not yet confirmed"
+    "demo_scope": "Private hosting access plus per-session working cases; no role dashboards or separate API required",
+    "decision_id": "D-073"
   }
 }

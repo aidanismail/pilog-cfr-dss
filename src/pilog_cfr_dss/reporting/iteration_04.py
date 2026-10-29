@@ -38,8 +38,12 @@ def price_time_lines(report: dict) -> list[str]:
         lines.append(f"| {clean(quote['series'])} | {amount(quote['value'])} | {quote['unit']} | {quote['source_observed_on']} | {'Biaya bunker' if used else 'Pembanding; input manual dipakai'} |")
     lines += ["", "Sumber pasar: Fearnpulse. Profil fisik: Voyage Estimate.xlsx, sheet " + clean(profile["sheet"]) + ".",
               "Tarif T/C dipakai sebagai target TCE net sebelum running berdasarkan asumsi; bukan hire tambahan atau quote voyage khusus."]
+    if context.get("voyage_estimate"):
+        estimate = context["voyage_estimate"]
+        lines.append("Basis voyage: " + clean(estimate["label"]) + ", sheet " + clean(estimate["sheet"]) +
+                     ". Muatan, produktivitas, waktu tunggu dan biaya pelabuhan adalah asumsi demo.")
     if profile["market_class_proxy"]:
-        lines.append("Profil Godau Handymax memakai acuan pasar Handysize 38k sebagai proxy kelas.")
+        lines.append("Profil Handymax memakai acuan pasar Handysize 38k sebagai proxy kelas.")
     if context.get("auction_clock"):
         lines.append("Setiap putaran berdurasi tetap 3 menit. Bid pada/di luar waktu tutup putarannya tidak eligible; bid baru tidak memperpanjang waktu.")
     if overrides:
@@ -121,7 +125,7 @@ def pricing_bridge_lines(report: dict) -> list[str]:
             clean(benchmark.get("source_observed_on", "tanggal tidak tersedia")) + "; tanggal bunker " +
             clean(", ".join(sorted({q['source_observed_on'] for q in snapshot['bunkers'].values()}))) + ".")
     if context.get("vessel_profile", {}).get("market_class_proxy"):
-        lines.append("Godau Handymax memakai proxy acuan pasar Handysize; kesesuaian kelas belum dinormalisasi menjadi quote Handymax.")
+        lines.append("Handymax memakai proxy acuan pasar Handysize; kesesuaian kelas belum dinormalisasi menjadi quote Handymax.")
     if context.get("auction_clock"):
         lines.append("Putaran tetap 3 menit; penutupan dan cutoff mengikuti jadwal kasus, bukan award otomatis.")
     return lines

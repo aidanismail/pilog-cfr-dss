@@ -196,6 +196,7 @@ class InteractiveCase:
                         source_reference="Cost forecast " + forecast["forecast_id"], note=forecast["reason"])
         context.pop("freight_tender", None)
         context.pop("pi_selected_bid_id", None)
+        context.pop("tender_example", None)
         context["bids"] = []
         context["case_id"] = "UI-CFR-" + uuid4().hex[:8].upper()
         if context.get("auction_clock"):
@@ -285,6 +286,7 @@ class InteractiveCase:
             self.context["auction_clock"] = {"mode": "fixed_window", "round_duration_seconds": 180, "starts_at": auction_start}
         if not clock_changed and (normalized, cutoff, selection) == (self.context.get("bids"), self.context.get("evaluation_cutoff"), self.context.get("pi_selected_bid_id")):
             return
+        self.context.pop("tender_example", None)
         self.context.update(bids=normalized, evaluation_cutoff=cutoff)
         if selection:
             self.context["pi_selected_bid_id"] = selection
@@ -301,6 +303,7 @@ class InteractiveCase:
                               ("scenario_id", "label", "fuel_price_increase_fraction", "extra_port_days")},
                               "source_status": "simulation_only_user_input"})
         if scenarios != self.context.get("scenarios"):
+            self.context.pop("tender_example", None)
             self.context["scenarios"] = scenarios
             self._invalidate()
 

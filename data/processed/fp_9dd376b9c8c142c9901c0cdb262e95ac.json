@@ -1,0 +1,67 @@
+{
+  "snapshot_version": "FP.1",
+  "snapshot_id": "fp_9dd376b9c8c142c9901c0cdb262e95ac",
+  "provider": "Fearnpulse / Fearnleys",
+  "url": "https://fearnpulse.com/",
+  "fetched_at": "2026-10-29T03:31:11.595137+00:00",
+  "report_published_at": "2026-10-28T15:23:24.380661+00:00",
+  "report_id": "fb4ac1e2-c041-4a7b-babe-d4334555c17c",
+  "tc_rates": {
+    "Supramax": {
+      "value": "17250",
+      "unit": "USD/day",
+      "series": "Supramax (58 000 dwt)",
+      "contract_period": "1_year_TC",
+      "source_observed_on": "2026-10-28",
+      "source_status": "observed_public_market",
+      "source_reference": "https://fearnpulse.com/#2 :: 1 Year T/C :: Supramax",
+      "commission_basis": "not_stated_by_source"
+    },
+    "Handysize": {
+      "value": "15000",
+      "unit": "USD/day",
+      "series": "Handysize (38 000 dwt)",
+      "contract_period": "1_year_TC",
+      "source_observed_on": "2026-10-28",
+      "source_status": "observed_public_market",
+      "source_reference": "https://fearnpulse.com/#2 :: 1 Year T/C :: Handysize",
+      "commission_basis": "not_stated_by_source"
+    }
+  },
+  "bunkers": {
+    "fo_price_usd_mt": {
+      "value": "458",
+      "unit": "USD/MT",
+      "series": "Singapore 380 CST",
+      "series_id": 306,
+      "source_observed_on": "2026-07-01",
+      "source_observed_at": "2026-07-01T00:00:00+00:00",
+      "source_timestamp_kind": "daily_series_epoch_not_trade_execution",
+      "source_status": "observed_public_market",
+      "source_reference": "https://fearnpulse.com/#6 :: Singapore 380 CST"
+    },
+    "do_price_usd_mt": {
+      "value": "902",
+      "unit": "USD/MT",
+      "series": "Singapore MGO",
+      "series_id": 307,
+      "source_observed_on": "2026-07-01",
+      "source_observed_at": "2026-07-01T00:00:00+00:00",
+      "source_timestamp_kind": "daily_series_epoch_not_trade_execution",
+      "source_status": "observed_public_market",
+      "source_reference": "https://fearnpulse.com/#6 :: Singapore MGO"
+    }
+  },
+  "raw_payloads": {
+    "fearnpulse_report.json": "{\"data\":{\"report\":[{\"created_at\":\"2026-10-28T15:23:24.380661+00:00\",\"id\":\"fb4ac1e2-c041-4a7b-babe-d4334555c17c\",\"report_name\":\"Fearnleys Weekly Report\"}]}}",
+    "fearnpulse_tc.json": "{\"data\":{\"rate_meta\":[{\"rates\":[{\"date\":\"2026-10-28\",\"rate\":17250}, {\"date\":\"2026-10-21\",\"rate\":17500}, {\"date\":\"2026-10-14\",\"rate\":18000}, {\"date\":\"2026-10-07\",\"rate\":17250}, {\"date\":\"2026-09-30\",\"rate\":18000}],\"info\":{\"route\":\"Supramax (58 000 dwt)\",\"rate_type\":\"BULK\",\"rate_subtype\":\"TC\"}}, {\"rates\":[{\"date\":\"2026-10-28\",\"rate\":15000}, {\"date\":\"2026-10-21\",\"rate\":14500}, {\"date\":\"2026-10-14\",\"rate\":15500}, {\"date\":\"2026-10-07\",\"rate\":15750}, {\"date\":\"2026-09-30\",\"rate\":15000}],\"info\":{\"route\":\"Handysize (38 000 dwt)\",\"rate_type\":\"BULK\",\"rate_subtype\":\"TC\"}}]}}",
+    "fearnpulse_306.json": "{\"columns\":[\"tsid\",\"value\",\"date\",\"jobid\"],\"index\":[0,1],\"data\":[[306,458,1782864000000,15],[306,459,1782691200000,15]]}",
+    "fearnpulse_307.json": "{\"columns\":[\"tsid\",\"value\",\"date\",\"jobid\"],\"index\":[0,1],\"data\":[[307,902,1782864000000,15],[307,882.5,1782691200000,15]]}"
+  },
+  "payload_hashes": {
+    "fearnpulse_report.json": "db00caf80c2b4ba6bff3800c0aa459c39a01fef30535bb01a28695cd255406de",
+    "fearnpulse_tc.json": "99784624b7e441c4df9652fe3d85a9229ce768e266dfc407636c7f93cc81dc98",
+    "fearnpulse_306.json": "493edefabb5cc5ebd80f3db61ab98418e6bf6d2d31b37024da7580980a105283",
+    "fearnpulse_307.json": "079e5ef4014b08417c06b309ec1abe6ba7104e09c4f841f68ecfbabfb3dff978"
+  }
+}

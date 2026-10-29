@@ -20,6 +20,9 @@ class StreamlitWorkflowTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.environment = patch.dict(os.environ, {"PILOG_UI_OUTPUT_ROOT": self.temp.name})
         self.environment.start(); self.addCleanup(self.environment.stop)
+        # Reproducible generated inputs in workflow tests; production uses a fresh seed.
+        self.example_seed = patch("pilog_cfr_dss.application.tender_examples.secrets.randbits", return_value=0)
+        self.example_seed.start(); self.addCleanup(self.example_seed.stop)
         self.app = AppTest.from_file(str(APP), default_timeout=25).run()
         self.assertFalse(self.app.exception)
 
@@ -49,6 +52,40 @@ class StreamlitWorkflowTests(unittest.TestCase):
         case = self.app.session_state["case"]
         self.assertEqual(case.result["recommendation"]["action"], "GO")
         self.assertTrue((case.run_dir / "result.json").exists())
+
+    def test_random_bid_draft_only_applies_on_submit_and_can_generate_no_go_then_go(self):
+        from copy import deepcopy
+        self.click("Hitung ekonomi voyage"); self.click("Tetapkan freight untuk tender")
+        self.toggle("Edit bid & risiko", True)
+        case=self.app.session_state["case"]
+        quote=deepcopy(case.context["freight_tender"])
+        original=case.fingerprint
+        with patch("pilog_cfr_dss.application.tender_examples.secrets.randbits",return_value=1):
+            self.click("Isi contoh bid tiga putaran")
+        self.assertEqual(case.fingerprint,original)
+        self.assertEqual(case.context["bids"],[])
+        self.assertTrue(any("belum diterapkan" in c.value for c in self.app.caption))
+        self.click("Terapkan bid & risiko"); self.click("Evaluasi tender & DSS")
+        self.assertEqual(case.result["recommendation"]["action"],"NO_GO")
+        self.assertEqual(case.result["recommendation"]["gate_a"],"FAIL")
+        old_run=case.run_dir
+        self.toggle("Edit bid & risiko",True)
+        fingerprint=case.fingerprint
+        pending_key="tender_example_draft_"+case.draft_id
+        self.click("Acak ulang bid & risiko")
+        draft_a=deepcopy(self.app.session_state[pending_key]["example"])
+        with patch("pilog_cfr_dss.application.tender_examples.secrets.randbits",return_value=2):
+            self.click("Acak ulang bid & risiko")
+        self.assertNotEqual(draft_a["bids"],self.app.session_state[pending_key]["example"]["bids"])
+        self.assertEqual(case.fingerprint,fingerprint)
+        self.assertEqual(case.run_dir,old_run)
+        self.click("Acak ulang bid & risiko")
+        self.click("Terapkan bid & risiko"); self.click("Evaluasi tender & DSS")
+        self.assertEqual(case.result["recommendation"]["action"],"GO")
+        self.assertEqual(case.context["freight_tender"],quote)
+        self.assertFalse(case.context["tender_example"]["edited_before_apply"])
+        self.assertEqual(len(case.context["scenarios"]),3)
+        self.assertNotEqual(case.run_dir,old_run)
 
     def test_loaded_go_and_no_go_examples_use_real_engine(self):
         for label, expected in (("Muat contoh GO", "GO"), ("Muat contoh NO GO", "NO_GO")):
@@ -92,7 +129,7 @@ class StreamlitWorkflowTests(unittest.TestCase):
         self.assertEqual(result["recommendation"]["action"], "NO_GO")
 
     def test_profile_dropdown_switches_complete_workbook_package(self):
-        for profile_id, expected_class in (("ve_aqaba", "Supramax"), ("ve_sby", "Supramax"), ("ve_godau", "Handymax"), ("ve_sheet1", "Handysize")):
+        for profile_id, expected_class in (("ve_aqaba", "Handysize"), ("ve_sby", "Supramax"), ("ve_godau", "Supramax"), ("ve_sheet1", "Handysize")):
             self.assertEqual(len([select for select in self.app.selectbox if select.label == "Pilih profil kapal"]), 1)
             next(select for select in self.app.selectbox if select.label == "Pilih profil kapal").set_value(profile_id).run()
             self.assertFalse(self.app.exception)
@@ -102,7 +139,7 @@ class StreamlitWorkflowTests(unittest.TestCase):
             self.assertIsNone(case.preparation)
             expected_family = "Supramax" if expected_class == "Supramax" else "Handysize"
             self.assertEqual(case.context["pricing"]["target_tce"]["value"], case.context["market_snapshot"]["tc_rates"][expected_family]["value"])
-            self.assertTrue(any(expected_class + " · " + case.context["vessel_profile"]["sheet"] + " → acuan" in caption.value for caption in self.app.caption))
+            self.assertTrue(any(caption.value.startswith(expected_class + " · ") and " → acuan " in caption.value for caption in self.app.caption))
 
     def test_comparison_and_compact_source_copy(self):
         self.click("Bandingkan profil")
@@ -112,6 +149,42 @@ class StreamlitWorkflowTests(unittest.TestCase):
         self.assertNotIn("mentor", captions.lower())
         self.assertNotIn("baltic", captions.lower())
         self.assertTrue(any("Tanggal data" in str(frame.value) for frame in self.app.dataframe))
+
+    def test_voyage_and_profile_can_be_chosen_independently_and_examples_keep_route(self):
+        select = next(s for s in self.app.selectbox if s.label == "Pilih Voyage Estimate")
+        select.set_value("bontang_davao").run()
+        self.assertFalse(self.app.exception)
+        case = self.app.session_state["case"]
+        self.assertEqual(case.values()["cargo_mt"], "28000")
+        self.assertEqual(case.values()["discharging_port"], "Davao")
+        self.assertEqual(case.context["vessel_profile"]["profile_id"], "ve_sheet1")
+        next(s for s in self.app.selectbox if s.label == "Pilih profil kapal").set_value("ve_sby").run()
+        self.assertFalse(self.app.exception)
+        self.assertEqual(self.app.session_state["case"].values()["discharging_port"], "Davao")
+        for label, action in (("Muat contoh GO", "GO"), ("Muat contoh NO GO", "NO_GO"),
+                              ("Muat NO GO ekonomi", "NO_GO")):
+            self.click(label); self.click("Evaluasi tender & DSS")
+            result = self.app.session_state["case"].result
+            self.assertEqual(result["case"]["discharging_port"], "Davao")
+            self.assertEqual(result["case"]["cargo_mt"], "28000")
+            self.assertEqual(result["recommendation"]["action"], action)
+        self.assertTrue(next(s for s in self.app.selectbox if s.label == "Pilih Voyage Estimate").disabled)
+        self.click("Kasus baru")
+        self.assertFalse(next(s for s in self.app.selectbox if s.label == "Pilih Voyage Estimate").disabled)
+
+    def test_demo_reset_recovers_invalid_manual_input_without_losing_voyage(self):
+        next(s for s in self.app.selectbox if s.label == "Pilih Voyage Estimate").set_value("bontang_davao").run()
+        self.toggle("Ubah input kasus", True)
+        next(s for s in self.app.text_input if s.label == "Kecepatan muat (MT/hari)").set_value("0")
+        self.click("Terapkan input")
+        self.click("Hitung ekonomi voyage")
+        self.assertIsNone(self.app.session_state["case"].preparation)
+        self.click("Muat contoh GO")
+        self.click("Evaluasi tender & DSS")
+        case = self.app.session_state["case"]
+        self.assertEqual(case.values()["loading_rate_mt_day"], "5000")
+        self.assertEqual(case.values()["discharging_port"], "Davao")
+        self.assertEqual(case.result["recommendation"]["action"], "GO")
 
     def test_fetch_then_apply_creates_revision_without_repricing_fixed(self):
         self.click("Muat contoh GO")
@@ -181,7 +254,7 @@ class StreamlitWorkflowTests(unittest.TestCase):
         self.assertTrue(next(button for button in self.app.button if button.label == "Evaluasi tender & DSS").disabled)
         self.assertTrue(next(toggle for toggle in self.app.toggle if toggle.label == "Edit bid & risiko").disabled)
         self.assertFalse(self.app.get("download_button"))
-        next(item for item in self.app.text_input if item.label == "Total pelabuhan dan biaya lain (USD) — estimasi terbaru").set_value("450000")
+        next(item for item in self.app.text_input if item.label == "Total pelabuhan dan biaya lain (USD) — estimasi terbaru").set_value("600000")
         next(item for item in self.app.text_area if item.label == "Alasan perubahan biaya").set_value("Synthetic updated port estimate")
         self.click("Terapkan estimasi biaya")
         changed = self.app.session_state["case"]
@@ -248,7 +321,7 @@ class StreamlitWorkflowTests(unittest.TestCase):
         self.assertEqual((fuel["Harga dipakai (USD/MT)"], fuel["Sumber nilai"]), ("700,00", "Estimasi terbaru"))
         vessel = next(frame.value for frame in self.app.dataframe if "Spesifikasi" in frame.value.columns)
         self.assertEqual(vessel[vessel["Spesifikasi"] == "Kecepatan bermuatan"].iloc[0]["Nilai"], "10,00")
-        self.assertEqual(original.values()["speed_knots"], "12")
+        self.assertEqual(original.values()["speed_knots"], original.context["vessel_profile"]["fields"]["speed_knots"])
         self.assertNotEqual(original.values()["fo_price_usd_mt"], "700")
         self.click("Hitung ekonomi voyage")
         durations = next(frame.value for frame in self.app.dataframe if "Komponen" in frame.value.columns and "Satuan" in frame.value.columns)

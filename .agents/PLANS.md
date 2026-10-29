@@ -1,8 +1,16 @@
 # Iteration Plan - PILOG CFR DSS
 
-## Iterasi 5 — rencana demo untuk 1–3 pengguna
+## D-076 — contoh bid/risiko acak
 
-Acuan [plan I5](../docs/it_5/ITERATION_05_PLAN.md) dan [task I5](tasks/ITERATION_05.md), diperbarui D-072. P0..P4 selesai sebagai perencanaan: I4 accepted/pushed, akses luar kantor, belum ada host, Pages dipertimbangkan, 1–3 pengguna perlu create/edit. P5 menggabungkan kotretan yang akan diunggah dan memfinalkan provider/anggaran sebelum instruksi implementasi. Rekomendasi satu layanan React build + FastAPI/engine, managed PostgreSQL; Render + Neon kandidat. Pages opsional hanya frontend. Batch I5-0..6 belum dimulai; tidak ada runtime/deploy I5. I4 57257c0/239 tes tetap baseline.
+Plan §6.4 dan task BID1..3: generator seeded → session draft/acak ulang → apply metadata dan replay → tes. Full suite 262 lulus. Random alpha dapat memenuhi/gagal floor, bukan memaksa hasil. Stress acak bukan veto baseline. Explicit GO/NO GO ekonomi sidebar/CLI dipertahankan; tidak mengubah workbook/sumber/gate/deploy.
+
+## D-075 — diversifikasi profil sebelum deployment
+
+PROFILE1..3 menurunkan permintaan pengguna menjadi dua Handysize (36k/38k) dan dua Supramax (54k/58k), masing-masing speed/consumption/running berbeda. Spesifikasi merupakan asumsi demo; Fearnpulse tetap acuan kelas TC dan bunker dengan tanggal asli. Format/empat voyage/gate/source I4 dipertahankan. Plan §6.3/task/state menyimpan input dan bukti 254 tes serta browser. Revisi ini bukan deploy/porting.
+
+## Iterasi 5 — Streamlit dan empat voyage sebelum deploy
+
+D-074 mengizinkan V1..V4 pada [plan I5](../docs/it_5/ITERATION_05_PLAN.md) §6.1/[task I5](tasks/ITERATION_05.md): edit isi/nama sheet dengan format identik, pisahkan sumber/pemilih voyage dan kapal, sinkron workbook serta uji 16 kombinasi, replay, Excel parity dan UI. Empat urea dari Bontang, muatan 30k/28k/32k/29k. Asumsi port/handling/waiting eksplisit. Archive I4 menjaga prepare/replay historis. Deployment S0..S5 belum dieksekusi; Streamlit tetap, API/React ditunda. Evidence terbaru pada §6.2 dan state; 239 adalah baseline I4.
 
 ## Terbaru D-070 — I4 diterima, menuju plan I5
 

@@ -9,7 +9,7 @@ import streamlit as st
 
 from pilog_cfr_dss.application.interactive_case import InteractiveCase
 from pilog_cfr_dss.reporting.iteration_04 import commercial_brief
-from pilog_cfr_dss.application.market_case import new_market_case, apply_profile, apply_market, apply_case_basis, catalog, seed_demo_bids, compare_profiles, demo_case
+from pilog_cfr_dss.application.market_case import new_market_case, apply_profile, apply_market, apply_case_basis, catalog, voyage_catalog, apply_voyage, compare_profiles, demo_case
 from pilog_cfr_dss.sources.fearnpulse import latest_saved, fetch_snapshot, save_snapshot
 from pilog_cfr_dss.models.tender_clock import round_schedule
 from pilog_cfr_dss.reporting.formatting import price_time as time_label
@@ -17,6 +17,7 @@ from pilog_cfr_dss.reporting.formatting import number_text
 from pilog_cfr_dss.validation.case_basis import BASIS_VERSION, COMMISSION_KEYS
 from pilog_cfr_dss.validation.cost_forecast import COST_KEYS
 from pilog_cfr_dss.ui.presentation import active_inputs, source_label
+from pilog_cfr_dss.application.tender_examples import generate_example, record_applied_example
 from pilog_cfr_dss.reporting.iteration_04 import cost_change_lines, pricing_bridge_lines, price_reference
 
 
@@ -95,7 +96,8 @@ def sidebar(root, case, output_root):
             if st.button(label, width="stretch"):
                 snapshot = case.context.get("market_snapshot") or st.session_state.get("available_market")
                 example = demo_case(root, snapshot, output_root / "ui_cases", kind,
-                    case.context.get("vessel_profile", {}).get("profile_id"))
+                    case.context.get("vessel_profile", {}).get("profile_id"),
+                    voyage_id=case.context.get("voyage_estimate", {}).get("voyage_id"))
                 st.session_state["case"] = example
                 st.rerun()
         if st.button("Kasus baru", width="stretch", help="Salin basis I4; hitung freight baru. Bid lama tidak dibawa."):
@@ -128,12 +130,40 @@ def sidebar(root, case, output_root):
         st.caption("Internal PI/PILOG")
 
 
+def profile_name(profile):
+    fields = profile.get("fields", profile)
+    return profile["vessel_class"] + " · " + fmt(fields["dwt_mt"]) + " DWT · " + fmt(fields["speed_knots"]) + " knot"
+
+
+def voyage_selector(case, root, editing):
+    voyages = voyage_catalog(root)
+    by_id = {v["voyage_id"]: v for v in voyages["voyages"]}
+    current = case.context.get("voyage_estimate", {})
+    current_id = current.get("voyage_id")
+    if current_id not in by_id:
+        current_id = next((vid for vid,v in by_id.items() if
+                          v["fields"]["loading_port"] == case.values()["loading_port"] and
+                          v["fields"]["discharging_port"] == case.values()["discharging_port"]), next(iter(by_id)))
+    selected = st.selectbox("Pilih Voyage Estimate", list(by_id), index=list(by_id).index(current_id),
+        format_func=lambda vid: by_id[vid]["label"] + " · " + fmt(by_id[vid]["fields"]["cargo_mt"]) + " MT",
+        disabled=case.fixed or editing, key="voyage_" + case.draft_id + "_" + str(case.revision))
+    if selected != current_id and not case.fixed and not editing:
+        apply_voyage(case, by_id[selected], root)
+        st.rerun()
+    if current.get("source_sha256") != voyages["source_sha256"]:
+        st.caption("Kasus memakai versi workbook sebelumnya.")
+        if st.button("Gunakan workbook terbaru", disabled=editing):
+            st.session_state["case"] = new_market_case(root, case.context["market_snapshot"],
+                case.context["vessel_profile"]["profile_id"], selected)
+            st.rerun()
+
+
 def profile_selector(case, root, editing):
     profiles = catalog(root)
     by_id = {profile["profile_id"]: profile for profile in profiles["profiles"]}
     current_id = case.context["vessel_profile"]["profile_id"]
     selected = st.selectbox("Pilih profil kapal", list(by_id), index=list(by_id).index(current_id),
-        format_func=lambda pid: by_id[pid]["vessel_class"] + " · " + by_id[pid]["sheet"] + " · " + fmt(by_id[pid]["fields"]["dwt_mt"]) + " DWT",
+        format_func=lambda pid: profile_name(by_id[pid]),
         disabled=case.fixed or editing, key="profile_" + case.draft_id + "_" + str(case.revision),
         help="Paket spesifikasi dari Voyage Estimate. Pilihan ini dipakai di seluruh perhitungan Step 2.")
     if selected != current_id and not case.fixed and not editing:
@@ -142,7 +172,11 @@ def profile_selector(case, root, editing):
 
 
 def review_data(case, root, editing=False):
-    profile_selector(case, root, editing)
+    voyage_choice, vessel_choice = st.columns(2)
+    with voyage_choice:
+        voyage_selector(case, root, editing)
+    with vessel_choice:
+        profile_selector(case, root, editing)
     inputs = active_inputs(case)
     values = {key: row["value"] for key, row in inputs.items()}
     profile = case.context["vessel_profile"]
@@ -169,18 +203,22 @@ def review_data(case, root, editing=False):
                 ("Diesel oil di pelabuhan", "port_do_mt_day", "MT/hari"),
                 ("Operasional kapal", "running_usd_day", "USD/hari"))],
             hide_index=True, width="stretch")
-        st.caption("Spesifikasi: Voyage Estimate.xlsx · " + profile["sheet"])
-        if case.context.get("cost_forecast"):
-            st.caption("Perubahan operasi/biaya mengikuti estimasi terbaru.")
+        # st.caption("Spesifikasi: Voyage Estimate.xlsx · " + profile["sheet"])
+        # if profile.get("source_status") == "simulation_only_workbook_vessel_profile":
+        #     st.caption("Spesifikasi kapal: asumsi demo.")
+        # if case.context.get("voyage_estimate"):
+        #     st.caption("Voyage: Voyage Estimate.xlsx · " + case.context["voyage_estimate"]["sheet"])
+        # if case.context.get("cost_forecast"):
+        #     st.caption("Perubahan operasi/biaya mengikuti estimasi terbaru.")
         with st.expander("Input pelabuhan"):
             st.dataframe([{"Input": label, "Nilai": fmt(values[key]), "Satuan": unit,
-                "Sumber": source_label(inputs[key], profile["sheet"])} for label, key, unit in (
+             } for label, key, unit in (
                     ("Kecepatan muat", "loading_rate_mt_day", "MT/hari"),
                     ("Kecepatan bongkar", "discharge_rate_mt_day", "MT/hari"),
                     ("Waktu tunggu", "waiting_days", "hari"),
                     ("Pelabuhan dan biaya lain", "port_other_total_usd", "USD"))],
                 hide_index=True, width="stretch")
-            st.caption("Acuan historis/asumsi kasus; belum tarif dan produktivitas aktual pelabuhan tujuan.")
+            #st.caption("Produktivitas, waktu tunggu dan biaya pelabuhan: asumsi demo pada sheet voyage terpilih.")
     with columns[1], st.container(border=True):
         st.markdown("**Harga acuan**")
         target_tab, bunker_tab, index_tab = st.tabs(["Target harian", "Harga bunker", "Indeks urea"])
@@ -188,14 +226,14 @@ def review_data(case, root, editing=False):
             quote = snapshot["tc_rates"][profile["market_family"]]
             st.metric("Target hasil harian (USD/hari)", fmt(target["value"]),
                 help="Sasaran hasil sebelum biaya operasional kapal. Dipakai menghitung indikasi freight.")
-            st.caption(profile["vessel_class"] + " · " + profile["sheet"] + " → acuan " + quote["series"])
+            st.caption(profile_name(profile) + " → acuan " + quote["series"])
             if target["source_status"] == "simulation_only_user_input":
                 st.caption("Target: input manual. Benchmark Fearnpulse tetap sebagai pembanding.")
             else:
                 st.caption("Fearnpulse · 1-year T/C · " + quote["source_observed_on"])
             st.caption("Dipakai untuk target harian indikasi freight, bukan biaya sewa tambahan.")
             if profile["market_class_proxy"]:
-                st.caption("Godau Handymax memakai acuan pasar Handysize 38k sebagai proxy kelas.")
+                st.caption("Handymax memakai acuan pasar Handysize 38k sebagai proxy kelas.")
             with st.expander("Seluruh acuan pasar kapal"):
                 st.dataframe([{"Seri": record["series"], "USD/hari": fmt(record["value"]),
                     "Tanggal data": record["source_observed_on"],
@@ -309,10 +347,10 @@ def voyage_view(case, root, output_root, editing):
     profile = case.context["vessel_profile"]
     values = case.current_values()
     profiles = catalog(root)
-    st.caption("Menggunakan " + profile["sheet"] + " · " + values["vessel_class"] + " · " +
+    st.caption("Menggunakan " + profile_name(profile) + " · " +
                values["loading_port"] + " → " + values["discharging_port"])
     with st.expander("Pilihan kapal dan dasar perbandingan"):
-        st.dataframe([{"Profil": p["sheet"], "Kelas": p["vessel_class"], "DWT": fmt(p["fields"]["dwt_mt"]),
+        st.dataframe([{"Profil": profile_name(p), "Kelas": p["vessel_class"], "DWT": fmt(p["fields"]["dwt_mt"]),
                        "Kecepatan (knot)": fmt(p["fields"]["speed_knots"]), "Fuel oil berlayar (MT/hari)": fmt(p["fields"]["sea_fo_mt_day"]),
                        "Acuan pasar": p["market_family"] + (" (proxy kelas)" if p["market_class_proxy"] else "")}
                       for p in profiles["profiles"]], hide_index=True, width="stretch")
@@ -331,7 +369,7 @@ def voyage_view(case, root, output_root, editing):
             same, required = st.tabs(["Freight yang sama", "Tarif untuk target tiap profil"])
             with same:
                 st.caption("Freight pembanding sama untuk seluruh profil. Pilihan kapal tetap manual.")
-                st.dataframe([{"Profil": row["sheet"], "Freight (USD/MT)": fmt(row["common_freight_usd_mt"]),
+                st.dataframe([{"Profil": profile_name(row), "Freight (USD/MT)": fmt(row["common_freight_usd_mt"]),
                     "Hari": fmt(row["common_rate_economics"]["total_days"]),
                     "Biaya voyage (USD)": fmt(row["common_rate_economics"]["total_cash_cost_usd"]),
                     "Kontribusi (USD)": fmt(row["common_rate_economics"]["contribution_usd"]),
@@ -339,7 +377,7 @@ def voyage_view(case, root, output_root, editing):
                     "Kapasitas awal": "Lolos" if row["capacity_screen_passed"] else "Tidak lolos"}
                     for row in comparison["rows"]], hide_index=True, width="stretch")
             with required:
-                st.dataframe([{"Profil": row["sheet"], "Target harian (USD/hari)": fmt(row["target_tce_usd_day"]),
+                st.dataframe([{"Profil": profile_name(row), "Target harian (USD/hari)": fmt(row["target_tce_usd_day"]),
                     "Hari": fmt(row["baseline"]["total_days"]), "Freight indikatif (USD/MT)": fmt(row["computed_freight_usd_mt"]),
                     "Kontribusi (USD)": fmt(row["baseline"]["contribution_usd"]), "Dihitung": time_label(row["calculated_at"])}
                     for row in comparison["rows"]], hide_index=True, width="stretch")
@@ -495,10 +533,27 @@ def tender_view(case, root, output_root, input_editing):
     columns = ["bid_id", "buyer_id", "sequence", "alpha_usd_mt", "status", "submitted_at", "valid_until"]
     raw = case.context.get("bids", [])
     if editing:
-        if not raw and st.button("Isi contoh bid tiga putaran"):
-            seed_demo_bids(case, root)
-            st.rerun()
         round_key = "round_count_" + case.draft_id
+        example_key = "tender_example_draft_" + case.draft_id
+        pending = st.session_state.get(example_key)
+        if pending and pending["basis_fingerprint"] != case.fingerprint:
+            st.session_state.pop(example_key, None)
+            pending = None
+        if st.button("Acak ulang bid & risiko" if raw or pending else "Isi contoh bid tiga putaran"):
+            try:
+                example = generate_example(case)
+                st.session_state[example_key] = {"basis_fingerprint": case.fingerprint, "example": example}
+                st.session_state[round_key] = 3
+                st.rerun()
+            except (ValueError, KeyError, TypeError, ArithmeticError) as error:
+                st.error("Contoh belum dibuat: " + str(error))
+        draft_risks = case.context["scenarios"]
+        editor_version = str(case.revision)
+        if pending:
+            raw = pending["example"]["bids"]
+            draft_risks = pending["example"]["scenarios"]
+            editor_version += "_" + pending["example"]["metadata"]["seed"]
+            st.caption("Contoh acak belum diterapkan.")
         count = max(st.session_state.get(round_key, 3), max((bid["round"] for bid in raw), default=3))
         if st.button("Tambah putaran"):
             st.session_state[round_key] = count + 1
@@ -518,21 +573,24 @@ def tender_view(case, root, output_root, input_editing):
                         "status": st.column_config.SelectboxColumn("Status", options=["active", "withdrawn", "expired", "replaced"]),
                         "submitted_at": st.column_config.TextColumn("Waktu masuk (ISO + zona)"),
                         "valid_until": st.column_config.TextColumn("Berlaku sampai (ISO + zona)"),
-                    }, key="bid_grid_" + case.draft_id + "_" + str(case.revision) + "_" + str(round_number))
+                    }, key="bid_grid_" + case.draft_id + "_" + editor_version + "_" + str(round_number))
                 edited_rounds.append((round_number, grid))
             with st.expander("Waktu dan pilihan PI"):
-                cutoff = st.text_input("Cutoff evaluasi (ISO dengan zona waktu)", case.context["evaluation_cutoff"])
+                cutoff = st.text_input("Cutoff evaluasi (ISO dengan zona waktu)",
+                    pending["example"]["evaluation_cutoff"] if pending else case.context["evaluation_cutoff"],
+                    key="cutoff_" + case.draft_id + "_" + editor_version)
                 start = st.text_input("Mulai putaran pertama (ISO dengan zona waktu)", case.context["auction_clock"]["starts_at"]) if case.context.get("auction_clock") else None
-                selection = st.text_input("Bid pilihan PI (opsional)", case.context.get("pi_selected_bid_id") or "",
+                selection = st.text_input("Bid pilihan PI (opsional)", "" if pending else case.context.get("pi_selected_bid_id") or "",
+                    key="selection_" + case.draft_id + "_" + editor_version,
                     help="Kosong: kandidat ranking. Isi jika PI telah memilih bid; tidak mengubah hasil hitungan.")
                 st.caption("3 menit tetap per putaran. Tambahan putaran memerlukan penyesuaian cutoff.")
             with st.expander("Skenario risiko"):
                 scenario_columns = ["scenario_id", "label", "fuel_price_increase_fraction", "extra_port_days"]
-                scenarios = st.data_editor(pd.DataFrame([{k: str(row.get(k, "")) for k in scenario_columns} for row in case.context["scenarios"]],
+                scenarios = st.data_editor(pd.DataFrame([{k: str(row.get(k, "")) for k in scenario_columns} for row in draft_risks],
                     columns=scenario_columns), hide_index=True, num_rows="dynamic", width="stretch",
                     column_config={"fuel_price_increase_fraction": st.column_config.TextColumn("Kenaikan bahan bakar (fraksi; 0.25 = 25%)"),
                                    "extra_port_days": st.column_config.TextColumn("Tambahan hari pelabuhan")},
-                    key="scenario_grid_" + case.draft_id + "_" + str(case.revision))
+                    key="scenario_grid_" + case.draft_id + "_" + editor_version)
             submitted = st.form_submit_button("Terapkan bid & risiko", type="primary")
         if submitted:
             try:
@@ -543,10 +601,15 @@ def tender_view(case, root, output_root, input_editing):
                             bids.append({**row, "round": str(round_number)})
                 case.apply_tender(bids, cutoff.strip(), selection.strip() or None, start.strip() if start else None)
                 case.apply_scenarios(scenarios.fillna("").to_dict("records"))
+                if pending:
+                    record_applied_example(case, pending["example"])
+                    st.session_state.pop(example_key, None)
                 _close_editor(key)
             except (ValueError, TypeError, KeyError) as error:
                 st.error(f"Perubahan belum diterapkan: {error}")
     elif raw:
+        if case.context.get("tender_example"):
+            st.caption("Bid dan skenario risiko: contoh acak.")
         tender_tables(case)
     else:
         st.caption("Belum ada bid.")

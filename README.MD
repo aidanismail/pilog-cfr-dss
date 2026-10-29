@@ -1,8 +1,25 @@
 # PILOG CFR DSS — Simulasi Iterasi 4
 
-**Checkpoint diterima:** I4 sudah dipush ke origin/dev pada [57257c0](https://github.com/aidanismail/pilog-cfr-dss/commit/57257c07299cd74d7172a84d3ec158e5679a7c1e), full suite 239/239 lulus. [Rencana Iterasi 5](docs/it_5/ITERATION_05_PLAN.md) kini untuk demo 1–3 pengguna yang membuat/mengubah kasus dari luar kantor: satu web service React/FastAPI + managed PostgreSQL direkomendasikan. Pages hanya alternatif frontend statis; provider/anggaran dan kotretan pengguna belum final. I5 belum dibangun/deploy; runtime tetap Streamlit/engine I4. [Task I5](.agents/tasks/ITERATION_05.md).
+**Checkpoint diterima:** I4 sudah dipush ke origin/dev pada [57257c0](https://github.com/aidanismail/pilog-cfr-dss/commit/57257c07299cd74d7172a84d3ec158e5679a7c1e), 239/239 release tests lulus. [I5](docs/it_5/ITERATION_05_PLAN.md) tetap Streamlit. Revisi empat voyage dan dua pilihan Step 1 selesai teknis: 254/254 tes untuk revisi profil terbaru dan browser PASS. Deployment/persistence belum dilaksanakan; porting FastAPI/React/RBAC enterprise ditunda. [Task I5](.agents/tasks/ITERATION_05.md).
 
 **Status 28 Oktober:** mentor menyetujui Iterasi 4 melalui konfirmasi pengguna. Versi ini menjadi baseline yang diterima untuk logika dan UI advisory. Porting stack/deployment bagi pengguna lain dibahas sebagai Iterasi 5; penerimaan ini tidak mengubah angka, gate atau kewenangan kontrak.
+
+## Contoh bid dan risiko acak — D-076
+
+Tetapkan freight → Edit bid & risiko → Isi contoh bid tiga putaran. Tombol mengisi draft sembilan bid dan tiga skenario risiko yang bervariasi. Acak ulang bid & risiko tersedia untuk mengganti contoh; kasus tersimpan baru berubah setelah Terapkan bid & risiko, lalu Evaluasi tender & DSS.
+
+Hasil dapat GO/NO GO menurut input, bukan karena keputusan diacak. Alpha memengaruhi kelolosan FOB terhadap OE/HPS; stress risiko tidak menggagalkan baseline yang lolos. Untuk mencoba kontribusi freight negatif gunakan Muat NO GO ekonomi atau explicit estimasi biaya terbaru/offer rendah. Contoh sidebar GO/NO GO dan CLI tetap dapat diulang. Seed/version/hash contoh ada di JSON/input snapshot; edit manusia tidak diklaim sebagai hasil seed yang sama. Tidak mengubah freight tetap, indeks, OE/HPS, workbook atau snapshot Fearnpulse.
+
+## Profil kapal terbaru — 29 Oktober, D-075
+
+| Profil | DWT MT | Kecepatan laden knot | Fuel oil MT/hari | Diesel laut MT/hari | Operasional USD/hari |
+|---|---:|---:|---:|---:|---:|
+| Handysize HS36 | 36.000 | 11,5 | 17 | 0,12 | 4.800 |
+| Handysize HS38 | 38.000 | 12,5 | 20 | 0,15 | 5.200 |
+| Supramax SUP54 | 54.000 | 12 | 24 | 0,18 | 6.100 |
+| Supramax SUP58 | 58.000 | 13 | 28 | 0,20 | 6.500 |
+
+Spesifikasi fisik merupakan asumsi demo berlabel. Target harian tetap benchmark kelas Fearnpulse; harga bunker tetap snapshot Fearnpulse. Tidak ada Handymax dalam pilihan aktif, tetapi replay historis tetap mendukungnya. Format workbook dan empat voyage tetap. Jika app masih memakai kasus lama, klik Gunakan workbook terbaru atau mulai sesi baru; quote/bid lama tidak diubah. 254 tes lulus; bukti terbaru di plan §6.3/task/state.
 
 ## Format angka — dua desimal (D-069)
 
@@ -12,16 +29,20 @@ Mesin Decimal, JSON, source/snapshot dan audit rinci tetap menyimpan presisi pen
 
 Brief aktif baru **I4-BRIEF.8**, formula/rule I4.1 tetap. Tiga contoh format baru ada di review terbaru; hasil finansial/keputusan sama dengan snapshot sebelumnya. Refresh/rerun app untuk melihat format baru.
 
-## Alur UI terbaru — D-067, 28 Oktober
+## Alur UI terbaru — D-074, 28 Oktober
 
-1. **Step 1 — Data Pengiriman & Kapal:** pilih profil sekali melalui **Pilih profil kapal**. Kartu kiri menunjukkan rute/muatan/jarak serta spesifikasi dari sheet. Kartu kanan memisahkan **Target harian**, **Harga bunker** dan **Indeks urea**. Acuan pasar kapal mengikuti kelas profil; Godau menggunakan proxy Handysize yang ditandai.
+1. **Step 1 — Data Pengiriman & Kapal:** pilih **Voyage Estimate** dan **Profil kapal** secara independen. Empat kasus urea Bontang: Mundra 30.000 MT, Davao 28.000 MT, Bangkok 32.000 MT dan Hai Phong 29.000 MT. Profil ditampilkan sebagai kelas/DWT/kecepatan, bukan nama sheet. Kartu kanan memisahkan target harian, harga bunker dan indeks urea; Handymax memakai proxy Handysize yang ditandai.
 2. **Step 2 — Voyage Economics:** klik **Hitung ekonomi voyage**. Hasil memakai profil Step 1; tidak ada pemilih kedua. Dua tabel memperlihatkan durasi/kebutuhan fuel oil dan diesel oil, lalu biaya serta kontribusi. Harga bunker manual/estimasi terbaru ditampilkan sesuai nilai yang benar-benar digunakan.
 3. Tetapkan freight, isi/terapkan bid dan evaluasi seperti alur sebelumnya.
 4. Hasil utama tetap commercial decision brief. **Analisis pendukung** berisi Exposure, Risiko, Dampak logistik dan Konsekuensi harga dalam tabel/metric ringkas. Cakupan saat ini adalah perhitungan dasar; probabilitas/hedging dan kesiapan operasi penuh belum dibangun.
 
-Jarak berasal OD untuk Bontang–Mundra/WCI. Harga urea berasal FOB SEA; Singapore 380 CST/MGO adalah acuan harga fuel oil/diesel oil, bukan lokasi bunkering. Input pelabuhan tetap historis/asumsi. Detail sumber/tanggal dan penanda manual/proxy tersedia tanpa copy footer berulang.
+Jarak setiap kasus berasal OD. Harga urea berasal FOB SEA; Singapore 380 CST/MGO adalah acuan harga fuel oil/diesel oil, bukan lokasi bunkering. Input handling/waiting/biaya pelabuhan adalah asumsi demo pada sheet voyage terpilih. Memilih kapal dari sheet lain tidak memindahkan rute/muatan. Sumber dan waktu tetap tersedia.
 
-Formula, gate, fixed freight, dataset dan unduhan MD/JSON tetap. Tiga run pada review D-065 tetap acuan; tidak ada dataset/run baru untuk perubahan tampilan ini. Jika layout lama masih terlihat, rerun/refresh halaman app. Bukti 21 AppTest, 18 integrasi dan browser ada di review terbaru.
+Rumus/gate dan perlindungan fixed quote tetap. Untuk mengganti basis setelah freight ditetapkan, pilih Kasus baru; bid lama tidak dibawa. Tombol contoh GO/NO GO mempertahankan voyage/kapal terpilih tetapi memuat ulang input template yang valid.
+
+Edit sumber utama [Voyage Estimate.xlsx](data/raw/Voyage%20Estimate.xlsx). Nama tab adalah label sumber; kode B3 mengidentifikasi profil kapal. B9 rute, D20 muatan (B41 = D20), F3 jarak OD, divisor D12/F12 produktivitas, H11 waktu tunggu, I33:I37 komponen port dan J33 totalnya. Jangan menambahkan biaya total J33 lagi di komponen. Format asli tetap. Salinan Experiments disinkronkan pada revisi ini; arsip I4 berada di docs/it_4/Voyage Estimate I4.xlsx.
+
+App membaca versi workbook menurut hash; untuk kasus yang sudah dibuka gunakan Gunakan workbook terbaru bila ada perubahan. JSON derived dapat disinkronkan offline dengan `python scripts/sync_voyage_inputs.py`. CLI aktif juga menerima `--voyage bontang_davao` pada scripts/run_market_simulation.py. Template Excel menyimpan target/bunker pada waktu disimpan; app memakai snapshot Fearnpulse yang diterapkan. Perbedaan snapshot dapat menghasilkan harga baru yang berbeda; quote fixed lama tetap.
 
 ## Penguatan keputusan komersial — 28 Oktober (D-064/D-065)
 

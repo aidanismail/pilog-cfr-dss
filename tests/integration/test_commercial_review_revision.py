@@ -38,7 +38,7 @@ class CommercialReviewTests(unittest.TestCase):
     def test_highest_bid_passes_gate_a_but_higher_costs_fail_gate_b(self):
         original = self.fix_and_bid(); before = self.result()
         signature = original.fingerprint; quote = deepcopy(original.context["freight_tender"])
-        changed = original.reforecast_costs({"port_other_total_usd": "450000"}, "Synthetic port cost update")
+        changed = original.reforecast_costs({"port_other_total_usd": "600000"}, "Synthetic port cost update")
         result = self.result(changed)
         self.assertEqual(result["recommendation"]["action"], "NO_GO")
         self.assertEqual((result["recommendation"]["gate_a"], result["recommendation"]["gate_b"]), ("PASS", "FAIL"))
@@ -50,8 +50,8 @@ class CommercialReviewTests(unittest.TestCase):
         self.assertGreater(D(result["baseline"]["revenue_usd"]), 0)
         with localcontext() as precision:
             precision.prec = 40
-            self.assertEqual(D(result["baseline"]["contribution_usd"]), D(before["baseline"]["contribution_usd"]) - D("250000"))
-        self.assertEqual(D(result["commercial_review"]["cost_increase_usd"]), D("250000"))
+            self.assertEqual(D(result["baseline"]["contribution_usd"]), D(before["baseline"]["contribution_usd"]) - D("400000"))
+        self.assertEqual(D(result["commercial_review"]["cost_increase_usd"]), D("400000"))
         self.assertGreater(D(result["commercial_review"]["loss_to_recover_usd"]), 0)
 
     def test_reforecast_requires_fixed_quote_and_reason(self):
@@ -150,7 +150,7 @@ class CommercialReviewTests(unittest.TestCase):
 
     def test_no_go_brief_quantifies_loss_and_recovery_without_repricing(self):
         self.fix_and_bid()
-        changed = self.case.reforecast_costs({"port_other_total_usd": "450000"}, "Synthetic revised port budget")
+        changed = self.case.reforecast_costs({"port_other_total_usd": "600000"}, "Synthetic revised port budget")
         result = self.result(changed); text = commercial_brief(result)
         self.assertIn("Bid barang yang tertinggi/lolos PI tidak menghilangkan kerugian freight PILOG", text)
         self.assertIn("### Dasar perubahan hasil", text)
@@ -198,10 +198,10 @@ class CommercialReviewTests(unittest.TestCase):
 
     def test_prescribed_break_even_actions_really_recover_nonnegative_result(self):
         self.fix_and_bid()
-        changed = self.case.reforecast_costs({"port_other_total_usd": "450000"}, "Synthetic loss case")
+        changed = self.case.reforecast_costs({"port_other_total_usd": "600000"}, "Synthetic loss case")
         result = self.result(changed)
         review = result["commercial_review"]
-        reduced = D("450000") - D(review["minimum_cost_reduction_usd"])
+        reduced = D("600000") - D(review["minimum_cost_reduction_usd"])
         recovered = changed.reforecast_costs({"port_other_total_usd": str(reduced)}, "Synthetic approved cost reduction")
         self.assertEqual(self.result(recovered)["recommendation"]["action"], "GO")
         self.assertEqual(recovered.context["freight_tender"], changed.context["freight_tender"])
@@ -217,16 +217,19 @@ class CommercialReviewTests(unittest.TestCase):
         result = self.result()
         before = deepcopy(result)
         text = commercial_brief(result)
-        self.assertIn("25,45 USD/MT", text)
-        self.assertNotIn("25.4513 USD/MT", text)
+        from decimal import ROUND_HALF_UP
+        raw = result["pricing"]["freight_tender_usd_mt"]
+        display = format(D(raw).quantize(D("0.01"),rounding=ROUND_HALF_UP),"f").replace(".",",")
+        self.assertIn(display + " USD/MT", text)
+        self.assertNotIn(raw + " USD/MT", text)
         self.assertEqual(result, before)
-        self.assertEqual(result["pricing"]["freight_tender_usd_mt"], "25.4513")
+        self.assertEqual(result["pricing"]["freight_tender_usd_mt"], self.case.context["freight_tender"]["value"])
         self.assertEqual(result["recommendation"]["action"], "GO")
 
     def test_minimum_two_decimal_price_in_brief_recovers_without_false_go(self):
         from pilog_cfr_dss.reporting.formatting import number_text
         self.fix_and_bid()
-        changed = self.case.reforecast_costs({"port_other_total_usd": "450000"}, "Synthetic rounding boundary")
+        changed = self.case.reforecast_costs({"port_other_total_usd": "600000"}, "Synthetic rounding boundary")
         result = self.result(changed)
         display = number_text(result["commercial_review"]["break_even_offer_usd_mt"], minimum=True)
         self.assertIn(display + " USD/MT", commercial_brief(result))
