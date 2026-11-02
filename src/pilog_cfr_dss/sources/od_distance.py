@@ -66,7 +66,7 @@ def read_distance(path: Path, origin: str, destination: str, product: str) -> di
     source = path.read_bytes()
     payload = deepcopy(_distance_payload(source))
     resolved = resolve_distance(payload, origin, destination, product)
-    reference = "docs/it_4/" + path.name + " :: " + SHEET + "!" + resolved["cell"]
+    reference = "data/raw/" + path.name + " :: " + SHEET + "!" + resolved["cell"]
     return {"version": "OD-DISTANCE.1", **resolved, "unit": "NM", "sheet": SHEET,
             "loading_port": origin, "discharging_port": destination, "cargo_description": product,
             "source_status": "observed_workbook_distance", "source_reference": reference,

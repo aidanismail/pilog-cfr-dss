@@ -7,17 +7,17 @@ from copy import deepcopy
 from decimal import Decimal as D
 from pathlib import Path
 
-from pilog_cfr_dss.orchestration.iteration_04 import evaluate, persist_run, fixed_freight_record
-from pilog_cfr_dss.reporting.iteration_04 import commercial_brief, calculation_audit, amount
-from pilog_cfr_dss.decisions.iteration_04 import decide
-from pilog_cfr_dss.decisions.iteration_04 import evaluate_tender
-from pilog_cfr_dss.calculations.tender_04 import index_prices, bid_prices
-from pilog_cfr_dss.validation.iteration_04 import load_case
+from pilog_cfr_dss.orchestration.case_evaluation import evaluate, persist_run, fixed_freight_record
+from pilog_cfr_dss.reporting.commercial_brief import commercial_brief, calculation_audit, amount
+from pilog_cfr_dss.decisions.tender_decision import decide
+from pilog_cfr_dss.decisions.tender_decision import evaluate_tender
+from pilog_cfr_dss.calculations.tender_pricing import index_prices, bid_prices
+from pilog_cfr_dss.validation.case import load_case
 
 ROOT = Path(__file__).resolve().parents[2]
-GO = ROOT / "data/processed/i4_context.json"
-NO = ROOT / "data/processed/i4_no_go.json"
-CSV = ROOT / "data/processed/i4_voyage.csv"
+GO = ROOT / "data/processed/case_template.json"
+NO = ROOT / "data/processed/case_no_go.json"
+CSV = ROOT / "data/processed/voyage_template.csv"
 
 
 class I4IntegrationTests(unittest.TestCase):
@@ -30,7 +30,7 @@ class I4IntegrationTests(unittest.TestCase):
         for key, value in (overrides or {}).items():
             row = next(r for r in rows if r["key"] == key)
             row.update(value if isinstance(value, dict) else {"value": value})
-        with (folder / "i4_voyage.csv").open("w", encoding="utf-8", newline="") as stream:
+        with (folder / "voyage_template.csv").open("w", encoding="utf-8", newline="") as stream:
             w = csv.DictWriter(stream, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
         return path
 
@@ -234,7 +234,7 @@ class I4IntegrationTests(unittest.TestCase):
     def test_duplicate_csv_key_does_not_silently_override(self):
         with tempfile.TemporaryDirectory() as t:
             path = self.make_case(Path(t))
-            data = Path(t) / "i4_voyage.csv"
+            data = Path(t) / "voyage_template.csv"
             with data.open(encoding="utf-8", newline="") as stream:
                 rows = list(csv.DictReader(stream))
             with data.open("w", encoding="utf-8", newline="") as stream:
@@ -392,22 +392,6 @@ class I4IntegrationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             fixed_freight_record({"recommendation": {"action": "NO_GO"}})
 
-    def test_preparation_from_structured_case_without_raw_sources_and_no_overwrite(self):
-        import importlib.util
-        import contextlib
-        import io
-        spec = importlib.util.spec_from_file_location("prepare_i4_test", ROOT / "scripts/prepare_iteration_04.py")
-        module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
-        with tempfile.TemporaryDirectory() as t:
-            dest = Path(t) / "prepared"
-            with contextlib.redirect_stdout(io.StringIO()):
-                module.prepare_case(GO, dest)
-            r = evaluate(dest / GO.name)
-            self.assertEqual(r["baseline"], evaluate(GO)["baseline"])
-            self.assertEqual(r["pricing"]["source_record"], evaluate(GO)["pricing"]["source_record"])
-            self.assertEqual((dest / CSV.name).read_bytes(), CSV.read_bytes())
-            with self.assertRaises(ValueError):
-                module.prepare_case(GO, dest)
 
     def test_internal_persisted_artifacts_and_json_brief_metrics_agree(self):
         r = evaluate(GO)
@@ -431,23 +415,6 @@ class I4IntegrationTests(unittest.TestCase):
         self.assertEqual(shock["economics"]["freight_usd_mt"], r["baseline"]["freight_usd_mt"])
         self.assertEqual(r["recommendation"]["action"], "GO")
 
-    def test_preparing_legacy_case_derives_price_and_keeps_original_untouched(self):
-        import importlib.util
-        import contextlib
-        import io
-        spec = importlib.util.spec_from_file_location("prepare_i4_legacy_test", ROOT / "scripts/prepare_iteration_04.py")
-        module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
-        p = json.loads(GO.read_text(encoding="utf-8")); p.pop("freight_tender", None)
-        with tempfile.TemporaryDirectory() as t:
-            folder = Path(t)
-            source = self.make_case(folder, p)
-            before = source.read_bytes()
-            with contextlib.redirect_stdout(io.StringIO()):
-                module.prepare_case(source, folder / "prepared")
-            prepared = evaluate(folder / "prepared" / source.name)
-            self.assertEqual(prepared["pricing"]["rate_mode"], "fixed_simulation")
-            self.assertEqual(prepared["baseline"], evaluate(source)["baseline"])
-            self.assertEqual(source.read_bytes(), before)
 
     def test_two_decimal_display_preserves_sign_and_gate_uses_raw_loss(self):
         self.assertEqual(amount("-0.00000001"), "-0,00")

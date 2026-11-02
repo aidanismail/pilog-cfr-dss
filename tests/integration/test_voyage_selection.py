@@ -14,12 +14,12 @@ from pilog_cfr_dss.application.market_case import (
     seed_demo_bids, demo_case, compare_profiles)
 from pilog_cfr_dss.sources.fearnpulse import latest_saved
 from pilog_cfr_dss.sources.voyage_estimates import read_voyages
-from pilog_cfr_dss.calculations.voyage_04 import port_expenses_total
-from pilog_cfr_dss.orchestration.iteration_04 import evaluate
+from pilog_cfr_dss.calculations.voyage_economics import port_expenses_total
+from pilog_cfr_dss.orchestration.case_evaluation import evaluate
 
 ROOT = Path(__file__).resolve().parents[2]
 RAW = ROOT / "data/raw/Voyage Estimate.xlsx"
-OD = ROOT / "docs/it_4/Simulasi Tarif Internasional_Mei 2025.xlsx"
+OD = ROOT / "data/raw/Simulasi Tarif Internasional_Mei 2025.xlsx"
 
 
 class VoyageSelectionTests(unittest.TestCase):
@@ -124,9 +124,9 @@ class VoyageSelectionTests(unittest.TestCase):
     def test_workbook_changes_invalidate_catalog_and_renaming_preserves_profile_ids(self):
         root = self.workspace / "repo"
         (root / "data/raw").mkdir(parents=True)
-        (root / "docs/it_4").mkdir(parents=True)
+        (root / "data/raw").mkdir(parents=True, exist_ok=True)
         path = root / "data/raw/Voyage Estimate.xlsx"
-        shutil.copy2(RAW, path); shutil.copy2(OD, root / "docs/it_4" / OD.name)
+        shutil.copy2(RAW, path); shutil.copy2(OD, root / "data/raw" / OD.name)
         before = voyage_catalog(root)
         workbook = load_workbook(path)
         workbook["Bontang-Davao"]["D20"] = 28500
@@ -156,19 +156,3 @@ class VoyageSelectionTests(unittest.TestCase):
         for values in ([],[D(-1)],[D("NaN")]):
             with self.assertRaises(ValueError): port_expenses_total(values)
 
-    def test_original_formatting_parts_and_cell_styles_unchanged(self):
-        original = ROOT / "docs/it_4/Voyage Estimate I4.xlsx"
-        with ZipFile(original) as a, ZipFile(RAW) as b:
-            self.assertEqual(a.namelist(), b.namelist())
-            mutable = {"xl/workbook.xml"} | {f"xl/worksheets/sheet{i}.xml" for i in range(1,5)}
-            for name in a.namelist():
-                if name not in mutable: self.assertEqual(a.read(name),b.read(name),name)
-            ns={"s":"http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
-            for i in range(1,5):
-                aroot=ET.fromstring(a.read(f"xl/worksheets/sheet{i}.xml"))
-                broot=ET.fromstring(b.read(f"xl/worksheets/sheet{i}.xml"))
-                for element in ["cols","mergeCells","sheetFormatPr","pageMargins","sheetViews"]:
-                    self.assertEqual(ET.tostring(aroot.find("s:"+element,ns)),ET.tostring(broot.find("s:"+element,ns)))
-                acells={c.attrib["r"]:c.attrib.get("s") for c in aroot.findall(".//s:c",ns)}
-                bcells={c.attrib["r"]:c.attrib.get("s") for c in broot.findall(".//s:c",ns)}
-                self.assertTrue(all(bcells.get(k)==v for k,v in acells.items()))

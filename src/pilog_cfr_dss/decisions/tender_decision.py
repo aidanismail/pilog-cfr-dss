@@ -2,8 +2,8 @@
 from decimal import Decimal
 from typing import Any
 from pilog_cfr_dss.calculations.capacity import gross_dwt_screen
-from pilog_cfr_dss.models.iteration_04 import Case04
-from pilog_cfr_dss.validation.iteration_04 import timestamp
+from pilog_cfr_dss.models.case import Case04
+from pilog_cfr_dss.validation.case import timestamp
 
 
 def risk_label(contribution: Decimal) -> str:

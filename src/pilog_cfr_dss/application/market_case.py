@@ -9,12 +9,12 @@ from pathlib import Path
 from pilog_cfr_dss.application.interactive_case import InteractiveCase
 from pilog_cfr_dss.models.tender_clock import round_window
 from pilog_cfr_dss.orchestration.price_records import utc_now
-from pilog_cfr_dss.validation.iteration_04 import timestamp
+from pilog_cfr_dss.validation.case import timestamp
 from pilog_cfr_dss.sources.od_distance import read_distance
 from pilog_cfr_dss.validation.case_basis import BASIS_VERSION, COMMISSION_KEYS
 from pilog_cfr_dss.validation.cost_forecast import REVIEW_VERSION
-from pilog_cfr_dss.validation.iteration_04 import number
-from pilog_cfr_dss.calculations.pricing_04 import economics
+from pilog_cfr_dss.validation.case import number
+from pilog_cfr_dss.calculations.freight_pricing import economics
 from pilog_cfr_dss.calculations.commercial_review import net_daily, demo_port_cost
 from pilog_cfr_dss.calculations.capacity import gross_dwt_screen
 from decimal import localcontext
@@ -45,7 +45,7 @@ def catalog(root: Path) -> dict:
 
 def voyage_catalog(root: Path) -> dict:
     path = root / "data/raw/Voyage Estimate.xlsx"
-    od = root / "docs/it_4/Simulasi Tarif Internasional_Mei 2025.xlsx"
+    od = root / "data/raw/Simulasi Tarif Internasional_Mei 2025.xlsx"
     return deepcopy(_voyages(str(path.resolve()), hashlib.sha256(path.read_bytes()).hexdigest(),
                              str(od.resolve()), hashlib.sha256(od.read_bytes()).hexdigest()))
 
@@ -71,7 +71,7 @@ def apply_case_basis(case: InteractiveCase, root: Path) -> None:
     if case.fixed:
         raise ValueError("BASIS_FIXED_CREATE_REVISION")
     values = case.values()
-    distance = read_distance(root / "docs/it_4/Simulasi Tarif Internasional_Mei 2025.xlsx",
+    distance = read_distance(root / "data/raw/Simulasi Tarif Internasional_Mei 2025.xlsx",
                              values["loading_port"], values["discharging_port"], values["cargo_description"])
     for row in case.rows:
         if row["key"] in COMMISSION_KEYS:
@@ -132,7 +132,7 @@ def apply_market(case: InteractiveCase, snapshot: dict) -> None:
 
 def new_market_case(root: Path, snapshot: dict, profile_id: str | None = None,
                     voyage_id: str | None = None) -> InteractiveCase:
-    case = InteractiveCase.read(root / "data/processed/i4_context.json").revise()
+    case = InteractiveCase.read(root / "data/processed/case_template.json").revise()
     profiles = catalog(root)
     profile = next((p for p in profiles["profiles"] if p["profile_id"] == (profile_id or profiles["profiles"][0]["profile_id"])), None)
     if profile is None:
@@ -168,7 +168,7 @@ def new_market_case(root: Path, snapshot: dict, profile_id: str | None = None,
 
 
 def seed_demo_bids(case: InteractiveCase, root: Path, *, no_go: bool = False) -> None:
-    name = "i4_no_go.json" if no_go else "i4_context.json"
+    name = "case_no_go.json" if no_go else "case_template.json"
     bids = json.loads((root / "data/processed" / name).read_text(encoding="utf-8"))["bids"]
     clock = case.context.get("auction_clock")
     if clock:
@@ -200,7 +200,7 @@ def compare_profiles(case: InteractiveCase, root: Path, drafts_root: Path, commo
         bounds = profiles["policy"][profile["vessel_class"]]
         capacity_ok, _ = gross_dwt_screen(number(profile["fields"]["dwt_mt"], "dwt"), number(candidate.values()["cargo_mt"], "cargo"),
             number(bounds[0], "class min"), number(bounds[1], "class max"))
-        from pilog_cfr_dss.orchestration.iteration_04 import serial
+        from pilog_cfr_dss.orchestration.case_evaluation import serial
         results.append({"profile_id": profile["profile_id"], "sheet": profile["sheet"],
             "profile_code": profile.get("profile_code", profile["profile_id"]),
             "vessel_class": profile["vessel_class"], "dwt_mt": profile["fields"]["dwt_mt"],

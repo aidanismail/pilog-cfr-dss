@@ -1,10 +1,10 @@
 import unittest
 from decimal import Decimal as D
 from pathlib import Path
-from pilog_cfr_dss.calculations.pricing_04 import required_freight, economics, decision_metrics, commercial_financials
-from pilog_cfr_dss.calculations.voyage_04 import voyage
-from pilog_cfr_dss.calculations.tender_04 import bid_prices, index_prices, minimum_alpha
-from pilog_cfr_dss.validation.iteration_04 import load_case
+from pilog_cfr_dss.calculations.freight_pricing import required_freight, economics, decision_metrics, commercial_financials
+from pilog_cfr_dss.calculations.voyage_economics import voyage
+from pilog_cfr_dss.calculations.tender_pricing import bid_prices, index_prices, minimum_alpha
+from pilog_cfr_dss.validation.case import load_case
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -66,7 +66,7 @@ class I4CalculationTests(unittest.TestCase):
         self.assertEqual(str((baseline, bids)), before)
 
     def test_one_way_days_full_port_and_no_return(self):
-        case, _ = load_case(ROOT / "data/processed/i4_context.json")
+        case, _ = load_case(ROOT / "data/processed/case_template.json")
         v = voyage(case)
         self.assertEqual(v["sea_days"], D("13.5625"))
         self.assertEqual(v["loading_days"], D(6))
@@ -98,7 +98,7 @@ class I4CalculationTests(unittest.TestCase):
         self.assertEqual(economics(costs, D(1), D(100), D(0))["contribution_usd"], D(-50))
 
     def test_shocks_change_cost_not_quantity_or_extra_sea_leg(self):
-        case, _ = load_case(ROOT / "data/processed/i4_context.json")
+        case, _ = load_case(ROOT / "data/processed/case_template.json")
         base, shock = voyage(case), voyage(case, D("0.25"), D(3))
         self.assertEqual(base["sea_days"], shock["sea_days"])
         self.assertEqual(shock["total_days"] - base["total_days"], D(3))

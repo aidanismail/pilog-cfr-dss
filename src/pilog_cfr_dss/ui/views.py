@@ -8,7 +8,7 @@ import pandas as pd
 import streamlit as st
 
 from pilog_cfr_dss.application.interactive_case import InteractiveCase
-from pilog_cfr_dss.reporting.iteration_04 import commercial_brief
+from pilog_cfr_dss.reporting.commercial_brief import commercial_brief
 from pilog_cfr_dss.application.market_case import new_market_case, apply_profile, apply_market, apply_case_basis, catalog, voyage_catalog, apply_voyage, compare_profiles, demo_case
 from pilog_cfr_dss.sources.fearnpulse import latest_saved, fetch_snapshot, save_snapshot
 from pilog_cfr_dss.models.tender_clock import round_schedule
@@ -18,7 +18,7 @@ from pilog_cfr_dss.validation.case_basis import BASIS_VERSION, COMMISSION_KEYS
 from pilog_cfr_dss.validation.cost_forecast import COST_KEYS
 from pilog_cfr_dss.ui.presentation import active_inputs, source_label
 from pilog_cfr_dss.application.tender_examples import generate_example, record_applied_example
-from pilog_cfr_dss.reporting.iteration_04 import cost_change_lines, pricing_bridge_lines, price_reference
+from pilog_cfr_dss.reporting.commercial_brief import cost_change_lines, pricing_bridge_lines, price_reference
 
 
 LABELS = {

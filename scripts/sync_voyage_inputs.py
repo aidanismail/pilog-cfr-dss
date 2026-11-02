@@ -9,7 +9,7 @@ from pilog_cfr_dss.application.market_case import catalog, voyage_catalog
 
 
 def main():
-    for filename, content in (("vessel_profiles_i4.json", catalog(ROOT)),
+    for filename, content in (("vessel_profiles.json", catalog(ROOT)),
                               ("voyage_estimates_i5.json", voyage_catalog(ROOT))):
         path = ROOT / "data/processed" / filename
         path.write_text(json.dumps(content, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

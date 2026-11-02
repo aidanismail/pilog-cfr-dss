@@ -5,7 +5,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
-from pilog_cfr_dss.calculations.pricing_04 import economics
+from pilog_cfr_dss.calculations.freight_pricing import economics
 from pilog_cfr_dss.calculations.commercial_review import commercial_review, net_daily, demo_port_cost
 
 

@@ -8,8 +8,8 @@ from unittest.mock import patch
 
 from pilog_cfr_dss.application.market_case import new_market_case, seed_demo_bids, apply_market, apply_profile, catalog, compare_profiles
 from pilog_cfr_dss.sources.fearnpulse import latest_saved
-from pilog_cfr_dss.orchestration.iteration_04 import evaluate
-from pilog_cfr_dss.reporting.iteration_04 import commercial_brief
+from pilog_cfr_dss.orchestration.case_evaluation import evaluate
+from pilog_cfr_dss.reporting.commercial_brief import commercial_brief
 
 ROOT = Path(__file__).resolve().parents[2]
 

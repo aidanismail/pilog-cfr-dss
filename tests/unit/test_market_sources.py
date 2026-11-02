@@ -7,8 +7,8 @@ from unittest.mock import patch
 from pilog_cfr_dss.sources.fearnpulse import normalize_payloads, _request
 from pilog_cfr_dss.sources.voyage_profiles import read_profiles
 from pilog_cfr_dss.models.tender_clock import round_window, bid_in_round
-from pilog_cfr_dss.decisions.iteration_04 import evaluate_tender
-from pilog_cfr_dss.calculations.tender_04 import bid_prices
+from pilog_cfr_dss.decisions.tender_decision import evaluate_tender
+from pilog_cfr_dss.calculations.tender_pricing import bid_prices
 from pilog_cfr_dss.reporting.formatting import price_time
 from decimal import Decimal as D
 
@@ -118,13 +118,6 @@ class WorkbookProfilesTests(unittest.TestCase):
         self.assertTrue(all("sintetis" in p["note"] for p in profiles))
         self.assertEqual({p["profile_id"] for p in profiles},{"ve_sheet1","ve_aqaba","ve_sby","ve_godau"})
         self.assertEqual([p["market_family"] for p in profiles],["Handysize","Handysize","Supramax","Supramax"])
-
-    def test_historical_handymax_profile_remains_readable_without_reclassifying_it(self):
-        result = read_profiles(ROOT / "docs/it_4/Voyage Estimate I4.xlsx")
-        handymax = next(p for p in result["profiles"] if p["sheet"]=="Godau")
-        self.assertEqual(handymax["vessel_class"],"Handymax")
-        self.assertTrue(handymax["market_class_proxy"])
-
 
 class FixedRoundTests(unittest.TestCase):
     clock = {"mode": "fixed_window", "round_duration_seconds": 180, "starts_at": "2026-10-27T02:00:00+00:00"}

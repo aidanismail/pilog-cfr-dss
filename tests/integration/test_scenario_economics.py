@@ -17,7 +17,7 @@ from pilog_cfr_dss.orchestration.pipeline import evaluate
 class ScenarioEconomicsTests(unittest.TestCase):
     dataset = ROOT / "data" / "processed" / "dataset_ready.csv"
     catalog = ROOT / "data" / "processed" / "variable_catalog.csv"
-    manual = ROOT / "data" / "processed" / "iteration_02_pre_offer_simulation.json"
+    manual = ROOT / "tests" / "fixtures" / "pre_offer_case.json"
 
     def _dataset_with(self, path: Path, changes: dict[str, str]) -> None:
         with self.dataset.open(encoding="utf-8-sig", newline="") as handle:

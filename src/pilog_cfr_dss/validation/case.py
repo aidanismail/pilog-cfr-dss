@@ -6,8 +6,8 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
-from pilog_cfr_dss.models.iteration_04 import Case04, TEXT_KEYS, UNITS, VERSION
-from pilog_cfr_dss.calculations.pricing_04 import total_commission
+from pilog_cfr_dss.models.case import Case04, TEXT_KEYS, UNITS, VERSION
+from pilog_cfr_dss.calculations.freight_pricing import total_commission
 
 
 def unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:

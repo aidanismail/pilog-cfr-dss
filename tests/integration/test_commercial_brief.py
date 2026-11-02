@@ -12,11 +12,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
-from pilog_cfr_dss.orchestration.iteration_04 import evaluate, persist_run
-from pilog_cfr_dss.reporting.iteration_04 import commercial_brief, calculation_audit
+from pilog_cfr_dss.orchestration.case_evaluation import evaluate, persist_run
+from pilog_cfr_dss.reporting.commercial_brief import commercial_brief, calculation_audit
 
-GO = ROOT / "data/processed/i4_context.json"
-NO = ROOT / "data/processed/i4_no_go.json"
+GO = ROOT / "data/processed/case_template.json"
+NO = ROOT / "data/processed/case_no_go.json"
 
 
 def variant(context=None, overrides=None):
@@ -286,7 +286,7 @@ class CommercialBriefTests(unittest.TestCase):
         self.assertIn("bukan berarti untung", header)
 
     def test_renderer_has_no_financial_operators_or_wall_clock(self):
-        source = (ROOT / "src/pilog_cfr_dss/reporting/iteration_04.py").read_text(encoding="utf-8")
+        source = (ROOT / "src/pilog_cfr_dss/reporting/commercial_brief.py").read_text(encoding="utf-8")
         tree = ast.parse(source)
         self.assertFalse(any(isinstance(n, ast.BinOp) and isinstance(n.op, (ast.Div, ast.Mult, ast.Sub, ast.Pow)) for n in ast.walk(tree)))
         self.assertNotIn("datetime", source)

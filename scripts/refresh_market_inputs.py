@@ -12,7 +12,7 @@ from pilog_cfr_dss.application.market_case import voyage_catalog
 
 def main():
     catalog = read_profiles(ROOT / "data/raw/Voyage Estimate.xlsx")
-    path = ROOT / "data/processed/vessel_profiles_i4.json"
+    path = ROOT / "data/processed/vessel_profiles.json"
     path.write_text(json.dumps(catalog, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (ROOT / "data/processed/voyage_estimates_i5.json").write_text(
         json.dumps(voyage_catalog(ROOT), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

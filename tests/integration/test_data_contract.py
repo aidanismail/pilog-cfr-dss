@@ -18,7 +18,7 @@ from pilog_cfr_dss.validation.ingest import load_snapshot
 
 DATASET = ROOT / "data" / "processed" / "dataset_ready.csv"
 CATALOG = ROOT / "data" / "processed" / "variable_catalog.csv"
-MANUAL = ROOT / "data" / "processed" / "iteration_02_pre_offer_simulation.json"
+MANUAL = ROOT / "tests" / "fixtures" / "pre_offer_case.json"
 
 
 class DataContractTests(unittest.TestCase):

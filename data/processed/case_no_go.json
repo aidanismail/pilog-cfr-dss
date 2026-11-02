@@ -1,8 +1,8 @@
 {
   "schema_version": "I4.1",
   "mode": "simulation",
-  "case_id": "I4_GO_BONTANG_MUNDRA",
-  "voyage_dataset": "i4_voyage.csv",
+  "case_id": "I4_NO_GO_TENDER_FLOOR",
+  "voyage_dataset": "voyage_template.csv",
   "evaluation_cutoff": "2026-09-10T12:00:00+00:00",
   "market_index": {
     "argus": {
@@ -52,7 +52,7 @@
        }
      },
      "voyage_dataset_sha256": {
-       "i4_voyage.csv": "e9bf7d97b8cf534fb12a99b68f3563036017dc48ff5fac2f60ccb3830945d971"
+       "voyage_template.csv": "e9bf7d97b8cf534fb12a99b68f3563036017dc48ff5fac2f60ccb3830945d971"
      },
      "note": "Fixed for simulation evaluation only; no commercial approval or buyer acceptance inferred."
    },
@@ -110,7 +110,7 @@
       "buyer_id": "BUYER-1",
       "round": 1,
       "sequence": 1,
-      "alpha_usd_mt": "-10",
+      "alpha_usd_mt": "-18",
       "status": "active",
       "source_status": "simulation_only_synthetic"
     },
@@ -119,7 +119,7 @@
       "buyer_id": "BUYER-2",
       "round": 1,
       "sequence": 2,
-      "alpha_usd_mt": "-8",
+      "alpha_usd_mt": "-17",
       "status": "active",
       "source_status": "simulation_only_synthetic"
     },
@@ -128,7 +128,7 @@
       "buyer_id": "BUYER-3",
       "round": 1,
       "sequence": 3,
-      "alpha_usd_mt": "-5",
+      "alpha_usd_mt": "-16",
       "status": "active",
       "source_status": "simulation_only_synthetic"
     },
@@ -137,7 +137,7 @@
       "buyer_id": "BUYER-1",
       "round": 2,
       "sequence": 1,
-      "alpha_usd_mt": "2",
+      "alpha_usd_mt": "-17",
       "status": "active",
       "source_status": "simulation_only_synthetic"
     },
@@ -146,7 +146,7 @@
       "buyer_id": "BUYER-2",
       "round": 2,
       "sequence": 2,
-      "alpha_usd_mt": "3",
+      "alpha_usd_mt": "-16",
       "status": "active",
       "source_status": "simulation_only_synthetic"
     },
@@ -155,7 +155,7 @@
       "buyer_id": "BUYER-3",
       "round": 2,
       "sequence": 3,
-      "alpha_usd_mt": "1",
+      "alpha_usd_mt": "-15",
       "status": "active",
       "source_status": "simulation_only_synthetic"
     },
@@ -164,7 +164,7 @@
       "buyer_id": "BUYER-1",
       "round": 3,
       "sequence": 1,
-      "alpha_usd_mt": "12",
+      "alpha_usd_mt": "-16",
       "status": "active",
       "source_status": "simulation_only_synthetic"
     },
@@ -173,7 +173,7 @@
       "buyer_id": "BUYER-2",
       "round": 3,
       "sequence": 2,
-      "alpha_usd_mt": "8",
+      "alpha_usd_mt": "-15",
       "status": "active",
       "source_status": "simulation_only_synthetic"
     },
@@ -182,7 +182,7 @@
       "buyer_id": "BUYER-3",
       "round": 3,
       "sequence": 3,
-      "alpha_usd_mt": "6",
+      "alpha_usd_mt": "-14",
       "status": "active",
       "source_status": "simulation_only_synthetic"
     }

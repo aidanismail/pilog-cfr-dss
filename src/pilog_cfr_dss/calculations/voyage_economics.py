@@ -3,7 +3,7 @@ from decimal import Decimal
 from pilog_cfr_dss.calculations.voyage_days import sea_days, port_days
 from pilog_cfr_dss.calculations.fuel import sea_fuel_mt, fuel_cost_usd
 from pilog_cfr_dss.calculations.costs import daily_cost_usd
-from pilog_cfr_dss.models.iteration_04 import Case04
+from pilog_cfr_dss.models.case import Case04
 
 
 def port_expenses_total(components) -> Decimal:
