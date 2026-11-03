@@ -3,6 +3,14 @@ from __future__ import annotations
 from decimal import Decimal
 
 
+def require_cargo_within_gross_dwt(cargo_mt: Decimal, dwt_mt: Decimal) -> None:
+    """Reject impossible gross loads; passing does not establish DWCC."""
+    if not cargo_mt.is_finite() or not dwt_mt.is_finite() or min(cargo_mt, dwt_mt) <= 0:
+        raise ValueError('INVALID_CAPACITY_INPUT')
+    if cargo_mt > dwt_mt:
+        raise ValueError('CARGO_EXCEEDS_CASE_GROSS_DWT')
+
+
 def deadweight_headroom_mt(dwt_mt: Decimal, bunkers_mt: Decimal, constants_mt: Decimal, cargo_mt: Decimal) -> Decimal:
     if min(dwt_mt, bunkers_mt, constants_mt, cargo_mt) < 0:
         raise ValueError("INVALID_CAPACITY_INPUT")

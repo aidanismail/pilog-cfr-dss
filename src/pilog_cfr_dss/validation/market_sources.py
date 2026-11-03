@@ -26,7 +26,7 @@ def validate_market_binding(context: dict, rows: list[dict], values: dict) -> No
             raise ValueError("PROFILE_SOURCE_BINDING_MISMATCH:" + key)
     if values["vessel_class"] != profile["vessel_class"]:
         raise ValueError("PROFILE_CLASS_MISMATCH")
-    if any("baltic" in str(row.get("source_reference", "")).lower() for row in rows):
+    if context.get('case_basis_version') != 'I5-ROUTE.1' and any("baltic" in str(row.get("source_reference", "")).lower() for row in rows):
         raise ValueError("LEGACY_BALTIC_INPUT_IN_ACTIVE_MARKET_CASE")
 
 

@@ -21,6 +21,7 @@ from pilog_cfr_dss.validation.market_sources import supporting_inputs
 from pilog_cfr_dss.validation.case_basis import BASIS_VERSION, distance_inputs
 from pilog_cfr_dss.validation.cost_forecast import effective_case, REVIEW_VERSION
 from pilog_cfr_dss.calculations.commercial_review import commercial_review
+from pilog_cfr_dss.calculations.capacity import require_cargo_within_gross_dwt
 
 
 def serial(value: Any) -> Any:
@@ -74,6 +75,8 @@ def prepare_voyage(path: Path) -> dict[str, Any]:
     """Calculate a pre-tender estimate without inventing a bid or decision."""
     raw = path.read_bytes()
     case, dataset = load_case(path, pre_tender=True)
+    if case.context.get('case_basis_version') == 'I5-ROUTE.1':
+        require_cargo_within_gross_dwt(case.number('cargo_mt'), case.number('dwt_mt'))
     content = dataset.read_bytes()
     if path.read_bytes() != raw or list(csv.DictReader(io.StringIO(content.decode("utf-8-sig")))) != list(case.rows):
         raise ValueError("INPUT_CHANGED_DURING_PREPARATION")

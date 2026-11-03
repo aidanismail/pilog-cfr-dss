@@ -152,12 +152,19 @@ class InteractiveCase:
             raise ValueError("BASIS_FIXED_CREATE_REVISION")
         if set(values) - set(UNITS):
             raise ValueError("UNKNOWN_VOYAGE_FIELD")
-        from pilog_cfr_dss.validation.case_basis import BASIS_VERSION, COMMISSION_KEYS
+        from pilog_cfr_dss.validation.case_basis import BASIS_VERSION, ROUTE_VERSION, COMMISSION_KEYS
         if self.context.get("case_basis_version") == BASIS_VERSION:
             if any(key in values and number(values[key], key) != 0 for key in COMMISSION_KEYS):
                 raise ValueError("ACTIVE_CASE_COMMISSION_MUST_BE_ZERO")
             if "distance_nm" in values and number(values["distance_nm"], "distance_nm") != number(self.context["distance_reference"]["value"], "distance_nm"):
                 raise ValueError("OD_DISTANCE_SOURCE_BINDING_MISMATCH")
+        if self.context.get('case_basis_version') == ROUTE_VERSION and 'distance_nm' in values and number(values['distance_nm'], 'distance_nm') != number(self.context['distance_reference']['value'], 'distance_nm'):
+            value = number(values['distance_nm'], 'distance_nm')
+            if value <= 0:
+                raise ValueError('INVALID_ROUTE_DISTANCE')
+            self.context['distance_reference'] = {'value': str(value), 'unit': 'NM',
+                'loading_port': self.values()['loading_port'], 'discharging_port': self.values()['discharging_port'],
+                'source_status': 'simulation_only_user_input', 'source_reference': 'Input jarak manual'}
         changed = False
         for row in self.rows:
             key = row["key"]

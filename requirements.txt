@@ -2,3 +2,7 @@
 # Dependensi berikut untuk persiapan input dari workbook/PDF dan workbook belajar.
 openpyxl>=3.1,<4
 pypdf>=5,<7
+geopy==2.5.0
+searoute==1.6.0
+pypdfium2==5.14.0
+pycountry==26.2.16
