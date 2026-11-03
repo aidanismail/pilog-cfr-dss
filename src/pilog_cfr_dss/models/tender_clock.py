@@ -3,7 +3,7 @@ from datetime import timedelta
 
 
 def round_window(clock: dict, round_number: int):
-    from pilog_cfr_dss.validation.iteration_04 import timestamp
+    from pilog_cfr_dss.validation.case import timestamp
     if clock.get("mode") != "fixed_window" or clock.get("round_duration_seconds") != 180:
         raise ValueError("INVALID_AUCTION_CLOCK")
     if type(round_number) is not int or round_number < 1:
@@ -13,7 +13,7 @@ def round_window(clock: dict, round_number: int):
 
 
 def bid_in_round(bid: dict, clock: dict) -> bool:
-    from pilog_cfr_dss.validation.iteration_04 import timestamp
+    from pilog_cfr_dss.validation.case import timestamp
     start, close = round_window(clock, bid["round"])
     return start <= timestamp(bid.get("submitted_at")) < close
 

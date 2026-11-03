@@ -10,7 +10,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from pilog_cfr_dss.sources.od_distance import read_distance, resolve_distance, payload_bytes
 
-SOURCE = ROOT / "docs/it_4/Simulasi Tarif Internasional_Mei 2025.xlsx"
+SOURCE = ROOT / "data/raw/Simulasi Tarif Internasional_Mei 2025.xlsx"
 
 
 class ODDistanceTests(unittest.TestCase):

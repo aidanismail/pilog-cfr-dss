@@ -1,0 +1,624 @@
+{
+  "source": "UN/LOCODE 2025-1",
+  "source_url": "https://unlocode.unece.org/publications/",
+  "license": "CC BY 4.0",
+  "source_archive_sha256": "ad409fc7149b10f98d61190c34d9daf78b78bb8b31464cc66de1a89d09b01b5d",
+  "note": "Coordinates from UN/LOCODE or the Searoute 1.6.0 port catalog are indicative, not verified berth coordinates.",
+  "matched": [
+    {
+      "port": "Arzew",
+      "country": "Algeria",
+      "locode": "DZAZW",
+      "coordinates": [
+        -0.316667,
+        35.866667
+      ],
+      "unlocode_name": "Arzew",
+      "function": "123-----",
+      "status": "RL",
+      "source_coordinate": "3552N 00019W",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "San Lorenzo",
+      "country": "Argentina",
+      "locode": "ARSLO",
+      "coordinates": [
+        -60.732422,
+        -32.718615
+      ],
+      "unlocode_name": "San Lorenzo",
+      "function": "1-------",
+      "status": "AI",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Geelong",
+      "country": "Australia",
+      "locode": "AUGEX",
+      "coordinates": [
+        144.366667,
+        -38.15
+      ],
+      "unlocode_name": "Geelong",
+      "function": "1--4----",
+      "status": "AC",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Antwerp",
+      "country": "Belgium",
+      "locode": "BEANR",
+      "coordinates": [
+        4.416667,
+        51.216667
+      ],
+      "unlocode_name": "Antwerpen",
+      "function": "12345---",
+      "status": "AI",
+      "source_coordinate": "5113N 00425E",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Santos",
+      "country": "Brazil",
+      "locode": "BRSSZ",
+      "coordinates": [
+        -46.316667,
+        -23.933333
+      ],
+      "unlocode_name": "Santos",
+      "function": "123--6--",
+      "status": "AA",
+      "source_coordinate": "2356S 04619W",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Muara",
+      "country": "Brunei",
+      "locode": "BNMUA",
+      "coordinates": [
+        115.065642,
+        5.022823
+      ],
+      "unlocode_name": "Muara",
+      "function": "1-------",
+      "status": "QQ",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Varna",
+      "country": "Bulgaria",
+      "locode": "BGVAR",
+      "coordinates": [
+        27.92166,
+        43.206506
+      ],
+      "unlocode_name": "Varna",
+      "function": "1--4----",
+      "status": "AI",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Mejillones",
+      "country": "Chile",
+      "locode": "CLMJS",
+      "coordinates": [
+        -70.45,
+        -23.1
+      ],
+      "unlocode_name": "Mejillones",
+      "function": "1-------",
+      "status": "AI",
+      "source_coordinate": "2306S 07027W",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Barranquilla",
+      "country": "Colombia",
+      "locode": "COBAQ",
+      "coordinates": [
+        -74.764709,
+        10.975018
+      ],
+      "unlocode_name": "Barranquilla",
+      "function": "1--45---",
+      "status": "AI",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Rouen",
+      "country": "France",
+      "locode": "FRURO",
+      "coordinates": [
+        1.1,
+        49.45
+      ],
+      "unlocode_name": "Rouen",
+      "function": "1-34----",
+      "status": "AF",
+      "source_coordinate": "4927N 00106E",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Batumi",
+      "country": "Georgia",
+      "locode": "GEBUS",
+      "coordinates": [
+        41.6608,
+        41.645897
+      ],
+      "unlocode_name": "Batumi",
+      "function": "1--4----",
+      "status": "AI",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Mundra",
+      "country": "India",
+      "locode": "INMUN",
+      "coordinates": [
+        69.746702,
+        22.795048
+      ],
+      "unlocode_name": "Mundra",
+      "function": "1-------",
+      "status": "AA",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Bontang",
+      "country": "Indonesia",
+      "locode": "IDBXT",
+      "coordinates": [
+        117.517475,
+        0.119226
+      ],
+      "unlocode_name": "Bontang, Kl",
+      "function": "1--4----",
+      "status": "RL",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Ravenna",
+      "country": "Italy",
+      "locode": "ITRAN",
+      "coordinates": [
+        12.222977,
+        44.424175
+      ],
+      "unlocode_name": "Ravenna",
+      "function": "1-------",
+      "status": "AI",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Niihama",
+      "country": "Japan",
+      "locode": "JPIHA",
+      "coordinates": [
+        133.266667,
+        33.966667
+      ],
+      "unlocode_name": "Niihama",
+      "function": "1--4----",
+      "status": "AF",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Aqaba",
+      "country": "Jordan",
+      "locode": "JOAQB",
+      "coordinates": [
+        35.0,
+        29.516667
+      ],
+      "unlocode_name": "'Aqaba",
+      "function": "1-3-----",
+      "status": "AS",
+      "source_coordinate": "2931N 03500E",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Klaipeda",
+      "country": "Lithuania",
+      "locode": "LTKLJ",
+      "coordinates": [
+        21.126023,
+        55.703557
+      ],
+      "unlocode_name": "Klaipeda",
+      "function": "12-4----",
+      "status": "AI",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Lazaro Cardenas",
+      "country": "Mexico",
+      "locode": "MXLZC",
+      "coordinates": [
+        -102.183333,
+        17.95
+      ],
+      "unlocode_name": "LÃ¡zaro CÃ¡rdenas",
+      "function": "1-------",
+      "status": "AI",
+      "source_coordinate": "1757N 10211W",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Jorf Lasfar",
+      "country": "Morocco",
+      "locode": "MAJFL",
+      "coordinates": [
+        -8.611361,
+        33.089056
+      ],
+      "unlocode_name": "Jorf Lasfar",
+      "function": "1-3-----",
+      "status": "RL",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Rotterdam",
+      "country": "Netherlands",
+      "locode": "NLRTM",
+      "coordinates": [
+        4.5,
+        51.916667
+      ],
+      "unlocode_name": "Rotterdam",
+      "function": "12345---",
+      "status": "AF",
+      "source_coordinate": "5155N 00430E",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Onne",
+      "country": "Nigeria",
+      "locode": "NGONN",
+      "coordinates": [
+        7.15,
+        4.716667
+      ],
+      "unlocode_name": "Onne",
+      "function": "1-3-----",
+      "status": "RL",
+      "source_coordinate": "0443N 00709E",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Porsgrunn",
+      "country": "Norway",
+      "locode": "NOPOR",
+      "coordinates": [
+        9.633333,
+        59.133333
+      ],
+      "unlocode_name": "Porsgrunn",
+      "function": "123-----",
+      "status": "AA",
+      "source_coordinate": "5908N 00938E",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Sur",
+      "country": "Oman",
+      "locode": "OMOFC",
+      "coordinates": [
+        59.433333,
+        22.65
+      ],
+      "unlocode_name": "Sur",
+      "function": "1-------",
+      "status": "RL",
+      "source_coordinate": "2239N 05926E",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Gdansk",
+      "country": "Poland",
+      "locode": "PLGDN",
+      "coordinates": [
+        18.667541,
+        54.399195
+      ],
+      "unlocode_name": "Gdansk",
+      "function": "1--4----",
+      "status": "AI",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Lisbon",
+      "country": "Portugal",
+      "locode": "PTLIS",
+      "coordinates": [
+        -9.133333,
+        38.716667
+      ],
+      "unlocode_name": "Lisboa",
+      "function": "12345---",
+      "status": "AI",
+      "source_coordinate": "3843N 00908W",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Constanta",
+      "country": "Romania",
+      "locode": "ROCND",
+      "coordinates": [
+        28.65,
+        44.183333
+      ],
+      "unlocode_name": "Constanta",
+      "function": "1234-6--",
+      "status": "AI",
+      "source_coordinate": "4411N 02839E",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Novorossiysk",
+      "country": "Russia",
+      "locode": "RUNVS",
+      "coordinates": [
+        37.766667,
+        44.716667
+      ],
+      "unlocode_name": "Novorossiysk",
+      "function": "123--6--",
+      "status": "RL",
+      "source_coordinate": "4443N 03746E",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Jubail",
+      "country": "Saudi Arabia",
+      "locode": "SAJUB",
+      "coordinates": [
+        49.666667,
+        27.016667
+      ],
+      "unlocode_name": "Jubail",
+      "function": "1-------",
+      "status": "QQ",
+      "source_coordinate": "2701N 04940E",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Singapore",
+      "country": "Singapore",
+      "locode": "SGSIN",
+      "coordinates": [
+        103.85,
+        1.283333
+      ],
+      "unlocode_name": "Singapore",
+      "function": "1--45---",
+      "status": "AI",
+      "source_coordinate": "0117N 10351E",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Richards Bay",
+      "country": "South Africa",
+      "locode": "ZARCB",
+      "coordinates": [
+        32.083521,
+        -28.771114
+      ],
+      "unlocode_name": "Richards Bay",
+      "function": "1--4----",
+      "status": "AF",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Ulsan",
+      "country": "South Korea",
+      "locode": "KRUSN",
+      "coordinates": [
+        129.316667,
+        35.533333
+      ],
+      "unlocode_name": "Ulsan",
+      "function": "1234----",
+      "status": "AF",
+      "source_coordinate": "3532N 12919E",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Taichung",
+      "country": "Taiwan",
+      "locode": "TWTXG",
+      "coordinates": [
+        120.535126,
+        24.275237
+      ],
+      "unlocode_name": "Taichung",
+      "function": "1--4----",
+      "status": "AI",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Bangkok",
+      "country": "Thailand",
+      "locode": "THBKK",
+      "coordinates": [
+        100.516667,
+        13.75
+      ],
+      "unlocode_name": "Bangkok",
+      "function": "12345---",
+      "status": "AI",
+      "source_coordinate": "1345N 10031E",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Point Lisas",
+      "country": "Trinidad and Tobago",
+      "locode": "TTPTS",
+      "coordinates": [
+        -61.486702,
+        10.405565
+      ],
+      "unlocode_name": "Point Lisas",
+      "function": "1-------",
+      "status": "AI",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Trabzon",
+      "country": "Turkey",
+      "locode": "TRTZX",
+      "coordinates": [
+        39.733333,
+        41.0
+      ],
+      "unlocode_name": "Trabzon",
+      "function": "1-34----",
+      "status": "AI",
+      "source_coordinate": "4100N 03944E",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "Teesport",
+      "country": "United Kingdom",
+      "locode": "GBTEE",
+      "coordinates": [
+        -1.15,
+        54.583333
+      ],
+      "unlocode_name": "Teesport",
+      "function": "1-------",
+      "status": "AF",
+      "source_coordinate": "5435N 00109W",
+      "coordinate_source": "UN/LOCODE"
+    },
+    {
+      "port": "New Orleans",
+      "country": "United States",
+      "locode": "USMSY",
+      "coordinates": [
+        -90.063059,
+        29.95
+      ],
+      "unlocode_name": "New Orleans",
+      "function": "12345---",
+      "status": "AI",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Montevideo",
+      "country": "Uruguay",
+      "locode": "UYMVD",
+      "coordinates": [
+        -56.196068,
+        -34.906758
+      ],
+      "unlocode_name": "Montevideo",
+      "function": "1--45---",
+      "status": "AF",
+      "source_coordinate": "",
+      "coordinate_source": "Searoute 1.6.0 port catalog"
+    },
+    {
+      "port": "Hai Phong",
+      "country": "Vietnam",
+      "locode": "VNHPH",
+      "coordinates": [
+        106.683333,
+        20.85
+      ],
+      "unlocode_name": "Haiphong",
+      "function": "1234----",
+      "status": "AI",
+      "source_coordinate": "2051N 10641E",
+      "coordinate_source": "UN/LOCODE"
+    }
+  ],
+  "unresolved": [
+    {
+      "port": "Chittagong",
+      "country": "Bangladesh",
+      "reason": "no_exact_match",
+      "candidates": 0
+    },
+    {
+      "port": "Zhanjiang",
+      "country": "China",
+      "reason": "no_exact_match",
+      "candidates": 0
+    },
+    {
+      "port": "Damietta",
+      "country": "Egypt",
+      "reason": "no_exact_match",
+      "candidates": 0
+    },
+    {
+      "port": "Uusikaupunki",
+      "country": "Finland",
+      "reason": "no_exact_match",
+      "candidates": 0
+    },
+    {
+      "port": "Brunsbuettel",
+      "country": "Germany",
+      "reason": "no_exact_match",
+      "candidates": 0
+    },
+    {
+      "port": "Mersa Al Brega",
+      "country": "Libya",
+      "reason": "no_exact_match",
+      "candidates": 0
+    },
+    {
+      "port": "Kerteh",
+      "country": "Malaysia",
+      "reason": "no_exact_match",
+      "candidates": 0
+    },
+    {
+      "port": "Davao",
+      "country": "Philippines",
+      "locode": "PHDVO",
+      "reason": "coordinate_unavailable_or_ambiguous",
+      "candidates": 2
+    },
+    {
+      "port": "Mesaieed",
+      "country": "Qatar",
+      "reason": "no_exact_match",
+      "candidates": 0
+    },
+    {
+      "port": "Yuzhnyy",
+      "country": "Ukraine",
+      "reason": "no_exact_match",
+      "candidates": 0
+    },
+    {
+      "port": "Jose",
+      "country": "Venezuela",
+      "reason": "no_exact_match",
+      "candidates": 0
+    }
+  ]
+}

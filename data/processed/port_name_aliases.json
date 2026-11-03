@@ -1,0 +1,7 @@
+{
+  "aliases": [
+    {"port": "Brunsbuettel", "country": "Germany", "locode": "DEBRB", "reference": "https://www.eurokombi.de/content/download/8505/95886/version/4/file/Bahnhofsliste_EKOM.pdf"},
+    {"port": "Zhanjiang", "country": "China", "locode": "CNZHA", "reference": "https://www.emden.de/fileadmin/media/stadtemden/PDF/FB_500/FD_553_hafenaerztlicher_Dienst/ihr_authorized_ports_list.pdf"},
+    {"port": "Mersa Al Brega", "country": "Libya", "locode": "LYLMQ", "reference": "https://service.unece.org/trade/locode/ly.htm", "note": "Mersa/Marsa and Al/El are common romanizations of Brega; coordinates are indicative."}
+  ]
+}

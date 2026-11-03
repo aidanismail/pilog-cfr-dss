@@ -1,0 +1,7 @@
+{
+  "note": "Indicative user-confirmed locations for estimation; not verified berth or navigational positions.",
+  "confirmed": [
+    {"port":"Davao", "country":"Philippines", "locode":"PHDVO", "coordinates":[125.633333, 7.066667], "coordinate_source":"Searoute 1.6.0 Davao, Mindanao; user selected second candidate", "confirmed_date":"2026-11-03"},
+    {"port":"Jose", "country":"Venezuela", "locode":"VEJOT", "coordinates":[-64.85, 10.1], "coordinate_source":"UN/LOCODE Jose Terminal; user confirmed", "reference":"https://unlocode.unece.org/directory/locodes/?country=VE", "confirmed_date":"2026-11-03"}
+  ]
+}

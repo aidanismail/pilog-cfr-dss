@@ -12,7 +12,7 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 from uuid import uuid4
 
-from pilog_cfr_dss.validation.iteration_04 import number, timestamp
+from pilog_cfr_dss.validation.case import number, timestamp
 
 GRAPHQL = "https://hasura.fearnpulse.com/v1/graphql"
 REPORT_QUERY = """query GetReportsToDateByLimit($dateTo: timestamptz, $report_name: String, $limit: Int) {

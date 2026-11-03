@@ -9,7 +9,7 @@ from pilog_cfr_dss.application.market_case import new_market_case
 from pilog_cfr_dss.application.tender_examples import generate_example, record_applied_example, input_digest
 from pilog_cfr_dss.models.tender_clock import bid_in_round
 from pilog_cfr_dss.sources.fearnpulse import latest_saved
-from pilog_cfr_dss.orchestration.iteration_04 import evaluate
+from pilog_cfr_dss.orchestration.case_evaluation import evaluate
 
 ROOT = Path(__file__).resolve().parents[2]
 

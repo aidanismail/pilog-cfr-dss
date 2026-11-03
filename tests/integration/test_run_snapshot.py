@@ -20,7 +20,7 @@ class RunSnapshotTests(unittest.TestCase):
         inputs = {
             "dataset": ROOT / "data" / "processed" / "dataset_ready.csv",
             "catalog": ROOT / "data" / "processed" / "variable_catalog.csv",
-            "manual": ROOT / "data" / "processed" / "iteration_02_pre_offer_simulation.json",
+            "manual": ROOT / "tests" / "fixtures" / "pre_offer_case.json",
             "vessel_policy": ROOT / "data" / "processed" / "vessel_classes.json",
         }
         report = evaluate(inputs["dataset"], inputs["catalog"], inputs["manual"], inputs["vessel_policy"])

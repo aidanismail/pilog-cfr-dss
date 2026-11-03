@@ -12,7 +12,7 @@ from pilog_cfr_dss.calculations.pricing import (
     fob_usd_mt, freight_cost_per_mt, gross_freight_revenue_usd, net_freight_contribution_usd,
 )
 from pilog_cfr_dss.models.contracts import CaseSnapshot, CostLine
-from pilog_cfr_dss.validation.iteration_03 import decimal
+from pilog_cfr_dss.validation.commercial_input import decimal
 
 
 def midpoint(low: Decimal, high: Decimal) -> Decimal:

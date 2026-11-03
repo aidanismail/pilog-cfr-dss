@@ -5,7 +5,7 @@ from pathlib import Path
 import re
 
 from pilog_cfr_dss.calculations.fuel import port_diesel_mt
-from pilog_cfr_dss.validation.iteration_04 import number
+from pilog_cfr_dss.validation.case import number
 
 PROFILE_CELLS = {"dwt_mt": "C16", "speed_knots": "D3", "sea_fo_mt_day": "H6",
                  "sea_do_mt_day": "I6", "running_usd_day": "F44",

@@ -4,7 +4,7 @@ from decimal import Decimal
 import hashlib
 import json
 
-from pilog_cfr_dss.models.iteration_04 import UNITS
+from pilog_cfr_dss.models.case import UNITS
 
 FORECAST_VERSION = "COST-FORECAST.1"
 REVIEW_VERSION = "I4-COMMERCIAL.1"
@@ -26,7 +26,7 @@ def forecast_values(context: dict, rows: list | tuple, values: dict) -> dict:
     result = dict(values)
     if forecast is None:
         return result
-    from pilog_cfr_dss.validation.iteration_04 import number, timestamp
+    from pilog_cfr_dss.validation.case import number, timestamp
     quote = context.get("freight_tender")
     if not isinstance(forecast, dict) or forecast.get("version") != FORECAST_VERSION:
         raise ValueError("INVALID_COST_FORECAST_VERSION")

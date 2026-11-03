@@ -4,12 +4,12 @@ from copy import deepcopy
 from pathlib import Path
 
 from pilog_cfr_dss.application.interactive_case import InteractiveCase
-from pilog_cfr_dss.orchestration.iteration_04 import evaluate
+from pilog_cfr_dss.orchestration.case_evaluation import evaluate
 
 
 ROOT = Path(__file__).resolve().parents[2]
-GO = ROOT / "data/processed/i4_context.json"
-NO = ROOT / "data/processed/i4_no_go.json"
+GO = ROOT / "data/processed/case_template.json"
+NO = ROOT / "data/processed/case_no_go.json"
 
 
 class UIEngineParityTests(unittest.TestCase):

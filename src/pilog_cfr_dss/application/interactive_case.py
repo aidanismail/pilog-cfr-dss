@@ -11,12 +11,12 @@ from uuid import uuid4
 from zipfile import ZipFile, ZIP_DEFLATED
 from decimal import localcontext
 
-from pilog_cfr_dss.models.iteration_04 import UNITS
-from pilog_cfr_dss.orchestration.iteration_04 import evaluate, prepare_voyage, persist_run, fixed_freight_record
-from pilog_cfr_dss.validation.iteration_04 import unique_object
-from pilog_cfr_dss.calculations.tender_04 import index_prices, minimum_alpha
-from pilog_cfr_dss.orchestration.iteration_04 import serial
-from pilog_cfr_dss.validation.iteration_04 import number
+from pilog_cfr_dss.models.case import UNITS
+from pilog_cfr_dss.orchestration.case_evaluation import evaluate, prepare_voyage, persist_run, fixed_freight_record
+from pilog_cfr_dss.validation.case import unique_object
+from pilog_cfr_dss.calculations.tender_pricing import index_prices, minimum_alpha
+from pilog_cfr_dss.orchestration.case_evaluation import serial
+from pilog_cfr_dss.validation.case import number
 from pilog_cfr_dss.validation.cost_forecast import COST_KEYS, FORECAST_VERSION, REVIEW_VERSION, forecast_values, quote_basis_hash
 
 
@@ -135,8 +135,8 @@ class InteractiveCase:
 
     def tender_preview(self) -> list[dict]:
         """Read-only prices/status through the same calculation and tender rules as evaluation."""
-        from pilog_cfr_dss.calculations.tender_04 import bid_prices
-        from pilog_cfr_dss.decisions.iteration_04 import evaluate_tender
+        from pilog_cfr_dss.calculations.tender_pricing import bid_prices
+        from pilog_cfr_dss.decisions.tender_decision import evaluate_tender
         if not self.fixed:
             raise ValueError("FREIGHT_NOT_FIXED")
         with localcontext() as precision:
@@ -152,12 +152,19 @@ class InteractiveCase:
             raise ValueError("BASIS_FIXED_CREATE_REVISION")
         if set(values) - set(UNITS):
             raise ValueError("UNKNOWN_VOYAGE_FIELD")
-        from pilog_cfr_dss.validation.case_basis import BASIS_VERSION, COMMISSION_KEYS
+        from pilog_cfr_dss.validation.case_basis import BASIS_VERSION, ROUTE_VERSION, COMMISSION_KEYS
         if self.context.get("case_basis_version") == BASIS_VERSION:
             if any(key in values and number(values[key], key) != 0 for key in COMMISSION_KEYS):
                 raise ValueError("ACTIVE_CASE_COMMISSION_MUST_BE_ZERO")
             if "distance_nm" in values and number(values["distance_nm"], "distance_nm") != number(self.context["distance_reference"]["value"], "distance_nm"):
                 raise ValueError("OD_DISTANCE_SOURCE_BINDING_MISMATCH")
+        if self.context.get('case_basis_version') == ROUTE_VERSION and 'distance_nm' in values and number(values['distance_nm'], 'distance_nm') != number(self.context['distance_reference']['value'], 'distance_nm'):
+            value = number(values['distance_nm'], 'distance_nm')
+            if value <= 0:
+                raise ValueError('INVALID_ROUTE_DISTANCE')
+            self.context['distance_reference'] = {'value': str(value), 'unit': 'NM',
+                'loading_port': self.values()['loading_port'], 'discharging_port': self.values()['discharging_port'],
+                'source_status': 'simulation_only_user_input', 'source_reference': 'Input jarak manual'}
         changed = False
         for row in self.rows:
             key = row["key"]
@@ -281,7 +288,7 @@ class InteractiveCase:
             normalized.append(bid)
         clock_changed = auction_start is not None and auction_start != self.context.get("auction_clock", {}).get("starts_at")
         if clock_changed:
-            from pilog_cfr_dss.validation.iteration_04 import timestamp
+            from pilog_cfr_dss.validation.case import timestamp
             timestamp(auction_start)
             self.context["auction_clock"] = {"mode": "fixed_window", "round_duration_seconds": 180, "starts_at": auction_start}
         if not clock_changed and (normalized, cutoff, selection) == (self.context.get("bids"), self.context.get("evaluation_cutoff"), self.context.get("pi_selected_bid_id")):

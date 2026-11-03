@@ -12,8 +12,8 @@ from pilog_cfr_dss.application.market_case import new_market_case, seed_demo_bid
 from pilog_cfr_dss.application.interactive_case import InteractiveCase
 from pilog_cfr_dss.sources.fearnpulse import latest_saved
 from pilog_cfr_dss.validation.case_basis import COMMISSION_KEYS
-from pilog_cfr_dss.orchestration.iteration_04 import evaluate
-from pilog_cfr_dss.reporting.iteration_04 import commercial_brief, calculation_audit
+from pilog_cfr_dss.orchestration.case_evaluation import evaluate
+from pilog_cfr_dss.reporting.commercial_brief import commercial_brief, calculation_audit
 
 class CaseBasisRevisionTests(unittest.TestCase):
     def setUp(self):
@@ -88,7 +88,7 @@ class CaseBasisRevisionTests(unittest.TestCase):
         self.assertEqual(sum(row["is_latest"] for row in preview), 3)
 
     def test_policy_not_silently_applied_to_fixed_legacy_case(self):
-        legacy = InteractiveCase.read(ROOT / "data/processed/i4_context.json")
+        legacy = InteractiveCase.read(ROOT / "data/processed/case_template.json")
         old = deepcopy(legacy.context["freight_tender"])
         with self.assertRaisesRegex(ValueError, "BASIS_FIXED"):
             apply_case_basis(legacy, ROOT)
