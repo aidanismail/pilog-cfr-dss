@@ -19,13 +19,13 @@ class Iteration5Inputs(unittest.TestCase):
         self.assertEqual((reports['fertecon']['low'],reports['fertecon']['high']), ('410.00','410.00'))
         self.assertEqual(reports['argus']['observation_date'], '2026-09-10')
 
-    def test_ports_and_od_fallback(self):
+    def test_ports_and_no_od_fallback(self):
         choices = ports(ROOT/'data/raw/Ports.xlsx')
         self.assertIn(('Bontang','Indonesia'), choices)
         self.assertIn(('Antwerp','Belgium'), choices)
         with patch('pilog_cfr_dss.sources.route_distance.catalog_coordinate',return_value=None), patch('pilog_cfr_dss.sources.route_distance.searoute_port_coordinate',return_value=None), patch('pilog_cfr_dss.sources.route_distance.geocode_port',side_effect=OSError('offline')):
-            ref = distance(('Bontang','Indonesia'),('Mundra','India'),ROOT/'data/raw/Simulasi Tarif Internasional_Mei 2025.xlsx')
-            self.assertEqual(ref['value'], '3906')
+            with self.assertRaisesRegex(ValueError, 'DISTANCE_UNAVAILABLE_ENTER_MANUALLY'):
+                distance(('Bontang','Indonesia'),('Mundra','India'),ROOT/'data/raw/Simulasi Tarif Internasional_Mei 2025.xlsx')
             with self.assertRaises(ValueError):
                 distance(('Bontang','Indonesia'),('Antwerp','Belgium'),ROOT/'data/raw/Simulasi Tarif Internasional_Mei 2025.xlsx')
 
@@ -122,19 +122,45 @@ class Iteration5Inputs(unittest.TestCase):
         from streamlit.testing.v1 import AppTest
         with patch('pilog_cfr_dss.ui.views._fresh_market', return_value=latest_saved(ROOT)), patch('pilog_cfr_dss.ui.views._baltic_check', return_value={'source_status':'test'}):
             app=AppTest.from_file(str(ROOT/'apps/streamlit_app.py'),default_timeout=30).run()
-            next(x for x in app.number_input if x.label=='Volume cargo (MT)').set_value(40000).run()
+            case = app.session_state['case']
+            key = f'inputs_table_{case.draft_id}_{case.revision}_None'
+            app.session_state[key] = {'edited_rows': {0: {'Nilai': 40000.0}}, 'added_rows': [], 'deleted_rows': []}
+            app.run()
             self.assertFalse(app.exception)
             self.assertTrue(next(x for x in app.button if x.label=='Hitung ekonomi voyage').disabled)
             self.assertTrue(any('melebihi DWT' in str(x.value) for x in app.error))
 
+    def test_table_edits_apply_together_and_invalidate_old_result(self):
+        from streamlit.testing.v1 import AppTest
+        with patch('pilog_cfr_dss.ui.views._fresh_market', return_value=latest_saved(ROOT)), patch('pilog_cfr_dss.ui.views._baltic_check', return_value={'source_status':'test'}):
+            app = AppTest.from_file(str(ROOT/'apps/streamlit_app.py'), default_timeout=30).run()
+            next(x for x in app.button if x.label == 'Hitung ekonomi voyage').click().run()
+            case = app.session_state['case']
+            self.assertIsNotNone(case.preparation)
+            key = f'inputs_table_{case.draft_id}_{case.revision}_None'
+            app.session_state[key] = {'edited_rows': {0: {'Nilai': 28000.0}, 2: {'Nilai': 4500.0}}, 'added_rows': [], 'deleted_rows': []}
+            app.run()
+            self.assertFalse(app.exception)
+            self.assertEqual(app.session_state['case'].values()['cargo_mt'], '28000')
+            self.assertEqual(app.session_state['case'].values()['loading_rate_mt_day'], '4500')
+            self.assertIsNone(app.session_state['case'].preparation)
+
     def test_unavailable_route_requires_manual_input_without_reusing_old_distance(self):
         from streamlit.testing.v1 import AppTest
-        with patch('pilog_cfr_dss.ui.views._fresh_market', return_value=latest_saved(ROOT)), patch('pilog_cfr_dss.ui.views._baltic_check', return_value={'source_status':'test'}), patch('pilog_cfr_dss.ui.views.distance',side_effect=ValueError('offline')):
+        def selective_distance(origin, destination, workbook):
+            if destination[0] == 'Antwerp':
+                raise ValueError('offline')
+            return distance(origin, destination, workbook)
+        with patch('pilog_cfr_dss.ui.views._fresh_market', return_value=latest_saved(ROOT)), patch('pilog_cfr_dss.ui.views._baltic_check', return_value={'source_status':'test'}), patch('pilog_cfr_dss.ui.views.distance',side_effect=selective_distance):
             app=AppTest.from_file(str(ROOT/'apps/streamlit_app.py'),default_timeout=30).run()
             next(x for x in app.selectbox if x.label=='Pelabuhan bongkar (PoD)').set_value(('Antwerp','Belgium')).run()
             self.assertFalse(app.exception)
             self.assertTrue(next(x for x in app.button if x.label=='Hitung ekonomi voyage').disabled)
-            next(x for x in app.number_input if x.label=='Jarak satu arah (NM)').set_value(4000).run()
+            case = app.session_state['case']
+            route = (('Bontang', 'Indonesia'), ('Antwerp', 'Belgium'))
+            key = f'inputs_table_{case.draft_id}_{case.revision}_{route}'
+            app.session_state[key] = {'edited_rows': {1: {'Nilai': 4000.0}}, 'added_rows': [], 'deleted_rows': []}
+            app.run()
             self.assertFalse(app.exception)
             self.assertEqual(app.session_state['case'].values()['discharging_port'],'Antwerp')
             self.assertEqual(app.session_state['case'].values()['distance_nm'],'4000')
@@ -145,10 +171,27 @@ class Iteration5Inputs(unittest.TestCase):
             app = AppTest.from_file(str(ROOT/'apps/streamlit_app.py'), default_timeout=30).run()
             self.assertFalse(app.exception)
             self.assertFalse(any(x.label == 'Evaluasi tender & DSS' for x in app.button))
+            self.assertEqual(app.session_state['case'].context['distance_reference']['source_status'], 'estimated_sea_route')
             self.assertEqual(len(next(x for x in app.selectbox if x.label=='Pilih profil kapal').options), 2)
             next(x for x in app.button if x.label=='Hitung ekonomi voyage').click().run()
             self.assertFalse(app.exception)
             self.assertIsNotNone(app.session_state['case'].preparation)
+            self.assertTrue(any(x.label == 'TCE hasil voyage (USD/hari)' for x in app.metric))
+            self.assertTrue(any(x.label == 'Freight impas (USD/MT)' for x in app.metric))
+
+    def test_report_comparables_preserve_route_and_assessment_basis(self):
+        from pilog_cfr_dss.sources.market_comparables import read_comparables, voyage_matches, comparison_delta
+        data = read_comparables(ROOT)
+        self.assertEqual((data['cfr']['Brazil']['low'], data['cfr']['Brazil']['high']), ('459.00', '469.00'))
+        self.assertEqual(data['cfr']['Vietnam']['low'], '450.00')
+        self.assertEqual(data['cfr']['Indonesia']['code'], 'FGUAC04')
+        self.assertNotIn('India', data['cfr'])
+        found = voyage_matches(data['voyages'], 'Jubail', 'Mundra')
+        self.assertEqual([(x['cargo_mt'], x['low'], x['high']) for x in found], [(45000, '139.00', '141.00')])
+        self.assertEqual(tuple(str(x) for x in comparison_delta('140', found[0])), ('-1.00', '1.00'))
+        contextual = voyage_matches(data['voyages'], 'Bontang', 'Mundra')
+        self.assertTrue(contextual)
+        self.assertTrue(all(item['match_scope'] == 'tujuan_kawasan_asal_berbeda' for item in contextual))
 
     def test_aqaba_hai_phong_dropdown_automatically_updates(self):
         from streamlit.testing.v1 import AppTest

@@ -40,6 +40,37 @@ def economics(costs: dict[str, Decimal], rate: Decimal, quantity: Decimal,
             "contribution_usd": contribution, "cost_per_mt_usd": costs["total_cash_cost_usd"] / quantity}
 
 
+def pricing_diagnostics(costs: dict[str, Decimal], rate: Decimal, quantity: Decimal,
+                        commission: Decimal, dwt: Decimal, bunker_allowance: Decimal = Decimal(0),
+                        constants_allowance: Decimal = Decimal(0)) -> dict:
+    """Explain a full-voyage indication, not a market acceptance decision."""
+    if any(not isinstance(x, Decimal) or not x.is_finite() for x in (rate, quantity, commission, dwt, bunker_allowance, constants_allowance)) or quantity <= 0 or dwt <= 0 or min(bunker_allowance, constants_allowance) < 0:
+        raise ValueError('INVALID_PRICING_DIAGNOSTIC_INPUT')
+    result = economics(costs, rate, quantity, commission)
+    return {
+        'cargo_to_gross_dwt_percent': quantity / dwt * 100,
+        'cargo_capacity_after_allowances_mt': dwt - bunker_allowance - constants_allowance,
+        'capacity_headroom_mt': dwt - bunker_allowance - constants_allowance - quantity,
+        'bunker_per_mt_usd': costs['bunker_usd'] / quantity,
+        'port_other_per_mt_usd': costs['port_other_usd'] / quantity,
+        'running_per_mt_usd': costs['running_usd'] / quantity,
+        'surplus_per_mt_usd': result['contribution_usd'] / quantity,
+        'allocation_basis': 'entire_modelled_voyage_to_case_cargo',
+        'capacity_scope': 'gross_dwt_screen_only',
+    }
+
+
+def comparison_delta(indication: str, assessment: dict) -> tuple[Decimal, Decimal]:
+    """Range of indication minus assessment, in USD/MT; no route equivalence claim."""
+    try:
+        rate, low, high = (Decimal(str(value)) for value in (indication, assessment['low'], assessment['high']))
+    except (ValueError, ArithmeticError, KeyError):
+        raise ValueError('INVALID_PRICE_COMPARISON') from None
+    if any(not x.is_finite() for x in (rate, low, high)) or min(rate, low) < 0 or high < low:
+        raise ValueError('INVALID_PRICE_COMPARISON')
+    return rate - high, rate - low
+
+
 def commercial_financials(quantity: Decimal, bids: list[dict], baseline: dict[str, Decimal]) -> dict:
     """USD amounts for one shipment, not accounting revenue recognition.
 

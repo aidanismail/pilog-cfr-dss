@@ -9,7 +9,6 @@ import hashlib
 from threading import Lock
 from time import monotonic, sleep
 from openpyxl import load_workbook
-from pilog_cfr_dss.sources.od_distance import read_distance
 
 _request_lock = Lock()
 _last_request = 0.0
@@ -158,9 +157,4 @@ def distance(origin, destination, workbook: Path, product='urea granular bulk', 
                 'destination_catalog_sha256':second[3] if second else None,
                 'coordinates_scope':'indicative_not_berth'}
     except Exception as error:
-        try:
-            result = read_distance(workbook, origin[0], destination[0], product)
-            result['fallback_reason'] = type(error).__name__
-            return result
-        except (ValueError, KeyError, OSError):
-            raise ValueError('DISTANCE_UNAVAILABLE_ENTER_MANUALLY') from error
+        raise ValueError('DISTANCE_UNAVAILABLE_ENTER_MANUALLY') from error
