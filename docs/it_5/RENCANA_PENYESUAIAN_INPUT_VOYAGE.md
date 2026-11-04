@@ -1,120 +1,111 @@
-# Rencana Iterasi 5 — input dinamis dan voyage economics
+# Iterasi 5 — rencana dan status penguatan logika pipeline
 
-Tanggal: diperbarui 3 November 2026. **Rencana untuk diaudit; tunggu perintah execute sebelum implementasi lanjutan.** Iterasi 5 menjadi wadah penyempurnaan berikutnya; tidak perlu membuat iterasi baru untuk setiap penyesuaian kecil. Aplikasi Streamlit sudah dideploy menurut konfirmasi pengguna. Perubahan lokal tidak otomatis mengubah aplikasi deployment.
+Diperbarui 4 November 2026. Pengguna mengizinkan implementasi perbaikan review produk. Prioritas bersama mentor: sempurnakan logika pipeline dahulu; kualitas dan kelengkapan data aktual ditingkatkan kemudian. Dokumen ini menjadi acuan aktif dan menggantikan rencana historis yang bertentangan. Aplikasi tetap Streamlit.
 
-## Arah dan batas
+## Keputusan bisnis yang berlaku
 
-- Fokus saat ini: input pengiriman, rute, kapal, pasar, dan perhitungan voyage economics.
-- Tahap 3 tender dan tahap 4 commercial decision brief disembunyikan sementara di UI; kode, perhitungan, data dan riwayat keputusan dipertahankan untuk penyesuaian selanjutnya. Jangan menampilkan hasil GO/NO GO lama seolah berasal dari input baru.
-- Semua input untuk perhitungan voyage ditampilkan di awal, memiliki default yang terlihat, serta dapat diedit. Pilihan rute dan kapal mengubah default yang terkait; edit harus diaplikasikan secara eksplisit dan hasil lama ditandai tidak berlaku.
-- Data yang belum tersedia atau tidak berhasil diperoleh jangan diganti dengan nilai seolah-olah aktual. Berikan sumber, tanggal observasi dan status input secukupnya.
-- Urea dry bulk dihitung satu arah laden. Komisi default 0%. Angka yang ditampilkan dua desimal; ketelitian perhitungan tetap dipertahankan.
-- PI dan PILOG tetap entitas berbeda. Tidak mengubah rumus tender, gate, harga yang telah ditetapkan, maupun aturan bisnis lain tanpa permintaan.
+- Urea granular bulk, kapal milik, satu arah laden. Tender dan commercial decision brief tetap disembunyikan pada UI aktif; engine historis tetap dapat diuji.
+- Seluruh biaya satu voyage dibebankan ke cargo kasus; tidak ada alokasi part cargo atau asumsi pendapatan cargo lain. Muatan kecil tetap dapat dihitung tanpa minimum buatan.
+- Komisi 0%. PI menjual barang, PILOG menjual freight; tidak ada kompensasi otomatis dari PI atas kerugian PILOG.
+- Nama input tetap **TC Rates**. Default berasal dari benchmark Fearnpulse sesuai keluarga kapal. TCE hasil tetap ditampilkan; tidak ada angka target TCE duplikat pada hasil.
+- Freight indikasi dihitung untuk memenuhi TC Rates. Surplus pada freight indikasi tidak membuktikan harga tersebut diterima buyer. Tidak menambahkan input freight penawaran manual.
+- Allowance bunker dan constants dataset digunakan untuk pemeriksaan kapasitas. Lolos pemeriksaan ini belum membuktikan draft, volume ruang muat, terminal, jadwal atau kapal tersedia.
+- Pilihan kelas tetap Handysize/Supramax; profil angka adalah acuan, bukan klaim ukuran universal atau kapal aktual.
+- Jarak aktif melalui Searoute atau input manual; tidak memakai OD sebagai default/fallback. Jalur historis tetap memakai kontraknya sendiri.
+- Pembanding CFR barang dan freight voyage terpisah, bersifat informasi, dan tidak otomatis menghasilkan quote atau GO/NO GO.
+- Ekspor/impor paket kasus lebih dahulu; daftar kasus permanen, database dan RBAC menyusul bila requirement ditetapkan.
 
-## Alur yang dituju
+## Alur aktif
 
-```mermaid
-flowchart LR
-  P[Ports.xlsx] --> U[Pilih pelabuhan muat dan bongkar]
-  U --> G[Koordinat pelabuhan: Nominatim + cache]
-  G --> S[Searoute: estimasi jarak laut NM]
-  V[Profil kapal terpilih] --> I[Semua input dan default yang dapat diedit]
-  S --> I
-  M[Snapshot Fearnpulse dan laporan indeks] --> I
-  I --> E[Perhitungan voyage economics]
-  E --> O[Hari laut dan pelabuhan, konsumsi, biaya, freight indikatif]
-```
+Pilih rute dan kelas/profil kapal → resolve jarak → edit tabel input → validasi angka, unit, kelas dan kapasitas setelah allowance → hitung hari, bunker, biaya dan freight indikasi → tampilkan TCE, impas dan surplus → sensitivitas dengan freight baseline tetap → pembanding pasar → unduh paket kasus untuk melanjutkan input yang sama.
 
-## Batch 1 — pelabuhan dan estimasi jarak
+Perubahan input menghapus hasil yang tidak lagi sesuai. Edit diterapkan secara atomik: jika validasi gagal, basis kasus sebelumnya tidak setengah berubah. Perubahan profil dapat mengganti spesifikasi manual; UI memberitahukan perilaku ini.
 
-1. Baca `data/raw/Ports.xlsx` sebagai sumber pilihan PoL/PoD: kolom `Country` dan `Primary Port`. Pemeriksaan awal menemukan 50 nama pelabuhan, termasuk Bontang dan Antwerp; abaikan baris kosong dan jaga pasangan nama-negara.
-2. Tambahkan dua dropdown yang menunjukkan nama dan negara. Pastikan keduanya berbeda dan jangan menggunakan jarak rute lama ketika pilihannya berubah.
-3. Untuk pelabuhan yang dipilih, gunakan geopy dengan Nominatim, nama pelabuhan **dan negara**, user-agent aplikasi yang mengidentifikasi aplikasi, timeout, rate limit bersama serta cache; jangan geocode seluruh daftar setiap F5. Jika lokasi ambigu, bukan pelabuhan, atau tidak ditemukan, tampilkan status dan minta koreksi; jangan memilih lokasi salah secara diam-diam.
-4. Kirim koordinat sebagai `[longitude, latitude]` ke `searoute` dengan unit `naut`; tampilkan jarak, identitas lokasi/sumber dan waktu. Ini estimasi berbasis graph, bukan jarak navigasi/operasional yang tervalidasi. Fallback otomatis saat geocoding/routing gagal: (a) cache rute dengan pasangan PoL–PoD dan basis yang cocok; (b) data OD workbook hanya untuk pasangan asal–tujuan yang cocok secara eksplisit; lalu (c) input jarak manual. Jika semua gagal, biarkan kosong dan jangan memakai jarak rute sebelumnya. Contoh OD Bontang–Mundra 3.906 NM; OD tidak mencakup semua kombinasi 50 port. Nilai fallback wajib memuat sumber, tanggal bila ada, dan status.
-5. Pisahkan penyedia koordinat, perhitungan jarak, dan pembacaan workbook dalam modul source; berikan pengujian mock jaringan, port ambigu, data gagal, urutan koordinat dan perhitungan NM. Periksa apakah `OD-DISTANCE.1` dan validator yang saat ini mewajibkan OD perlu diganti secara terversi, tanpa mengubah kasus lama.
+## Batch L1 — sumber input dan kontrak kasus
 
-Rujukan: [kebijakan Nominatim](https://operations.osmfoundation.org/policies/nominatim/), [dokumentasi geopy](https://geopy.readthedocs.io/en/stable/), dan [searoute](https://pypi.org/project/searoute/). Server publik Nominatim membatasi seluruh aplikasi maksimal satu request/detik; cache dan atribusi diperlukan. Searoute menyatakan hasilnya untuk visualisasi, bukan navigasi kapal.
+- [x] Jalur startup aktif membaca Voyage Estimate tanpa membuka, meng-hash atau memvalidasi terhadap OD; pembaca historis tetap tersedia.
+- [x] Semua input utama dalam tabel editable; tanpa tombol terapkan atau gunakan pasar terbaru.
+- [x] TC Rates, harga bunker, satuan, sumber dan tanggal tampil; waktu fetch dibedakan dari tanggal observasi sumber.
+- [x] Perubahan rute menjelaskan bahwa handling/waiting/port cost tetap input kasus, bukan otomatis tarif pelabuhan tujuan.
+- [x] Mempertahankan presisi string sumber jika widget numerik tidak berubah, meskipun representasi float tampilan lebih pendek.
+- [x] Angka invalid, rentang indeks invalid, perubahan komisi aktif dan edit tidak dikenal gagal sebelum perubahan kasus dikomit.
+- [x] Fallback geocoding/routing hanya jarak manual, bukan OD atau jarak rute sebelumnya.
 
-## Batch 2 — dua pilihan profil kapal
+## Batch L2 — kapasitas dan konsistensi profil
 
-- Sediakan hanya **Handysize 38.200 DWT** dan **Supramax 63.500 DWT** pada pilihan aktif, sesuai profil benchmark yang dipublikasikan Baltic; profil lama tetap ada untuk membaca kasus lama. Pengguna menerima perubahan Supramax dari 58.000 ke 63.500, dengan catatan kecil pada UI.
-- Tampilkan satu profil per kelas yang mudah dipahami, menggunakan spesifikasi Baltic yang tersedia dan acuan harga Fearnpulse yang sesuai kelas. Untuk nilai yang belum tersedia, cari lebih dulu pada Voyage Estimate dan referensi terdokumentasi; gunakan hanya nilai yang cocok dengan parameter dan konteksnya, dengan sumber tertera. Jika tidak ditemukan, biarkan kosong untuk diisi pengguna; jangan mengarang default atau mengklaim nilai workbook berasal dari Baltic.
-- Secara internal tetap bedakan kapasitas/konsumsi fisik dan harga acuan time charter demi ketepatan hitung; tidak perlu memecahnya menjadi pilihan profil yang terpisah di UI. Uji perubahan kapal mengganti parameter terkait tanpa menghapus input manual yang sudah diterapkan secara diam-diam.
+- [x] Tolak cargo di atas gross DWT.
+- [x] Tolak cargo di atas DWT dikurangi allowance bunker dan constants, memakai nilai dataset yang editable.
+- [x] Tolak DWT manual yang keluar dari rentang kebijakan kelas terpilih.
+- [x] Pemeriksaan kapasitas berada pada jalur kalkulasi bersama, sehingga prepare dan evaluasi tidak memiliki celah aturan berbeda.
+- [x] Tampilkan kapasitas tersisa dan cargo/gross-DWT sebagai informasi; bukan persentase utilisation DWCC yang sudah tervalidasi.
+- [ ] Validasi kapal nyata, stowage factor, grain capacity, draft dan terminal: fase data/operasional kemudian; jangan membuat default palsu.
 
-## Batch 3 — pembaruan sumber pasar otomatis
+## Batch L3 — penjelasan harga dan sensitivitas
 
-- Saat sesi dibuka atau browser direfresh, coba ambil data Fearnpulse terbaru secara otomatis tanpa tombol. Gunakan cache ber-TTL, timeout dan fallback snapshot terakhir; tampilkan tanggal observasi sumber dan waktu fetch, serta status jika refresh gagal. Rerun Streamlit akibat mengetik tidak boleh memicu fetch berulang.
-- **Argus dan Fertecon:** pengguna mengonfirmasi hanya memiliki laporan PDF dan mengusulkan menaruh empat laporan di repo. Rancang pembacaan otomatis saat startup/F5 dari PDF yang sudah tersedia pada deployment, dengan ekstraksi deterministik seri granular FOB SEA, nilai dan tanggal; cache berdasarkan hash file. Empat laporan saat ini tersedia di vault (`references/Market Reports`), masing-masing nitrogen dan amonia untuk kedua penerbit; laporan urea dicari pada laporan nitrogen yang cocok, bukan diasumsikan berasal dari laporan amonia. Periksa isi dan format tiap sumber sebelum menetapkan parser. PDF yang tetap sama menghasilkan data historis yang sama: F5 tidak bisa membuat laporan terbaru tanpa ada pembaruan berkas pada deployment. Izin penyimpanan dan lisensi sumber tetap harus dipastikan; repo private bukan bukti izin redistribusi.
-- Parser gagal/tidak menemukan seri: tunjukkan status dan pakai data terakhir yang benar-benar telah diekstrak atau input manual, jangan mengarang. Jika sistem tidak mengakses berkas PDF di luar repo saat dideploy, data tersebut harus ditempatkan di lokasi deployment yang memang dapat diakses dan legal digunakan.
-- Pisahkan refresh snapshot pasar dari quote freight yang telah ditetapkan: F5 tidak boleh diam-diam mengubah harga fixed, bid atau hasil lama. Di layar tahap 1–2, tunjukkan sumber yang dipakai dalam perhitungan saat ini dan terapkan data terbaru melalui alur perubahan basis yang jelas.
-- Uji sukses, provider down, timeout, cache, data usang, seri/units, tanggal observasi dan fallback. Persyaratan akses atau lisensi data pasar harus dikonfirmasi sebelum integrasi otomatis ke sumber berbayar.
+- [x] Pertahankan TC Rates sebagai input dan TCE hasil sebagai output tanpa metrik target duplikat.
+- [x] Tampilkan freight indikasi, freight impas dan estimasi surplus/defisit voyage PILOG.
+- [x] Perjelas bahwa surplus merupakan hasil pada freight indikasi, belum bukti penerimaan pasar atau laba bersih perusahaan.
+- [x] Rincian biaya per MT menunjukkan pengaruh pembebanan seluruh biaya ke cargo kasus, termasuk kasus muatan sangat kecil.
+- [x] Skenario biaya dari parameter kasus menggunakan freight baseline tetap. Delay atau kenaikan bunker tidak memicu repricing yang menyembunyikan risiko.
+- [x] Tampilkan biaya, TCE, surplus/defisit dan perubahan surplus per skenario.
+- [x] Matematika uang memakai Decimal di calculations; UI dan source parser tidak menghitung rumus harga sendiri.
+- [ ] Demurrage/despatch, cash flow, charter hire dan biaya kapital: perlu scope/definisi bisnis tersendiri, bukan dipaksakan ke model kapal milik saat ini.
 
-### Komoditas dan seri indeks
+## Batch L4 — assessment pembanding dan sumber pasar
 
-Fokus tetap **urea granular bulk dan kapal dry bulk**. Tidak ada pemilih komoditas atau perhitungan ammonia dalam penyesuaian ini. Laporan nitrogen dari kedua penerbit menjadi sumber yang diperiksa untuk seri urea granular FOB Southeast Asia; laporan ammonia bukan sumber indeks urea. Harga hanya diambil dari seri, FOB/CFR, wilayah, satuan dan tanggal yang cocok. Angka September diterima sebagai data awal top-down dan tetap diberi tanggal sumber. Pemeriksaan visual tabel dan tes parser adalah bagian implementasi; pemeriksaan awal bukan sertifikasi seluruh seri atau harga.
+Pembaruan 4 November: parser Argus membaca assessment granular CFR tambahan berdasarkan nama wilayah/negara/port yang eksplisit; FOB North Africa ditampilkan sebagai konteks FOB, bukan CFR. Untuk tujuan Afrika Utara tanpa rute asal yang cocok, contoh freight Fertecon ke Morocco boleh ditampilkan dengan label **asal berbeda**, tanpa gap harga seolah rute sama. Audit katalog saat ini menemukan CFR untuk 19 dari 50 port; sisanya belum terbukti tersedia sebagai CFR pada sumber dan mapping yang dibaca. Angka laporan tetap sesuai tanggal edisi, bukan live.
 
-Jika seri pasangan penerbit yang sebanding belum tersedia, tunjukkan bahwa indeks belum tersedia dan sediakan input manual yang bersumber; jangan mengambil CFR untuk menggantikan FOB atau mencampur bentuk/region/tanggal tanpa aturan yang disepakati.
+Pembaruan berikutnya: sesuai arahan pengguna, bila tidak tersedia assessment tujuan atau regional, tampilkan konteks FOB Asia Tenggara sebagai pasar global dengan label wilayah dan basis asli. Freight ditampilkan berjenjang: dua kawasan cocok, tujuan cocok, asal cocok, lalu contoh rute global berdasarkan kedekatan tonase; kelas terakhir tidak diklaim sebagai rute terdekat atau quote kasus. Selisih numerik hanya ditampilkan bila kedua kawasan cocok. Seluruh pasangan 50 port mendapatkan konteks ketika kedua laporan berhasil dibaca; konteks global bukan bukti harga tujuan atau kesebandingan komersial.
 
-## Batch 4 — input awal dan UI voyage
+- [x] Fertecon sebagai prioritas awal untuk CFR granular dan tabel freight pupuk dry bulk.
+- [x] Memilih edisi PDF berdasarkan tanggal laporan; tidak lagi gagal hanya karena ada lebih dari satu tanggal edisi.
+- [x] Dua dokumen berbeda bertanggal sama tidak dipilih sembarangan. Hash file mengikat hasil parsing dan cache.
+- [x] Validasi assessment finite, positif, low <= high, berikut produk/basis, seri, halaman, unit, tanggal dan hash sumber.
+- [x] Pembanding voyage menyebut asal, tujuan dan tonase asli; tidak menyesuaikan tarif secara linear menjadi quote rute lain.
+- [x] Rute tanpa pasangan yang cukup cocok ditampilkan tidak tersedia. Assessment tidak menjadi gate otomatis.
+- [x] Snapshot Fearnpulse yang berhasil diambil disimpan atomik di cache runtime, terpisah dari seed; file cache rusak tidak mematikan seluruh fallback.
+- [x] Cache runtime menggunakan satu snapshot terakhir agar tidak terus menambah file setiap refresh.
+- [ ] Inventarisasi/penyetaraan seluruh seri Argus dan perluasan mapping pasar adalah pengayaan sumber berikutnya; tidak menjadi penghalang pengujian logika. Tidak mengklaim seluruh 50 port punya assessment.
+- [ ] Pembaruan data aktual, lisensi/API provider, freshness policy dan kalibrasi TC benchmark memerlukan validasi pemilik data. Belum ada ambang stale atau faktor koreksi buatan.
 
-- Kelompokkan seluruh input yang dipakai hingga voyage economics di awal: rute/jarak; cargo dan aktivitas pelabuhan; kapal, kecepatan dan konsumsi; harga bahan bakar, biaya pelabuhan/running, target harian serta komisi. Gunakan default Voyage Estimate yang ada sebagai nilai awal yang editable, sesuai persetujuan pengguna; tampilkan asal default dan satuannya.
-- Pertahankan model `InteractiveCase` dan engine Python sebagai satu sumber hitung. Jangan menduplikasi matematika di Streamlit. Terapkan input sebagai satu revisi kasus, invalidasi hasil yang sudah tidak sesuai dan cegah fixed quote lama berubah diam-diam.
-- Tahap 2 menunjukkan rincian hari laut, hari muat/bongkar, bahan bakar, biaya voyage dan freight indikatif yang dihitung dari input aktif. Hindari tabel input yang tersebar di tahap lain, termasuk editor biaya, jika sudah dicakup di awal.
-- Sembunyikan navigasi dan tampilan tahap 3–4; contoh tender/GO/NO GO di sidebar juga harus dievaluasi agar tidak memberi jalan menuju hasil tersembunyi atau menampilkan state yang membingungkan. Engine dan fixtures tetap tersedia.
+## Batch L5 — paket kasus dan penyimpanan
 
-## Urutan teknis dan penerimaan
+- [x] Sidebar menggunakan unduh dan buka paket kasus JSON, menggantikan daftar draft server bersama.
+- [x] Paket memuat context dan input, bukan klaim approval atau hasil terkini. Hasil dihitung ulang setelah impor.
+- [x] Versi paket, ukuran maksimal 5 MiB, duplicate JSON keys, schema/unit dan nilai input diperiksa.
+- [x] Nama dataset pada paket tidak boleh menentukan lokasi filesystem; importer memakai nama internal pada temporary directory.
+- [x] Tidak ada daftar file draft sesi lain yang ditampilkan di UI.
+- [x] Ruang kerja pengujian terpisah sehingga tes tidak mengotori daftar draft pengguna.
+- [ ] Persistence server, SSO/RBAC, konflik edit, retention dan backup produksi menunggu scope operasional; ekspor kasus merupakan cara melanjutkan input antar-refresh saat ini.
 
-1. Audit sumber dan kontrak data; tetapkan mapping default workbook dan perilaku sumber yang gagal. Tambahkan dependensi `geopy` dan `searoute` secara eksplisit setelah versi dan lingkungan deploy diverifikasi.
-2. Implementasikan Batch 1–3 secara modular dengan tes unit dan integration yang memakai mock untuk jaringan. Hindari perubahan yang tidak perlu pada file sumber pengguna.
-3. Implementasikan Batch 4 dan tes UI: input awal editable, dua kapal, perubahan rute/kapal, hitung ulang, tahap 3–4 tidak tampak, serta kondisi sumber gagal.
-4. Jalankan regresi engine penting dan browser smoke: dua rute termasuk Bontang–Antwerp, dua kapal, pembulatan, perubahan input, F5, fallback, dan isolasi sesi. Rekonsiliasi hasil hitung secara independen; jangan mengklaim jarak estimasi sebagai jarak pelayaran aktual.
-5. Uji Linux/cloud dan akses data pada deployment sebelum update; hindari membuat perubahan deployment sampai revisi siap dan diuji. Dokumentasikan perubahan, sumber, asumsi dan keterbatasan di dokumen ini agar repo tetap mudah dinavigasi.
+## Batch L6 — verifikasi dan penerimaan
 
-## Keputusan terbuka
+- [x] Uji startup aktif tanpa pembacaan OD.
+- [x] Uji kapasitas setelah allowance dan DWT di luar kelas.
+- [x] Uji rollback edit invalid.
+- [x] Uji sensitivitas: freight tetap, tambahan biaya/waktu menurunkan surplus dan TCE.
+- [x] Uji paket kasus: ekspor/impor menghasilkan baseline dan skenario yang sama.
+- [x] Uji cache korup serta fallback snapshot.
+- [x] Tes UI historis yang mengharapkan empat profil/tender aktif diganti kontrak UI I5; regresi engine tender historis tetap diuji.
+- [x] Verifikasi final 4 November: seluruh suite aktif 249/249 tes lulus (24,705 detik), termasuk unit, integration dan Streamlit AppTest. Perintah: Python venv dengan src pada sys.path, unittest discover tests; output tes diarahkan ke temporary directory. git diff --check lulus. Server browser tidak dijalankan.
+- [ ] UAT mentor: pilih rute/kapal, edit input, hitung, periksa sensitivitas/pembanding, unduh paket, refresh, impor dan hitung ulang.
+- [ ] Visual QA browser pada desktop/layar sempit dan verifikasi cloud setelah pengguna mengotorisasi update deployment.
 
-1. Pengguna menyatakan keempat PDF boleh disimpan dalam repo private dan digunakan aplikasi. Pembaruan edisi bukan prioritas saat ini; harga September dapat digunakan sesuai tanggalnya.
-2. Tidak semua pasangan port tersedia dalam OD; jika cache dan OD sama-sama tidak punya pasangan yang cocok, input jarak manual tetap diperlukan. Tidak ada nilai default universal yang akurat.
+## Modul untuk audit
 
-## Status saat rencana dibuat
+- application/market_case.py: menyusun default voyage/profil/market; jalur aktif bebas OD.
+- application/interactive_case.py: state kasus, edit atomik, invalidasi hasil dan fixed quote.
+- application/case_package.py: paket kasus portable.
+- calculations/voyage_economics.py: hari, bunker, port/other, running cost.
+- calculations/freight_pricing.py: indikasi freight, TCE, surplus, impas, diagnostik harga.
+- calculations/capacity.py: pemeriksaan DWT dan headroom.
+- orchestration/case_evaluation.py: jalur hitung bersama dan sensitivitas freight tetap.
+- sources/market_comparables.py: ekstraksi assessment dan pemetaan terbatas.
+- sources/fearnpulse.py: fetch, normalisasi dan cache/fallback.
+- ui/views.py dan ui/presentation.py: input/output dan label sumber; tidak menetapkan keputusan komersial.
 
-- `Ports.xlsx` ditemukan di `data/raw/` dan belum masuk Git; file tidak diubah.
-- Tahap 3 dan 4 sudah disembunyikan dari fungsi `render` UI sesuai konfirmasi pengguna. Kode engine-nya tetap ada; pengujian regresi dan penyelarasan sidebar belum selesai.
-- Empat batch lainnya belum diimplementasikan. Riwayat rencana lama mungkin menyebut deployment belum dilakukan; pengguna menyatakan aplikasi sudah dideploy dan telah dibagikan kepada mentor.
+## Batas penerimaan
 
-## Implementasi 3 November 2026 — hasil sementara
+Penguatan logika tidak berarti seluruh angka sudah merupakan data operasional. Dataset yang tersedia diterima sebagai basis eksperimen; unit, keterkaitan input, kapasitas dan rumus tetap diperiksa. Tidak menambah gate kualitas data yang menghentikan simulasi hanya karena sumber historis.
 
-- Input PoL/PoD dari Ports.xlsx; perhitungan jarak searoute, fallback OD yang cocok dan input manual; sumber route versi I5-ROUTE.1. Geocoding menolak hasil ambigu/bukan pelabuhan. Uji aktual Nominatim untuk Bontang mengembalikan lokasi administratif, bukan pelabuhan; fallback dibutuhkan. Pengguna menyatakan belum memiliki koordinat yang disetujui.
-- Dua profil fisik 38.200 dan 63.500 DWT dengan speed dan konsumsi dari spesifikasi Baltic yang dibaca; input lain dari workbook. Fetch langsung Baltic lewat program tidak mengembalikan halaman spesifikasi lengkap dalam uji ini, sehingga aplikasi memakai referensi yang dicatat 3 November, bukan mengklaim live verification.
-- Fearnpulse dicoba otomatis pada sesi baru dan cached, dengan fallback snapshot. Uji koneksi lokal berhasil; tanggal observasi harga dan tanggal fetch berbeda. PDF nitrogen Argus/Fertecon dibaca otomatis dari public berdasarkan seri spesifik; hasil awal 415–425 dan 410–410 USD/MT, tanggal 10 September 2026. Parser berhenti saat format tidak cocok.
-- Input editable di awal; tahap 3–4 disembunyikan. Perhitungan dan source code tender tetap ada. UI lama untuk tender/brief belum direvisi.
-- Verifikasi: 224 unit/integration termasuk kasus dua profil dan rute manual lulus; pemeriksaan UI Streamlit otomatis tersedia. Tidak dilakukan verifikasi lengkap browser/deployment, pengujian live menyeluruh semua pelabuhan, atau penyesuaian ulang seluruh tes UI historis yang masih mengharapkan tahap 3–4.
-
-## Perbaikan lokasi dan Baltic — 3 November 2026
-
-- Katalog `data/processed/port_locations_unlocode.json` dibuat dari rilis resmi UN/LOCODE 2025-1, mencocokkan nama, negara, fungsi port dan kode secara eksplisit. Ketika koordinat UN/LOCODE kosong, koordinat katalog port Searoute 1.6.0 digunakan hanya jika kode lokasi sama dan titiknya unik. Koordinat bersifat indikatif, bukan berth. Katalog menyimpan sumber setiap titik dan hash arsip. Script pembangun memerlukan unduhan rilis resmi UN/LOCODE; arsip unduhan tidak disimpan di repo.
-- 38 dari 50 nama port saat ini mendapatkan koordinat katalog; 12 lainnya masih mencari melalui Nominatim, lalu fallback OD atau manual jika tidak pasti. Davao ditahan dari katalog karena Searoute memiliki dua titik dengan kode yang sama. Nominatim menyaring kandidat bukan port dan negara tidak cocok, namun tetap menolak hasil port yang ambigu. OpenStreetMap diatribusikan saat dipakai.
-- Uji offline: Bontang–Mundra sekitar 4.015,84 NM menurut Searoute dibanding 3.906 NM dalam OD; Bontang–Antwerp sekitar 9.511,50 NM menurut Searoute. Kedua sumber punya basis berbeda; angka bukan verifikasi rute navigasi atau kepastian jarak aktual.
-- Acuan Baltic dipusatkan dalam `data/processed/baltic_vessel_benchmarks.json`, bersumber Guide to Market Benchmarks v8.8 September 2026, halaman 83–84. Program mencoba mengambil dan memeriksa PDF resmi, tetapi pengujian langsung menerima HTTP 403; saat gagal ia memakai snapshot terverifikasi, tanpa mengklaim live. Harga Fearnpulse tetap sumber tersendiri.
-- Verifikasi: 230 tes unit dan integrasi lulus, termasuk katalog offline, penyaringan lokasi, satu voyage dengan jarak Searoute dan fallback dokumen Baltic. Tidak ada perubahan deployment atau push. Browser produksi/cloud belum diuji kembali.
-
-## Koreksi input dan audit rute — 3 November 2026
-
-- Dropdown PoL/PoD langsung menghitung ulang jarak saat pilihan berubah. Jika otomatis gagal, input jarak manual diterapkan bersama tombol `Terapkan input`; tombol `Terapkan rute` dihilangkan. Hasil lama dinonaktifkan selama rute baru belum valid.
-- `Hai Phong` dicocokkan dengan ejaan `Haiphong` pada UN/LOCODE menggunakan normalisasi spasi, negara dan kandidat unik. Aqaba–Hai Phong terhitung sekitar 6.240,74 NM sebagai estimasi, bukan jarak operasional/terminal yang tervalidasi.
-- Searoute port catalog juga digunakan jika ada kecocokan nama dan negara yang tepat, kode negara cocok, dan satu titik unik untuk kode tersebut; tidak memaksa pilihan untuk entri ambigu. Uji seluruh 2.450 pasangan berarah dari 50 pelabuhan secara offline: 1.980 estimasi, 1 fallback OD, 469 memerlukan input manual. Lima pelabuhan tanpa koordinat unik pada uji offline: Brunsbuettel, Davao, Jose, Mersa Al Brega, Zhanjiang. Pencarian live dapat memberikan hasil berbeda; audit offline bukan klaim semua pencarian live gagal. Bukti: `outputs/route_coverage_audit_i5.json`; jalankan ulang `venv/Scripts/python.exe scripts/audit_route_coverage.py`.
-- MarBrokers ditambahkan sebagai tautan referensi umum kelas kapal, bukan dasar numerik spesifikasi kapal tertentu.
-- Perhitungan voyage pada kasus baru versi I5 menolak cargo > DWT kapal; UI menampilkan alasan dan menonaktifkan tombol hitung. Lolos cek gross DWT bukan bukti DWCC, draft atau kelayakan pemuatan. Kasus historis tetap mempertahankan perilakunya.
-- Verifikasi unit dan integrasi: 234 tes lulus. UI dicek dengan Streamlit AppTest; browser interaktif/cloud belum diuji. Belum push atau deploy.
-
-## Toleransi ejaan pelabuhan — 3 November 2026
-
-- Sesuai arahan pengguna, variasi ejaan Brunsbuettel/Brunsbuttel (DEBRB), Zhanjiang/Zhangjiang (CNZHA), dan Mersa Al Brega/Marsa El Brega (LYLMQ) diterima melalui katalog alias bersumber; negara dan kode lokasi tetap diperiksa dan titik harus unik.
-- Audit offline 2.450 pasangan berarah setelah alias: 2.256 estimasi Searoute, 1 fallback OD, 193 memerlukan input manual. Davao dan Jose masih tanpa koordinat tunggal yang terpilih; pilihan Davao menunggu konfirmasi pengguna, dan pemetaan Jose ke Jose Terminal VEJOT belum dianggap pasti.
-- Verifikasi khusus penyesuaian: 13 tes integrasi lulus. Bukti detail diperbarui di `outputs/route_coverage_audit_i5.json`. Belum push/deploy.
-
-## Konfirmasi Davao dan Jose — 3 November 2026
-
-- Pengguna memilih titik kedua Davao, latitude 7.066667 / longitude 125.633333, PHDVO; dan menyatakan Jose adalah Jose Terminal, latitude 10.1 / longitude -64.85, VEJOT. Disimpan di `data/processed/confirmed_port_locations.json` dengan urutan longitude, latitude dan keterangan sumber; bukan klaim koordinat berth.
-- Audit ulang 2.450 pasangan berarah secara offline: seluruhnya menghasilkan estimasi Searoute; 0 memerlukan manual dan 0 fallback OD pada audit ini. Hasil menunjukkan kemampuan kalkulasi untuk katalog saat ini, bukan validasi navigasi, kelayakan terminal atau jarak komersial.
-- Sebelum konfirmasi ada 193 pasangan manual karena melibatkan Davao atau Jose; satu fallback OD adalah Bontang → Davao 697 NM. Setelah lokasi tersedia, rute itu mengikuti alur utama Searoute, bukan OD. OD tetap fallback bila sumber utama gagal.
-- 14 tes integrasi terkait lulus, termasuk verifikasi koordinat yang dipilih dan identitas masing-masing port. Belum push/deploy.
+Pengguna dan mentor tetap menilai apakah perilaku pipeline sudah tepat. Rating agent bukan approval bisnis. Tidak ada perubahan deployment atau push Git dari pekerjaan lokal ini.

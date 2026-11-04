@@ -11,7 +11,7 @@ from pilog_cfr_dss.validation.case import number
 SOURCE = "data/raw/Voyage Estimate.xlsx"
 
 
-def read_voyages(path: Path, od_path: Path) -> dict:
+def read_voyages(path: Path, od_path: Path | None) -> dict:
     from openpyxl import load_workbook
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
     workbook = load_workbook(path, read_only=True, data_only=False)
@@ -32,8 +32,8 @@ def read_voyages(path: Path, od_path: Path) -> dict:
             revenue_quantity = sheet["B41"].value
             if revenue_quantity != "=D20" and number(revenue_quantity, sheet.title + "!B41") != cargo:
                 raise ValueError("CARGO_REVENUE_QUANTITY_MISMATCH")
-            distance = read_distance(od_path, origin, destination, "UREA GRANULAR BULK")
-            if number(sheet["F3"].value, sheet.title + "!F3") != Decimal(distance["value"]):
+            distance = read_distance(od_path, origin, destination, "UREA GRANULAR BULK") if od_path else None
+            if distance and number(sheet["F3"].value, sheet.title + "!F3") != Decimal(distance["value"]):
                 raise ValueError("WORKBOOK_OD_DISTANCE_MISMATCH:" + sheet.title)
             fields = {"loading_port": origin, "discharging_port": destination,
                       "cargo_description": "UREA GRANULAR BULK", "cargo_category": "dry_bulk",

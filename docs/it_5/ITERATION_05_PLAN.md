@@ -1,5 +1,7 @@
 # Rencana Iterasi 5 — aplikasi I4 bisa dipakai dari laptop lain
 
+> Acuan aktif 4 November 2026: [penguatan pipeline I5](RENCANA_PENYESUAIAN_INPUT_VOYAGE.md). Dokumen di bawah adalah riwayat deployment dan revisi workbook. Keputusan aktif: logika dahulu, tabel input otomatis, TC Rates, kapasitas memakai allowance dataset, jarak tanpa OD pada startup aktif, sensitivitas dengan freight tetap, dan ekspor/impor paket kasus. Tender/brief tetap tersembunyi. Status implementasi dan pengujian terbaru ada pada acuan aktif tersebut.
+
 Diperbarui 29 Oktober 2026 (D-076). Status: revisi dataset/pilihan UI dan diversifikasi profil/contoh bid-risiko acak selesai teknis, deployment Streamlit masih rencana. I4 diterima melalui konfirmasi pengguna. Baseline [57257c0](https://github.com/aidanismail/pilog-cfr-dss/commit/57257c07299cd74d7172a84d3ec158e5679a7c1e), 239/239 tes release lulus. Repo tetap PRIVATE.
 
 ## 1. Keputusan arah

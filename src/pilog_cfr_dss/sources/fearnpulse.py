@@ -147,9 +147,42 @@ def save_snapshot(snapshot: dict, root: Path) -> Path:
     return path
 
 
-def latest_saved(root: Path) -> dict | None:
+def save_runtime_snapshot(snapshot: dict, folder: Path) -> None:
+    """Keep fetched data outside source seeds; replace atomically."""
+    identifier = snapshot['snapshot_id']
+    if not isinstance(identifier, str) or not identifier.startswith('fp_') or not all(c.isalnum() or c == '_' for c in identifier):
+        raise ValueError('INVALID_SNAPSHOT_ID')
+    folder.mkdir(parents=True, exist_ok=True)
+    destination = folder / 'fp_latest.json'
+    if destination.exists():
+        try:
+            existing = json.loads(destination.read_text(encoding='utf-8'))
+            if timestamp(existing['fetched_at']) >= timestamp(snapshot['fetched_at']):
+                return
+        except (ValueError, KeyError, TypeError):
+            pass
+    temporary = folder / (identifier + '_' + uuid4().hex + '.tmp')
+    try:
+        temporary.write_text(json.dumps(snapshot, ensure_ascii=False, allow_nan=False), encoding='utf-8')
+        temporary.replace(destination)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def latest_saved(root: Path, runtime_folder: Path | None = None) -> dict | None:
     paths = list((root / "data/processed").glob("fp_*.json"))
-    if not paths:
+    if runtime_folder:
+        paths.extend(runtime_folder.glob('fp_*.json'))
+    snapshots = []
+    for path in paths:
+        try:
+            snapshot = json.loads(path.read_text(encoding='utf-8'))
+            timestamp(snapshot['fetched_at'])
+            if snapshot.get('snapshot_version') != 'FP.1' or set(snapshot.get('tc_rates', {})) != set(ROUTES) or set(snapshot.get('bunkers', {})) != set(BUNKERS):
+                continue
+            snapshots.append(snapshot)
+        except (ValueError, KeyError, TypeError, OSError):
+            continue
+    if not snapshots:
         return None
-    snapshots = [json.loads(path.read_text(encoding="utf-8")) for path in paths]
     return max(snapshots, key=lambda x: timestamp(x["fetched_at"]))

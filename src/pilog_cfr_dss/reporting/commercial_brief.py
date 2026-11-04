@@ -110,7 +110,7 @@ def pricing_bridge_lines(report: dict) -> list[str]:
     indicated = bridge.get("indication_at_fix_usd_mt")
     lines = ["", "### Asal tarif", "", "| Angka | Nilai | Fungsi |", "|---|---:|---|",
         f"| Benchmark pasar kapal | {amount(benchmark['value']) if benchmark.get('value') is not None else 'Tidak tersedia'} USD/hari | Referensi kelas/kontrak pasar |",
-        f"| Target hasil harian sebelum operasional kapal | {amount(target['value'])} USD/hari | Input sasaran pricing, bukan biaya sewa tambahan |",
+        f"| TC Rates | {amount(target['value'])} USD/hari | Input sasaran pricing, bukan biaya sewa tambahan |",
         f"| Indikasi saat penetapan harga | {amount(indicated) if indicated is not None else 'Tidak tercatat pada snapshot lama'} USD/MT | Tarif untuk mengejar target pada biaya awal |",
         f"| Freight penawaran tetap | {amount(bridge['fixed_offer_usd_mt']) if bridge['fixed_offer_usd_mt'] is not None else 'Belum ditetapkan'} USD/MT | Harga yang dipakai menilai bid dan kontribusi |",
         f"| Indikasi berdasarkan estimasi biaya sekarang | {amount(bridge['current_indication_usd_mt'])} USD/MT | Informasi; tidak mengganti penawaran tetap |",

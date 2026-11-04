@@ -27,12 +27,16 @@ def source_label(record: dict, sheet: str = "") -> str:
         return "Input manual"
     if status == "observed_public_market":
         return "Fearnpulse"
+    if status == "observed_reference":
+        return "Baltic Exchange · spesifikasi acuan"
+    if status == "estimated_sea_route":
+        return "Estimasi jarak laut · Searoute"
     if status == "observed_workbook_profile_transfer":
-        return "Voyage Estimate · " + sheet
+        return "Voyage Estimate · data profil"
     if status == "simulation_only_workbook_vessel_profile":
-        return "Asumsi profil kapal · " + sheet
+        return "Voyage Estimate · asumsi kapal"
     if status == "simulation_only_workbook_case":
-        return "Asumsi demo · " + sheet
+        return "Voyage Estimate · asumsi voyage"
     if status == "observed_workbook_distance":
         return "OD · jarak"
     if status == "inherited_simulation_proxy":
@@ -41,4 +45,4 @@ def source_label(record: dict, sheet: str = "") -> str:
         return "Asumsi kasus"
     if status == "approved_case_policy":
         return "Kebijakan kasus"
-    return "Parameter kasus"
+    return "Sumber belum teridentifikasi"

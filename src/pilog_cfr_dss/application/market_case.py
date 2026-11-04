@@ -32,9 +32,9 @@ def _profiles(path: str, digest: str) -> dict:
 
 
 @lru_cache(maxsize=8)
-def _voyages(path: str, digest: str, od: str, od_digest: str) -> dict:
-    result = read_voyages(Path(path), Path(od))
-    if result["source_sha256"] != digest or any(v["distance_reference"]["source_sha256"] != od_digest for v in result["voyages"]):
+def _voyages(path: str, digest: str, od: str | None, od_digest: str | None) -> dict:
+    result = read_voyages(Path(path), Path(od) if od else None)
+    if result["source_sha256"] != digest or (od and any(v["distance_reference"]["source_sha256"] != od_digest for v in result["voyages"])):
         raise ValueError("WORKBOOK_CHANGED_DURING_READ")
     return result
 
@@ -62,14 +62,16 @@ def active_catalog(root: Path) -> dict:
     return data
 
 
-def voyage_catalog(root: Path) -> dict:
+def voyage_catalog(root: Path, *, dynamic_route: bool = False) -> dict:
     path = root / "data/raw/Voyage Estimate.xlsx"
+    if dynamic_route:
+        return deepcopy(_voyages(str(path.resolve()), hashlib.sha256(path.read_bytes()).hexdigest(), None, None))
     od = root / "data/raw/Simulasi Tarif Internasional_Mei 2025.xlsx"
     return deepcopy(_voyages(str(path.resolve()), hashlib.sha256(path.read_bytes()).hexdigest(),
                              str(od.resolve()), hashlib.sha256(od.read_bytes()).hexdigest()))
 
 
-def apply_voyage(case: InteractiveCase, voyage: dict, root: Path) -> None:
+def apply_voyage(case: InteractiveCase, voyage: dict, root: Path, *, dynamic_route: bool = False) -> None:
     if case.fixed:
         raise ValueError("BASIS_FIXED_CREATE_REVISION")
     for row in case.rows:
@@ -82,7 +84,28 @@ def apply_voyage(case: InteractiveCase, voyage: dict, root: Path) -> None:
     case.context.pop("pi_selected_bid_id", None)
     case.context.pop("demonstration", None)
     case.context["bids"] = []
-    apply_case_basis(case, root)
+    if dynamic_route:
+        for row in case.rows:
+            if row['key'] in COMMISSION_KEYS:
+                row.update(value='0', source_status='approved_case_policy', source_reference='Komisi kasus aktif 0%')
+            if row['key'] == 'distance_nm':
+                row.update(value='', source_status='pending_route', source_reference='Jarak menunggu rute laut atau input manual')
+        case.context.update(case_basis_version=ROUTE_VERSION, od_usage='distance_only', distance_reference={
+            'source_status': 'pending_route', 'unit': 'NM', 'loading_port': voyage['fields']['loading_port'],
+            'discharging_port': voyage['fields']['discharging_port'], 'value': ''})
+        case.context['capacity_basis'] = 'dataset_allowances_v1'
+        case.context['cost_allocation_basis'] = 'entire_modelled_voyage_to_case_cargo'
+        case.context['limitations'] = [
+            'Satu arah bermuatan; seluruh biaya model dibebankan ke cargo kasus.',
+            'Jarak laut estimasi; bukan bukti rute navigasi atau kesiapan terminal.',
+            'Default handling, tunggu, biaya pelabuhan dan sebagian profil berasal dari workbook.',
+            'TC Rates satu tahun menjadi acuan harga indikasi; bukan bukti penerimaan pasar.',
+            'Kapasitas memakai allowance dataset; belum membuktikan draft atau ruang muat aktual.',
+        ]
+        case.context.pop('od_reference', None)
+        case._invalidate(voyage=True)
+    else:
+        apply_case_basis(case, root)
 
 
 def apply_case_basis(case: InteractiveCase, root: Path) -> None:
@@ -170,13 +193,13 @@ def apply_market(case: InteractiveCase, snapshot: dict) -> None:
 
 
 def new_market_case(root: Path, snapshot: dict, profile_id: str | None = None,
-                    voyage_id: str | None = None) -> InteractiveCase:
+                    voyage_id: str | None = None, *, dynamic_route: bool = False) -> InteractiveCase:
     case = InteractiveCase.read(root / "data/processed/case_template.json").revise()
     profiles = catalog(root)
     profile = next((p for p in profiles["profiles"] if p["profile_id"] == (profile_id or profiles["profiles"][0]["profile_id"])), None)
     if profile is None:
         raise ValueError("UNKNOWN_WORKBOOK_PROFILE")
-    voyages = voyage_catalog(root)
+    voyages = voyage_catalog(root, dynamic_route=dynamic_route)
     voyage = next((v for v in voyages["voyages"] if v["voyage_id"] == (voyage_id or voyages["voyages"][0]["voyage_id"])), None)
     if voyage is None:
         raise ValueError("UNKNOWN_WORKBOOK_VOYAGE")
@@ -189,7 +212,7 @@ def new_market_case(root: Path, snapshot: dict, profile_id: str | None = None,
         "Tanggal observasi setiap seri dapat berbeda; waktu fetch bukan waktu harga pasar.",
         "Gross DWT belum membuktikan DWCC, terminal, laycan atau availability.",
     ]
-    apply_voyage(case, voyage, root)
+    apply_voyage(case, voyage, root, dynamic_route=dynamic_route)
     apply_profile(case, profile, profiles["policy"])
     apply_market(case, snapshot)
     case.context["commercial_review_version"] = REVIEW_VERSION

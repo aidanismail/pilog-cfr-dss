@@ -148,6 +148,38 @@ class InteractiveCase:
 
     def apply_inputs(self, values: dict[str, str], *, target_tce: str,
                      observations: dict[str, dict[str, str]], oe_hps: str) -> None:
+        """Validate a staged edit before committing any change to this case."""
+        from decimal import Decimal
+        from pilog_cfr_dss.validation.case_basis import BASIS_VERSION, ROUTE_VERSION, COMMISSION_KEYS
+        positive = {'cargo_mt', 'dwt_mt', 'distance_nm', 'speed_knots', 'loading_rate_mt_day', 'discharge_rate_mt_day'}
+        if not isinstance(values, dict):
+            raise ValueError('INVALID_INPUT_EDITS')
+        if set(values) - set(UNITS):
+            raise ValueError('UNKNOWN_VOYAGE_FIELD')
+        if self.context.get('case_basis_version') in {BASIS_VERSION, ROUTE_VERSION}:
+            if any(number(values[key], key) != 0 for key in COMMISSION_KEYS if key in values):
+                raise ValueError('ACTIVE_CASE_COMMISSION_MUST_BE_ZERO')
+        for key, raw in values.items():
+            value = number(raw, key, Decimal(0))
+            if key in positive and value <= 0:
+                raise ValueError('NONPOSITIVE_INPUT:' + key)
+        number(target_tce, 'TC Rates', Decimal(0))
+        number(oe_hps, 'OE/HPS', Decimal(0))
+        if not isinstance(observations, dict):
+            raise ValueError('INVALID_INDEX_EDITS')
+        for publisher, edits in observations.items():
+            if publisher not in {'argus', 'fertecon'} or not isinstance(edits, dict) or set(edits) - {'low', 'high'}:
+                raise ValueError('UNKNOWN_INDEX_FIELD')
+            proposed = {**self.context['market_index'][publisher], **edits}
+            lo, hi = number(proposed['low'], 'index low'), number(proposed['high'], 'index high')
+            if lo <= 0 or hi < lo:
+                raise ValueError('INVALID_INDEX_RANGE:' + publisher)
+        staged = deepcopy(self)
+        staged._apply_validated_inputs(values, target_tce=target_tce, observations=observations, oe_hps=oe_hps)
+        self.__dict__.update(staged.__dict__)
+
+    def _apply_validated_inputs(self, values: dict[str, str], *, target_tce: str,
+                                observations: dict[str, dict[str, str]], oe_hps: str) -> None:
         if self.fixed:
             raise ValueError("BASIS_FIXED_CREATE_REVISION")
         if set(values) - set(UNITS):

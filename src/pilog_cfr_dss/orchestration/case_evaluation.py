@@ -10,7 +10,7 @@ from typing import Any
 from uuid import uuid4
 
 from pilog_cfr_dss.calculations.voyage_economics import voyage
-from pilog_cfr_dss.calculations.freight_pricing import required_freight, economics, total_commission, contribution_delta, decision_metrics, commercial_financials
+from pilog_cfr_dss.calculations.freight_pricing import required_freight, economics, total_commission, contribution_delta, decision_metrics, commercial_financials, pricing_diagnostics
 from pilog_cfr_dss.calculations.tender_pricing import index_prices, bid_prices, od_delta, minimum_alpha
 from pilog_cfr_dss.decisions.tender_decision import evaluate_tender, decide, risk_label, review_step
 from pilog_cfr_dss.models.case import VERSION, REPORT_VERSION, METRICS_VERSION, MARKET_REPORT_VERSION, CLEAN_REPORT_VERSION, COMMERCIAL_REPORT_VERSION
@@ -21,7 +21,7 @@ from pilog_cfr_dss.validation.market_sources import supporting_inputs
 from pilog_cfr_dss.validation.case_basis import BASIS_VERSION, distance_inputs
 from pilog_cfr_dss.validation.cost_forecast import effective_case, REVIEW_VERSION
 from pilog_cfr_dss.calculations.commercial_review import commercial_review
-from pilog_cfr_dss.calculations.capacity import require_cargo_within_gross_dwt
+from pilog_cfr_dss.calculations.capacity import require_cargo_within_gross_dwt, deadweight_headroom_mt, gross_dwt_screen
 
 
 def serial(value: Any) -> Any:
@@ -36,6 +36,15 @@ def serial(value: Any) -> Any:
 
 def voyage_basis(case) -> dict[str, Any]:
     """One shared calculation path for the CLI and pre-tender UI service."""
+    if case.context.get('case_basis_version') == 'I5-ROUTE.1':
+        require_cargo_within_gross_dwt(case.number('cargo_mt'), case.number('dwt_mt'))
+        if case.context.get('capacity_basis') == 'dataset_allowances_v1':
+            if deadweight_headroom_mt(case.number('dwt_mt'), case.number('bunkers_allowance_mt'), case.number('constants_allowance_mt'), case.number('cargo_mt')) < 0:
+                raise ValueError('CARGO_EXCEEDS_CAPACITY_AFTER_ALLOWANCES')
+        bounds = case.context['vessel_policy'][case.values['vessel_class']]
+        passed, reason = gross_dwt_screen(case.number('dwt_mt'), case.number('cargo_mt'), Decimal(str(bounds[0])), Decimal(str(bounds[1])))
+        if not passed:
+            raise ValueError(reason)
     with localcontext() as precision:
         precision.prec = 40
         current_case = effective_case(case)
@@ -75,18 +84,29 @@ def prepare_voyage(path: Path) -> dict[str, Any]:
     """Calculate a pre-tender estimate without inventing a bid or decision."""
     raw = path.read_bytes()
     case, dataset = load_case(path, pre_tender=True)
-    if case.context.get('case_basis_version') == 'I5-ROUTE.1':
-        require_cargo_within_gross_dwt(case.number('cargo_mt'), case.number('dwt_mt'))
     content = dataset.read_bytes()
     if path.read_bytes() != raw or list(csv.DictReader(io.StringIO(content.decode("utf-8-sig")))) != list(case.rows):
         raise ValueError("INPUT_CHANGED_DURING_PREPARATION")
     basis = voyage_basis(case)
     c = case.context
+    sensitivity = []
+    with localcontext() as precision:
+        precision.prec = 40
+        for shock in c.get('scenarios', []):
+            costs = voyage(basis['effective_case'], number(shock['fuel_price_increase_fraction'], 'fuel shock'),
+                           number(shock['extra_port_days'], 'port delay'))
+            outcome = economics(costs, basis['rate'], case.number('cargo_mt'), basis['commission'])
+            sensitivity.append({'label': shock.get('label', shock['scenario_id']), 'scenario_id': shock['scenario_id'],
+                'source_status': shock.get('source_status', 'not_recorded'), 'economics': outcome,
+                'freight_held_constant': True, 'change_from_baseline_usd': contribution_delta(outcome['contribution_usd'], basis['baseline']['contribution_usd'])})
+        diagnostics = pricing_diagnostics(basis['baseline'], basis['rate'], case.number('cargo_mt'), basis['commission'], case.number('dwt_mt'), case.number('bunkers_allowance_mt'), case.number('constants_allowance_mt'))
+        diagnostics['capacity_scope'] = 'dataset_allowances_screen' if c.get('capacity_basis') == 'dataset_allowances_v1' else 'gross_dwt_screen_only'
     od = c.get("od_reference")
     captured = {"case_fixture.json": raw, dataset.name: content, **distance_inputs(c)}
     result = serial({"case_id": c["case_id"], "version": VERSION, "mode": "simulation",
         "advisory_only": True, "case": basis["effective_case"].values,
         "baseline": basis["baseline"], "metrics": basis["metrics"],
+        "pricing_diagnostics": diagnostics, "fixed_freight_sensitivities": sensitivity,
         "pricing": {"computed_freight_usd_mt": basis["computed_rate"],
                     "freight_tender_usd_mt": basis["rate"],
                     "rate_mode": "fixed_simulation" if c.get("freight_tender") is not None else "model_indication",
