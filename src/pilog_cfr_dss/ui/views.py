@@ -168,6 +168,10 @@ def profile_selector(case, root, editing):
         'dwt_mt', 'speed_knots', 'sea_fo_mt_day', 'sea_do_mt_day', 'port_do_mt_day', 'running_usd_day'
     } for row in case.rows):
         st.caption('Memilih profil lain mengganti spesifikasi kapal yang diubah manual.')
+    snapshot = case.context.get('market_snapshot', {})
+    quote = snapshot.get('tc_rates', {}).get(by_id[selected]['market_family'], {})
+    if quote:
+        st.caption('Acuan TC Rates: ' + quote['series'] + '. TC Rates dan harga bunker yang diubah manual tetap dipertahankan.')
 def route_selector(case, root, editing):
     choices = ports(root / 'data/raw/Ports.xlsx')
     current = case.values()
@@ -242,6 +246,8 @@ def input_editor(case, pending_route=None):
                   "Sumber": "Input manual" if case.context["pricing"]["target_tce"]["source_status"] == "simulation_only_user_input" else "Fearnpulse",
                   "Tanggal sumber": case.context['pricing']['target_tce'].get('source_observed_on', '—')})
     st.caption("Urea granular bulk · Komisi 0%")
+    if fields['speed_knots'].get('source_status') == 'simulation_only_user_input':
+        st.caption('Kecepatan diubah manual; konsumsi bahan bakar tidak berubah otomatis.')
     default_route = case.context.get('voyage_estimate', {}).get('fields', {})
     if (values['loading_port'], values['discharging_port']) != (default_route.get('loading_port'), default_route.get('discharging_port')):
         st.caption('Handling, waktu tunggu dan biaya pelabuhan tetap memakai input kasus; pemilihan rute hanya memperbarui jarak.')
@@ -307,14 +313,17 @@ def market_comparables_view(case, root, report):
     values = case.current_values()
     country = destination_country(root, values["discharging_port"])
     data, argus = None, None
+    failed_sources = []
     try:
         data = read_comparables(root)
     except (OSError, ValueError, KeyError, TypeError, IndexError):
-        pass
+        failed_sources.append('Fertecon')
     try:
         argus = read_argus_comparables(root)
     except (OSError, ValueError, KeyError, TypeError, IndexError):
-        pass
+        failed_sources.append('Argus')
+    if failed_sources:
+        st.warning('Laporan ' + ' dan '.join(failed_sources) + ' belum dapat dibaca; pembanding dari laporan tersebut tidak tersedia.')
     a, b = st.columns(2)
     with a:
         st.markdown("**Harga urea CFR tujuan**")
@@ -322,7 +331,11 @@ def market_comparables_view(case, root, report):
         for publisher, source in (("Fertecon", data), ("Argus", argus)):
             record = (source.get("cfr_ports", {}).get(values["discharging_port"]) or source["cfr"].get(country)) if source else None
             if record:
-                entries.append({"Sumber": publisher, "Pasar": record["label"],
+                is_regional = (values["discharging_port"] in source.get("cfr_ports", {}) or
+                               'asia' in record['label'].lower() or 'gulf' in record['label'].lower() or
+                               'west coast' in record['label'].lower())
+                entries.append({"Sumber": publisher, "Basis": "CFR", "Pasar assessment": record["label"],
+                    "Kecocokan": "Kawasan / pasar acuan" if is_regional else "Negara sesuai label",
                     "USD/MT": fmt(record["low"]) + "–" + fmt(record["high"]),
                     "Tanggal": record["date"], "Halaman": record["page"]})
         if entries:
@@ -348,7 +361,7 @@ def market_comparables_view(case, root, report):
                 st.dataframe(references, hide_index=True, width='stretch')
                 st.caption('Assessment FOB Asia Tenggara; wilayah dan basis dapat berbeda dari tujuan kasus.')
     with b:
-        st.markdown("**Freight comparable voyage**")
+        st.markdown("**Konteks freight voyage**")
         matches = voyage_matches(data["voyages"], values["loading_port"], values["discharging_port"]) if data else []
         if not matches:
             st.caption("Rute pembanding yang cukup cocok belum tersedia.")
@@ -358,15 +371,14 @@ def market_comparables_view(case, root, report):
                 'tujuan_kawasan_asal_berbeda': 'Tujuan kawasan; asal berbeda',
                 'asal_kawasan_tujuan_berbeda': 'Asal kawasan; tujuan berbeda',
                 'rute_global_berbeda': 'Konteks global; asal dan tujuan berbeda'}
-            st.dataframe([{"Rute pembanding": r["origin"] + " → " + r["destination"],
+            st.dataframe([{"Rute assessment": r["origin"] + " → " + r["destination"],
                 "Muatan (MT)": fmt(r["cargo_mt"]), "Freight (USD/MT)": fmt(r["low"]) + "–" + fmt(r["high"]),
+                "Komoditas": "Pupuk dry bulk",
                 "Cakupan": scope_labels[r["match_scope"]],
-                "Selisih indikasi vs rentang (USD/MT)": "—" if r["match_scope"] != "rute_kawasan" else
+                "Selisih aritmetika (USD/MT)": "—" if r["match_scope"] != "rute_kawasan" else
                     " s.d. ".join(fmt(x) for x in comparison_delta(report["pricing"]["computed_freight_usd_mt"], r)),
                 "Tanggal": r["date"]} for r in matches], hide_index=True, width="stretch")
-            st.caption("Fertecon · halaman 2. Asal, tujuan dan tonase pembanding dapat berbeda dari kasus.")
-    if not data and not argus:
-        st.warning("Laporan pembanding belum dapat dibaca.")
+            st.caption("Fertecon · halaman 2. Diurutkan berdasarkan tonase; rute dan ketentuan dapat berbeda.")
     st.caption("Harga laporan bersifat historis; bukan penawaran freight untuk rute ini.")
 
 
@@ -465,11 +477,15 @@ def voyage_view(case, root, output_root, editing):
             ('Pelabuhan dan lainnya per MT cargo', 'port_other_per_mt_usd', 'USD/MT'),
             ('Operasional kapal per MT cargo', 'running_per_mt_usd', 'USD/MT'))], hide_index=True, width='stretch')
     with st.expander('Sensitivitas biaya — freight baseline tetap'):
+        from pilog_cfr_dss.decisions.tender_decision import risk_label
         st.caption('Skenario dari parameter kasus; freight tidak dihitung ulang saat biaya atau waktu berubah.')
-        st.dataframe([{'Skenario': row['label'], 'Freight (USD/MT)': fmt(row['economics']['freight_usd_mt']),
+        st.dataframe([{'Skenario': row['label'], 'Kenaikan harga bunker (%)': fmt(row['fuel_price_increase_percent']),
+                       'Tambahan waktu pelabuhan (hari)': fmt(row['extra_port_days']),
+                       'Freight (USD/MT)': fmt(row['economics']['freight_usd_mt']),
                        'Biaya voyage (USD)': fmt(row['economics']['total_cash_cost_usd']),
                        'TCE (USD/hari)': fmt(row['economics']['tce_before_running_usd_day']),
                        'Surplus/defisit (USD)': fmt(row['economics']['contribution_usd']),
+                       'Status': risk_label(Decimal(row['economics']['contribution_usd'])),
                        'Perubahan surplus (USD)': fmt(row['change_from_baseline_usd'])}
                       for row in report.get('fixed_freight_sensitivities', [])], hide_index=True, width='stretch')
     with st.expander("Dasar perhitungan"):

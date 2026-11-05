@@ -49,3 +49,23 @@ class StreamlitWorkflowTests(unittest.TestCase):
                             for x in result["fixed_freight_sensitivities"]))
         self.assertTrue(any(x.label == "TCE hasil voyage (USD/hari)" for x in self.app.metric))
         self.assertFalse(any(x.label == "Target TCE (USD/hari)" for x in self.app.metric))
+        self.assertTrue(any('Kenaikan harga bunker (%)' in frame.value.columns and
+                            'Tambahan waktu pelabuhan (hari)' in frame.value.columns
+                            for frame in self.app.dataframe))
+
+    def test_one_failed_report_is_distinct_from_missing_assessment(self):
+        with patch('pilog_cfr_dss.sources.market_comparables.read_comparables', side_effect=ValueError('unreadable')):
+            next(x for x in self.app.button if x.label == 'Hitung ekonomi voyage').click().run()
+        self.assertFalse(self.app.exception)
+        self.assertTrue(any('Laporan Fertecon belum dapat dibaca' in item.value for item in self.app.warning))
+        self.assertTrue(any('Kecocokan' in frame.value.columns for frame in self.app.dataframe))
+
+    def test_editing_speed_warns_that_consumption_is_not_automatically_changed(self):
+        case = self.app.session_state['case']
+        initial_fo = case.values()['sea_fo_mt_day']
+        key = f'inputs_table_{case.draft_id}_{case.revision}_None'
+        self.app.session_state[key] = {'edited_rows': {7: {'Nilai': 13.0}}, 'added_rows': [], 'deleted_rows': []}
+        self.app.run()
+        self.assertFalse(self.app.exception)
+        self.assertEqual(self.app.session_state['case'].values()['sea_fo_mt_day'], initial_fo)
+        self.assertTrue(any('konsumsi bahan bakar tidak berubah otomatis' in item.value for item in self.app.caption))

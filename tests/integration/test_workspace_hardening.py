@@ -82,6 +82,27 @@ class WorkspaceHardening(unittest.TestCase):
                 observations={'argus': {'low': '900', 'high': '100'}}, oe_hps='400')
         self.assertEqual(case.fingerprint, fingerprint)
 
+    def test_profile_switch_preserves_manual_market_inputs(self):
+        case = workspace()
+        observations = {publisher: {k: case.context['market_index'][publisher][k] for k in ('low', 'high')}
+                        for publisher in ('argus', 'fertecon')}
+        case.apply_inputs({'fo_price_usd_mt': '777', 'do_price_usd_mt': '999'},
+                          target_tce='12345', observations=observations, oe_hps=case.context['oe_hps']['value'])
+        profiles = active_catalog(ROOT)
+        apply_profile(case, profiles['profiles'][1], profiles['policy'])
+        self.assertEqual(case.values()['fo_price_usd_mt'], '777')
+        self.assertEqual(case.values()['do_price_usd_mt'], '999')
+        self.assertEqual(case.context['pricing']['target_tce']['value'], '12345')
+        with TemporaryDirectory() as folder:
+            case.prepare(Path(folder))
+
+    def test_profile_switch_updates_unmodified_class_benchmark(self):
+        case = workspace()
+        profiles = active_catalog(ROOT)
+        apply_profile(case, profiles['profiles'][1], profiles['policy'])
+        expected = case.context['market_snapshot']['tc_rates'][profiles['profiles'][1]['market_family']]['value']
+        self.assertEqual(case.context['pricing']['target_tce']['value'], expected)
+
     def test_sensitivity_holds_freight_and_reduces_surplus(self):
         from decimal import Decimal
         case = workspace()
@@ -90,6 +111,8 @@ class WorkspaceHardening(unittest.TestCase):
         with TemporaryDirectory() as folder:
             result = case.prepare(Path(folder))
         scenario = result['fixed_freight_sensitivities'][0]
+        self.assertEqual(scenario['extra_port_days'], '2')
+        self.assertEqual(scenario['fuel_price_increase_percent'], '0')
         self.assertEqual(scenario['economics']['freight_usd_mt'], result['baseline']['freight_usd_mt'])
         self.assertLess(Decimal(scenario['change_from_baseline_usd']), 0)
         self.assertLess(Decimal(scenario['economics']['tce_before_running_usd_day']), Decimal(result['baseline']['tce_before_running_usd_day']))

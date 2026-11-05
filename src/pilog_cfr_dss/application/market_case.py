@@ -164,10 +164,10 @@ def apply_profile(case: InteractiveCase, profile: dict, policy: dict) -> None:
     case.context["vessel_policy"] = deepcopy(policy)
     case._invalidate(voyage=True)
     if case.context.get("market_snapshot"):
-        apply_market(case, case.context["market_snapshot"])
+        apply_market(case, case.context["market_snapshot"], preserve_manual=True)
 
 
-def apply_market(case: InteractiveCase, snapshot: dict) -> None:
+def apply_market(case: InteractiveCase, snapshot: dict, *, preserve_manual: bool = False) -> None:
     if case.fixed:
         raise ValueError("BASIS_FIXED_CREATE_REVISION")
     snapshot = deepcopy(snapshot)
@@ -180,11 +180,15 @@ def apply_market(case: InteractiveCase, snapshot: dict) -> None:
         target["source_status"] = "observed_market_with_class_proxy"
         target["note"] = "Handymax memakai acuan kelompok kecil Handysize 38k; bukan quote khusus Handymax."
     case.context["market_snapshot"] = snapshot
-    case.context["pricing"]["target_tce"] = target
+    existing_target = case.context["pricing"].get("target_tce", {})
+    if not (preserve_manual and existing_target.get("source_status") == "simulation_only_user_input"):
+        case.context["pricing"]["target_tce"] = target
     case.context["market_sources"] = {"fearnpulse": {"snapshot_id": snapshot["snapshot_id"], "url": snapshot["url"],
         "fetched_at": snapshot["fetched_at"], "report_published_at": snapshot["report_published_at"]}}
     for row in case.rows:
         if row["key"] in snapshot["bunkers"]:
+            if preserve_manual and row.get("source_status") == "simulation_only_user_input":
+                continue
             quote = snapshot["bunkers"][row["key"]]
             row.update(value=quote["value"], source_status=quote["source_status"],
                 source_reference=quote["source_reference"],
