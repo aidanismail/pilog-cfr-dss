@@ -26,12 +26,14 @@ def commercial_review(current: dict, quoted: dict, quantity: Decimal, commission
     _valid(quantity, commission, target, break_even)
     if quantity <= 0 or not 0 <= commission < 1 or target < 0 or break_even < 0:
         raise ValueError("INVALID_COMMERCIAL_REVIEW_RANGE")
-    keys = ("bunker_usd", "port_other_usd", "running_usd", "total_cash_cost_usd", "contribution_usd", "tce_before_running_usd_day", "freight_usd_mt")
+    vessel_cost = "hire_usd" if "hire_usd" in current else "running_usd"
+    tce_key = "tce_usd_day" if "hire_usd" in current else "tce_before_running_usd_day"
+    keys = ("bunker_usd", "port_other_usd", vessel_cost, "total_cash_cost_usd", "contribution_usd", tce_key, "freight_usd_mt")
     _valid(*(row[key] for row in (current, quoted) for key in keys))
     loss = max(-current["contribution_usd"], Decimal(0))
     rounded_break_even = break_even.quantize(Decimal("0.0001"), rounding=ROUND_CEILING)
     drivers = [{"component": key, "at_quote_usd": quoted[key], "current_usd": current[key],
-                "change_usd": current[key] - quoted[key]} for key in ("bunker_usd", "port_other_usd", "running_usd")]
+                "change_usd": current[key] - quoted[key]} for key in ("bunker_usd", "port_other_usd", vessel_cost)]
     return {"version": "COMMERCIAL-REVIEW.1", "scope": "ECONOMIC_REVIEW_NOT_EXECUTION_APPROVAL",
             "market_acceptance": "NOT_RECORDED", "current_contribution_per_day_usd": net_daily(current),
             "at_quote_contribution_usd": quoted["contribution_usd"],
@@ -42,6 +44,6 @@ def commercial_review(current: dict, quoted: dict, quantity: Decimal, commission
             "minimum_cost_reduction_usd": loss.quantize(Decimal("0.01"), rounding=ROUND_CEILING),
             "break_even_offer_usd_mt": rounded_break_even,
             "hypothetical_freight_increase_usd_mt": max(rounded_break_even - current["freight_usd_mt"], Decimal(0)),
-            "actual_tce_usd_day": current["tce_before_running_usd_day"], "target_tce_usd_day": target,
-            "tce_gap_usd_day": current["tce_before_running_usd_day"] - target,
+            "actual_tce_usd_day": current[tce_key], "target_tce_usd_day": target,
+            "tce_gap_usd_day": current[tce_key] - target,
             "drivers": drivers, "is_new_gate": False, "automatic_repricing": False}

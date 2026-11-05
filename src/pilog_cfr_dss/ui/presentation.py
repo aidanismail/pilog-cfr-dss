@@ -45,4 +45,6 @@ def source_label(record: dict, sheet: str = "") -> str:
         return "Asumsi kasus"
     if status == "approved_case_policy":
         return "Kebijakan kasus"
+    if status == "approved_historical_hire_default":
+        return "Voyage Estimate · Hire/day historis"
     return "Sumber belum teridentifikasi"

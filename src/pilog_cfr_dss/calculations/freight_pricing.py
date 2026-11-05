@@ -1,4 +1,4 @@
-"""TCE pricing is net of voyage expenses/commission, BEFORE owned running."""
+"""TCE is net of voyage expenses/commission, before charter hire or legacy running."""
 from decimal import Decimal, ROUND_CEILING
 from typing import Iterable
 
@@ -42,7 +42,7 @@ def economics(costs: dict[str, Decimal], rate: Decimal, quantity: Decimal,
     tce = (net - costs["voyage_expenses_usd"]) / costs["total_days"]
     contribution = net - costs["total_cash_cost_usd"]
     return {**costs, "freight_usd_mt": rate, "revenue_usd": revenue, "commission_usd": commission,
-            "net_revenue_usd": net, "tce_before_running_usd_day": tce,
+            "net_revenue_usd": net, ("tce_usd_day" if "hire_usd" in costs else "tce_before_running_usd_day"): tce,
             "contribution_usd": contribution, "cost_per_mt_usd": costs["total_cash_cost_usd"] / quantity}
 
 
@@ -59,7 +59,7 @@ def pricing_diagnostics(costs: dict[str, Decimal], rate: Decimal, quantity: Deci
         'capacity_headroom_mt': dwt - bunker_allowance - constants_allowance - quantity,
         'bunker_per_mt_usd': costs['bunker_usd'] / quantity,
         'port_other_per_mt_usd': costs['port_other_usd'] / quantity,
-        'running_per_mt_usd': costs['running_usd'] / quantity,
+        ('hire_per_mt_usd' if 'hire_usd' in costs else 'running_per_mt_usd'): costs['hire_usd' if 'hire_usd' in costs else 'running_usd'] / quantity,
         'surplus_per_mt_usd': result['contribution_usd'] / quantity,
         'allocation_basis': 'entire_modelled_voyage_to_case_cargo',
         'capacity_scope': 'gross_dwt_screen_only',

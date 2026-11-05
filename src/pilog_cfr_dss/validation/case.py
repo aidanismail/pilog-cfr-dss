@@ -6,7 +6,7 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
-from pilog_cfr_dss.models.case import Case04, TEXT_KEYS, UNITS, VERSION
+from pilog_cfr_dss.models.case import Case04, TEXT_KEYS, VERSION, CHARTER_VERSION, units_for, is_chartered
 from pilog_cfr_dss.calculations.freight_pricing import total_commission
 
 
@@ -58,7 +58,7 @@ def load_case(path: Path, *, pre_tender: bool = False) -> tuple[Case04, Path]:
     It is not an eligibility decision and cannot produce GO/NO GO.
     """
     context = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=unique_object)
-    if not isinstance(context, dict) or context.get("schema_version") != VERSION or context.get("mode") != "simulation":
+    if not isinstance(context, dict) or context.get("schema_version") not in {VERSION, CHARTER_VERSION} or context.get("mode") != "simulation":
         raise ValueError("INVALID_I4_VERSION_OR_MODE")
     if not isinstance(context.get("case_id"), str) or not context["case_id"].strip():
         raise ValueError("MISSING_CASE_ID")
@@ -71,13 +71,14 @@ def load_case(path: Path, *, pre_tender: bool = False) -> tuple[Case04, Path]:
     if any(not isinstance(row, dict) or None in row for row in rows):
         raise ValueError("MALFORMED_CSV")
     keys = [row.get("key") for row in rows]
-    if set(keys) != set(UNITS) or len(keys) != len(UNITS):
+    units = units_for(context)
+    if set(keys) != set(units) or len(keys) != len(units):
         raise ValueError("I4_DATASET_KEY_MISMATCH")
     values = {}
     notes = []
     for row in rows:
         key = row["key"]
-        if row.get("unit") != UNITS[key]:
+        if row.get("unit") != units[key]:
             raise ValueError(f"INVALID_UNIT:{key}")
         if not row.get("source_status"):
             raise ValueError(f"MISSING_SOURCE_LABEL:{key}")
@@ -90,12 +91,14 @@ def load_case(path: Path, *, pre_tender: bool = False) -> tuple[Case04, Path]:
     for key in ("cargo_mt", "dwt_mt", "distance_nm", "speed_knots", "loading_rate_mt_day", "discharge_rate_mt_day"):
         if values[key] <= 0:
             raise ValueError(f"NONPOSITIVE_INPUT:{key}")
-    if (values["cargo_category"], values["vessel_mode"], values["voyage_boundary"]) != ("dry_bulk", "owned", "laden_only"):
+    vessel_mode = "chartered" if is_chartered(context) else "owned"
+    if (values["cargo_category"], values["vessel_mode"], values["voyage_boundary"]) != ("dry_bulk", vessel_mode, "laden_only"):
         raise ValueError("OUTSIDE_I4_SCOPE")
-    commissions = [values[k] for k in UNITS if k.endswith("fraction")]
+    commissions = [values[k] for k in units if k.endswith("fraction")]
     total_commission(commissions)
     pricing = context.get("pricing")
-    if not isinstance(pricing, dict) or pricing.get("basis") != "tce_net_voyage_before_running":
+    expected_basis = "tce_net_voyage_before_hire" if is_chartered(context) else "tce_net_voyage_before_running"
+    if not isinstance(pricing, dict) or pricing.get("basis") != expected_basis:
         raise ValueError("UNSUPPORTED_PRICING_BASIS")
     if pricing.get("quote_commission_basis") not in {"net_of_commission", "simulation_assumed_net"}:
         raise ValueError("QUOTE_COMMISSION_BASIS_REQUIRES_NORMALIZATION")

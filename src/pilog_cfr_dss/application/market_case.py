@@ -21,11 +21,12 @@ from pilog_cfr_dss.calculations.capacity import gross_dwt_screen
 from decimal import localcontext
 from pilog_cfr_dss.sources.voyage_profiles import read_profiles
 from pilog_cfr_dss.sources.voyage_estimates import read_voyages
+from pilog_cfr_dss.models.case import CHARTER_VERSION, is_chartered
 
 
 @lru_cache(maxsize=8)
-def _profiles(path: str, digest: str) -> dict:
-    result = read_profiles(Path(path))
+def _profiles(path: str, digest: str, chartered: bool = False) -> dict:
+    result = read_profiles(Path(path), include_owned_running=not chartered)
     if result["source_sha256"] != digest:
         raise ValueError("WORKBOOK_CHANGED_DURING_READ")
     return result
@@ -39,15 +40,15 @@ def _voyages(path: str, digest: str, od: str | None, od_digest: str | None) -> d
     return result
 
 
-def catalog(root: Path) -> dict:
+def catalog(root: Path, *, chartered: bool = False) -> dict:
     path = root / "data/raw/Voyage Estimate.xlsx"
-    return deepcopy(_profiles(str(path.resolve()), hashlib.sha256(path.read_bytes()).hexdigest()))
+    return deepcopy(_profiles(str(path.resolve()), hashlib.sha256(path.read_bytes()).hexdigest(), chartered))
 
 
 def active_catalog(root: Path) -> dict:
     """Two Baltic reference vessels; unspecified values retain workbook defaults."""
     from pilog_cfr_dss.sources.baltic_profiles import read_snapshot
-    data = catalog(root)
+    data = catalog(root, chartered=True)
     snapshot = read_snapshot()
     selected = [next(p for p in data['profiles'] if p['profile_code'] == code) for code in ('HS38', 'SUP58')]
     for p in selected:
@@ -99,7 +100,7 @@ def apply_voyage(case: InteractiveCase, voyage: dict, root: Path, *, dynamic_rou
             'Satu arah bermuatan; seluruh biaya model dibebankan ke cargo kasus.',
             'Jarak laut estimasi; bukan bukti rute navigasi atau kesiapan terminal.',
             'Default handling, tunggu, biaya pelabuhan dan sebagian profil berasal dari workbook.',
-            'TC Rates satu tahun menjadi acuan harga indikasi; bukan bukti penerimaan pasar.',
+            'TC Rates menjadi acuan freight indikatif; Hire/day terpisah dan bukan quote kapal aktual.',
             'Kapasitas memakai allowance dataset; belum membuktikan draft atau ruang muat aktual.',
         ]
         case.context.pop('od_reference', None)
@@ -174,7 +175,9 @@ def apply_market(case: InteractiveCase, snapshot: dict, *, preserve_manual: bool
     profile = case.context["vessel_profile"]
     target = deepcopy(snapshot["tc_rates"][profile["market_family"]])
     target.update(source_snapshot_id=snapshot["snapshot_id"], source_fetched_at=snapshot["fetched_at"],
-        mapping_basis="1-year TC as target TCE; assumed net before running; owned mode, no hire expense",
+        mapping_basis=("Class TC reference for indicative freight; charter hire is a separate case input"
+                       if is_chartered(case.context) else
+                       "1-year TC as target TCE; assumed net before running; owned mode, no hire expense"),
         class_proxy=profile["market_class_proxy"])
     if profile["market_class_proxy"]:
         target["source_status"] = "observed_market_with_class_proxy"
@@ -199,7 +202,22 @@ def apply_market(case: InteractiveCase, snapshot: dict, *, preserve_manual: bool
 def new_market_case(root: Path, snapshot: dict, profile_id: str | None = None,
                     voyage_id: str | None = None, *, dynamic_route: bool = False) -> InteractiveCase:
     case = InteractiveCase.read(root / "data/processed/case_template.json").revise()
-    profiles = catalog(root)
+    if dynamic_route:
+        # New versioned basis, not a rename of the owned daily-cost value.
+        case.context['schema_version'] = CHARTER_VERSION
+        case.context['cost_model_version'] = CHARTER_VERSION
+        case.context['pricing']['basis'] = 'tce_net_voyage_before_hire'
+        case.rows = [row for row in case.rows if row['key'] != 'running_usd_day']
+        for row in case.rows:
+            if row['key'] == 'vessel_mode':
+                row.update(value='chartered', source_status='approved_case_policy',
+                           source_reference='Kapal sewa sesuai keputusan pengguna')
+        case.rows.append({'key': 'hire_usd_day', 'value': '13000', 'unit': 'USD/day',
+                          'source_status': 'approved_historical_hire_default',
+                          'source_reference': 'Voyage_Estimate_all_sheets_variable_value_units.xlsx :: AQABA!B66 (sumber historis L38)',
+                          'note': 'Default historis disetujui pengguna untuk kedua kelas; editable, bukan quote kapal aktual.',
+                          'role': 'input'})
+    profiles = active_catalog(root) if dynamic_route else catalog(root)
     profile = next((p for p in profiles["profiles"] if p["profile_id"] == (profile_id or profiles["profiles"][0]["profile_id"])), None)
     if profile is None:
         raise ValueError("UNKNOWN_WORKBOOK_PROFILE")
@@ -219,6 +237,8 @@ def new_market_case(root: Path, snapshot: dict, profile_id: str | None = None,
     apply_voyage(case, voyage, root, dynamic_route=dynamic_route)
     apply_profile(case, profile, profiles["policy"])
     apply_market(case, snapshot)
+    if dynamic_route:
+        case.context['limitations'].append('Hire/day default USD 13.000 merupakan input historis yang disetujui; bukan tarif sewa pasar terkini.')
     case.context["commercial_review_version"] = REVIEW_VERSION
     shocks = case.context["scenarios"]
     fuel = next((s for s in shocks if s["scenario_id"] == "fuel_up"), None)

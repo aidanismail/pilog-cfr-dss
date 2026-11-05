@@ -727,246 +727,48 @@
     ]
   },
   "current_iteration": {
-    "id": "I4",
-    "name": "Push-demand tender and one-way CFR GO/NO GO simulation",
-    "status": "accepted",
-    "entry_condition": "D-045 explicit execute after final plan verification; no further user rereview wait required",
-    "exit_condition": "Mentor records accepted or needs-revision in .agents/reviews/ITERATION_04.md; Final Simulation Validation and MVP approval separate",
-    "technical_status": "Release: 239/239 full-suite tests pass in 252.554 seconds on 2026-10-28. Prior four format updates covered by this clean run; I4 accepted by mentor via user. Checkpoint Git authorized before I5 planning.",
-    "review_file": ".agents/reviews/ITERATION_04.md",
-    "latest_run": "outputs/runs/i4_20261028T041553450693Z_24f54cfe",
-    "presentation_runs": [
-      "outputs/runs/i4_20261028T041553450693Z_24f54cfe",
-      "outputs/runs/i4_20261028T041553477775Z_f99f9273",
-      "outputs/runs/i4_20261028T041553508858Z_2554d7fc"
+    "id": "I5",
+    "revision": "D-077",
+    "name": "Chartered-vessel voyage estimation hardening",
+    "status": "implemented_verified_pending_human_review",
+    "updated_on": "2026-11-05",
+    "plan_file": "docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md",
+    "review_file": "docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md",
+    "review_sections": [
+      "7",
+      "8"
     ],
-    "mentor_decision": {
-      "status": "accepted",
-      "date": "2026-10-28",
-      "reported_by": "user",
-      "scope": "Iteration 4 advisory logic/UI; not commercial execution approval"
-    },
-    "git_staged_committed_or_pushed": true,
-    "source_preservation": {
-      "protected_baseline_file_count": 54,
-      "changed": 0,
-      "original_workbook_and_od_read_only": true
-    },
-    "limitations": [
-      "Fearnpulse TC quotes verified in saved public response; using 1-year TC as assumed-net-before-running target remains an explicit modelling assumption; Godau uses smaller-class market proxy",
-      "3906 NM workbook reference not independently verified",
-      "Gross-DWT-only screen; not actual vessel/terminal/availability assurance",
-      "Source years may differ; simulated economics not current quotation or full-cycle profit"
+    "schema_version": "I5-CHARTER.1",
+    "package_version": "PILOG-CASE.2",
+    "vessel_mode": "chartered",
+    "vessel_classes": [
+      "Handysize",
+      "Supramax"
     ],
-    "output_revision": {
-      "id": "I4-output-revision-20261023",
-      "status": "implemented_pending_mentor_review",
-      "updated_on": "2026-10-23",
-      "plan_file": "docs/it_4/ITERATION_04_PLAN.md",
-      "task_file": ".agents/tasks/ITERATION_04.md",
-      "review_file": ".agents/reviews/ITERATION_04.md",
-      "decision_id": "D-047",
-      "user_approved_direction": true,
-      "implementation_started": true,
-      "required_bid_column": "freight_visible_to_buyers_usd_mt",
-      "scope": [
-        "latest-bid brief and all-bid audit with visible freight",
-        "model indication versus fixed simulation selling rate",
-        "derived break-even metrics without new gates",
-        "cause-specific explanations and human next actions",
-        "executive brief and detailed audit consistency"
-      ],
-      "business_rules_or_thresholds_changed": false,
-      "completed_tasks": [
-        "I4-R1",
-        "I4-R2",
-        "I4-R3",
-        "I4-R4",
-        "I4-R5",
-        "I4-R6",
-        "I4-R7"
-      ],
-      "remaining_tasks": [],
-      "baseline_test_count": 67,
-      "revised_tests_run": true,
-      "revised_runs": [
-        "outputs/runs/i4_20261023T032726917879Z_0b68f914",
-        "outputs/runs/i4_20261023T032726925552Z_11050f4c"
-      ],
-      "implementation_completed": true,
-      "execution_authorized": true,
-      "execution_decision_id": "D-048",
-      "internal_only_fields": [
-        "oe_hps_usd_mt",
-        "tender.bids.oe_gap_usd_mt",
-        "metrics.minimum_alpha_usd_mt",
-        "PILOG economics",
-        "other buyers bids"
-      ],
-      "buyer_visible_freight": true,
-      "revised_test_count": 91,
-      "additional_test_count": 24,
-      "baseline_economics_and_gates_unchanged": true,
-      "source_preservation": {
-        "files_compared": 164,
-        "unchanged": 152,
-        "expected_changed": 12,
-        "unexpected_changed": 0,
-        "od_write_attempted": false
-      },
-      "independent_reconciliation": {
-        "numeric_value_comparisons_per_case": 131,
-        "cases": 2,
-        "snapshot_replay": true,
-        "metric_identities": true
-      },
-      "brief_version": "I4-BRIEF.2",
-      "metrics_version": "I4-METRICS.1",
-      "buyer_export_or_production_access_control_implemented": false
-    },
-    "commercial_brief_hardening": {
-      "id": "I4-commercial-brief-hardening-20261023",
-      "status": "implemented_pending_mentor_review",
-      "decision_id": "D-050",
-      "plan_file": "docs/it_4/ITERATION_04_PLAN.md",
-      "plan_sections": [
-        "7.9",
-        "8.4",
-        "9.3"
-      ],
-      "task_file": ".agents/tasks/ITERATION_04.md",
-      "target": "Evidence-backed commercial decision brief quality with honest subjective rating, not automatic ten-of-ten or accuracy/mentor guarantee",
-      "planning_complete": true,
-      "implementation_started": true,
-      "ui_planning_in_scope": false,
-      "ui_implementation_in_scope": false,
-      "business_rules_or_thresholds_changed": false,
-      "completed_tasks": [
-        "I4-C1",
-        "I4-C2",
-        "I4-C3",
-        "I4-C4",
-        "I4-C5"
-      ],
-      "planned_tasks": [],
-      "baseline_test_count": 91,
-      "tests_for_new_plan_run": true,
-      "latest_existing_runs": [
-        "outputs/runs/i4_20261023T032726917879Z_0b68f914",
-        "outputs/runs/i4_20261023T032726925552Z_11050f4c"
-      ],
-      "external_transactions_or_mvp_authorized": false,
-      "execution_authorized": true,
-      "execution_decision_id": "D-051",
-      "rating_requested": true,
-      "implementation_completed": true,
-      "completion_decision_id": "D-052",
-      "revised_test_count": 109,
-      "additional_test_count": 18,
-      "report_version": "I4-BRIEF.3",
-      "formula_rule_version": "I4.1",
-      "metrics_version": "I4-METRICS.1",
-      "final_runs": [
-        "outputs/runs/i4_20261023T043545943633Z_ca4143a7",
-        "outputs/runs/i4_20261023T043545954594Z_bcf876c1"
-      ],
-      "independent_reconciliation": {
-        "numeric_values_per_case": 155,
-        "cases": 2,
-        "total_numeric_and_structural_assertions": 404,
-        "mismatches": 0,
-        "engine_helpers_used": false,
-        "scope": "two final concrete snapshots, not proof of all possible business inputs"
-      },
-      "subjective_output_rating": {
-        "GO": 9,
-        "NO_GO": 9.5,
-        "scale": 10,
-        "reviewer": "agent self-review through executive/commercial/operations lenses, not actual PILOG approval",
-        "reason_not_ten": "GO density/wide table and independent stakeholder comprehension not tested; accepted simulation proxy limitations are not new blockers"
-      },
-      "source_preservation": {
-        "files_compared_excluding_cache": 145,
-        "unchanged": 139,
-        "expected_changed": 6,
-        "unexpected_changed": 0,
-        "input_data_changed": false,
-        "old_run_bytes_changed": false,
-        "od_write_attempted": false,
-        "od_rehashed": false
-      },
-      "acceptance": {
-        "technical_complete": true,
-        "mentor_decision": null,
-        "independent_reader_comprehension_tested": false
-      }
-    },
-    "stakeholder_brief_revision": {
-      "id": "I4-stakeholder-brief-20261023",
-      "status": "implemented_pending_mentor_review",
-      "decision_id": "D-053",
-      "plan_section": "7.10",
-      "tasks": [
-        "I4-D1",
-        "I4-D2",
-        "I4-D3",
-        "I4-D4"
-      ],
-      "completed_tasks": [
-        "I4-D1",
-        "I4-D2",
-        "I4-D3",
-        "I4-D4"
-      ],
-      "baseline_test_count": 109,
-      "ui_in_scope": false,
-      "rules_changed": false,
-      "inputs_changed": false,
-      "net_definition": "PILOG contribution after voyage costs and gross-freight commission; PI net not modelled; no relabel of net_revenue_usd",
-      "presentation": "One main decision brief with four supporting lenses; no repetitive simulation/review/audit wording, preserve exact source/mode/approval truth in technical evidence",
-      "tests_run": true,
-      "test_count": 123,
-      "additional_test_count": 14,
-      "report_version": "I4-BRIEF.4",
-      "financials_version": "I4-FINANCIALS.1",
-      "formula_rule_version": "I4.1",
-      "metrics_version": "I4-METRICS.1",
-      "completion_decision_id": "D-054",
-      "final_runs": [
-        "outputs/runs/i4_20261023T072029597821Z_79698a9f",
-        "outputs/runs/i4_20261023T072029607228Z_de76cd6a"
-      ],
-      "review_file": ".agents/reviews/ITERATION_04.md",
-      "independent_verification": {
-        "numeric_comparisons_per_case": 189,
-        "cases": 2,
-        "total_assertions": 504,
-        "mismatches": 0,
-        "calculation_helpers_used_for_independent_recalculation": false,
-        "snapshot_replay": true,
-        "original_economics_and_decisions_identical": true
-      },
-      "source_preservation": {
-        "files_compared": 166,
-        "unchanged": 158,
-        "expected_changed": 8,
-        "unexpected_changed": 0,
-        "missing": 0,
-        "data_changed": false,
-        "old_outputs_changed": false,
-        "od_write_attempted": false,
-        "od_rehashed": false
-      },
-      "subjective_review": {
-        "GO": 9.5,
-        "NO_GO": 9.5,
-        "scale": 10,
-        "reviewer": "agent role-based self-review, not actual PILOG stakeholder acceptance",
-        "remaining": "long complete brief, wide bid table, real stakeholder comprehension not yet tested"
-      },
-      "human_acceptance": null,
-      "production_or_mvp_readiness_asserted": false
-    }
+    "hire_default_usd_day": "13000",
+    "hire_source": "approved historical AQABA example",
+    "hire_editable": true,
+    "hire_preserved_on_profile_switch_and_market_refresh": true,
+    "tc_reference_source": "Fearnpulse by vessel class",
+    "running_cost_in_active_case": false,
+    "tce_before_hire": true,
+    "commission_fraction": "0",
+    "voyage_boundary": "one-way loading + laden + discharge + waiting",
+    "legacy_owned_replay_preserved": true,
+    "tests_passed": 277,
+    "tests_total": 277,
+    "tests_seconds": "25.218",
+    "python_version_tested": "3.11.9",
+    "browser_desktop_calculation": "PASS",
+    "browser_javascript_errors": 0,
+    "mobile_uat_complete": false,
+    "agent_test_server_stopped": true,
+    "raw_workbook_changed": false,
+    "git_pushed_in_this_task": false,
+    "deployment_changed_in_this_task": false,
+    "human_acceptance": null,
+    "self_review_rating_estimation_stage": "8/10",
+    "further_changes_from_review_authorized": false
   },
   "iteration_04_planning_history": {
     "id": "I4",
@@ -1392,11 +1194,7 @@
     }
   ],
   "active_tasks": [
-    "User review of completed randomized bid/risk editor and source trace",
-    "Keep explicit GO/NO GO fixtures for presentations; random examples have no desired outcome",
-    "Choose persistence and hosting for Streamlit deployment; no deployment performed",
-    "Preserve fixed quote, baseline costs, market/workbook inputs and deterministic gates",
-    "System-design sketch and API/RBAC porting deferred"
+    "Human review of D-077 charter hardening and plan sections 7–8; no further improvements authorized"
   ],
   "update_protocol": {
     "when_to_update": [
@@ -1520,5 +1318,291 @@
     "plan_file": "docs/it_5/ITERATION_05_PLAN.md",
     "demo_scope": "Private hosting access plus per-session working cases; no role dashboards or separate API required",
     "decision_id": "D-073"
+  },
+  "accepted_i4_before_charter_hardening": {
+    "id": "I4",
+    "name": "Push-demand tender and one-way CFR GO/NO GO simulation",
+    "status": "accepted",
+    "entry_condition": "D-045 explicit execute after final plan verification; no further user rereview wait required",
+    "exit_condition": "Mentor records accepted or needs-revision in .agents/reviews/ITERATION_04.md; Final Simulation Validation and MVP approval separate",
+    "technical_status": "Release: 239/239 full-suite tests pass in 252.554 seconds on 2026-10-28. Prior four format updates covered by this clean run; I4 accepted by mentor via user. Checkpoint Git authorized before I5 planning.",
+    "review_file": ".agents/reviews/ITERATION_04.md",
+    "latest_run": "outputs/runs/i4_20261028T041553450693Z_24f54cfe",
+    "presentation_runs": [
+      "outputs/runs/i4_20261028T041553450693Z_24f54cfe",
+      "outputs/runs/i4_20261028T041553477775Z_f99f9273",
+      "outputs/runs/i4_20261028T041553508858Z_2554d7fc"
+    ],
+    "mentor_decision": {
+      "status": "accepted",
+      "date": "2026-10-28",
+      "reported_by": "user",
+      "scope": "Iteration 4 advisory logic/UI; not commercial execution approval"
+    },
+    "git_staged_committed_or_pushed": true,
+    "source_preservation": {
+      "protected_baseline_file_count": 54,
+      "changed": 0,
+      "original_workbook_and_od_read_only": true
+    },
+    "limitations": [
+      "Fearnpulse TC quotes verified in saved public response; using 1-year TC as assumed-net-before-running target remains an explicit modelling assumption; Godau uses smaller-class market proxy",
+      "3906 NM workbook reference not independently verified",
+      "Gross-DWT-only screen; not actual vessel/terminal/availability assurance",
+      "Source years may differ; simulated economics not current quotation or full-cycle profit"
+    ],
+    "output_revision": {
+      "id": "I4-output-revision-20261023",
+      "status": "implemented_pending_mentor_review",
+      "updated_on": "2026-10-23",
+      "plan_file": "docs/it_4/ITERATION_04_PLAN.md",
+      "task_file": ".agents/tasks/ITERATION_04.md",
+      "review_file": ".agents/reviews/ITERATION_04.md",
+      "decision_id": "D-047",
+      "user_approved_direction": true,
+      "implementation_started": true,
+      "required_bid_column": "freight_visible_to_buyers_usd_mt",
+      "scope": [
+        "latest-bid brief and all-bid audit with visible freight",
+        "model indication versus fixed simulation selling rate",
+        "derived break-even metrics without new gates",
+        "cause-specific explanations and human next actions",
+        "executive brief and detailed audit consistency"
+      ],
+      "business_rules_or_thresholds_changed": false,
+      "completed_tasks": [
+        "I4-R1",
+        "I4-R2",
+        "I4-R3",
+        "I4-R4",
+        "I4-R5",
+        "I4-R6",
+        "I4-R7"
+      ],
+      "remaining_tasks": [],
+      "baseline_test_count": 67,
+      "revised_tests_run": true,
+      "revised_runs": [
+        "outputs/runs/i4_20261023T032726917879Z_0b68f914",
+        "outputs/runs/i4_20261023T032726925552Z_11050f4c"
+      ],
+      "implementation_completed": true,
+      "execution_authorized": true,
+      "execution_decision_id": "D-048",
+      "internal_only_fields": [
+        "oe_hps_usd_mt",
+        "tender.bids.oe_gap_usd_mt",
+        "metrics.minimum_alpha_usd_mt",
+        "PILOG economics",
+        "other buyers bids"
+      ],
+      "buyer_visible_freight": true,
+      "revised_test_count": 91,
+      "additional_test_count": 24,
+      "baseline_economics_and_gates_unchanged": true,
+      "source_preservation": {
+        "files_compared": 164,
+        "unchanged": 152,
+        "expected_changed": 12,
+        "unexpected_changed": 0,
+        "od_write_attempted": false
+      },
+      "independent_reconciliation": {
+        "numeric_value_comparisons_per_case": 131,
+        "cases": 2,
+        "snapshot_replay": true,
+        "metric_identities": true
+      },
+      "brief_version": "I4-BRIEF.2",
+      "metrics_version": "I4-METRICS.1",
+      "buyer_export_or_production_access_control_implemented": false
+    },
+    "commercial_brief_hardening": {
+      "id": "I4-commercial-brief-hardening-20261023",
+      "status": "implemented_pending_mentor_review",
+      "decision_id": "D-050",
+      "plan_file": "docs/it_4/ITERATION_04_PLAN.md",
+      "plan_sections": [
+        "7.9",
+        "8.4",
+        "9.3"
+      ],
+      "task_file": ".agents/tasks/ITERATION_04.md",
+      "target": "Evidence-backed commercial decision brief quality with honest subjective rating, not automatic ten-of-ten or accuracy/mentor guarantee",
+      "planning_complete": true,
+      "implementation_started": true,
+      "ui_planning_in_scope": false,
+      "ui_implementation_in_scope": false,
+      "business_rules_or_thresholds_changed": false,
+      "completed_tasks": [
+        "I4-C1",
+        "I4-C2",
+        "I4-C3",
+        "I4-C4",
+        "I4-C5"
+      ],
+      "planned_tasks": [],
+      "baseline_test_count": 91,
+      "tests_for_new_plan_run": true,
+      "latest_existing_runs": [
+        "outputs/runs/i4_20261023T032726917879Z_0b68f914",
+        "outputs/runs/i4_20261023T032726925552Z_11050f4c"
+      ],
+      "external_transactions_or_mvp_authorized": false,
+      "execution_authorized": true,
+      "execution_decision_id": "D-051",
+      "rating_requested": true,
+      "implementation_completed": true,
+      "completion_decision_id": "D-052",
+      "revised_test_count": 109,
+      "additional_test_count": 18,
+      "report_version": "I4-BRIEF.3",
+      "formula_rule_version": "I4.1",
+      "metrics_version": "I4-METRICS.1",
+      "final_runs": [
+        "outputs/runs/i4_20261023T043545943633Z_ca4143a7",
+        "outputs/runs/i4_20261023T043545954594Z_bcf876c1"
+      ],
+      "independent_reconciliation": {
+        "numeric_values_per_case": 155,
+        "cases": 2,
+        "total_numeric_and_structural_assertions": 404,
+        "mismatches": 0,
+        "engine_helpers_used": false,
+        "scope": "two final concrete snapshots, not proof of all possible business inputs"
+      },
+      "subjective_output_rating": {
+        "GO": 9,
+        "NO_GO": 9.5,
+        "scale": 10,
+        "reviewer": "agent self-review through executive/commercial/operations lenses, not actual PILOG approval",
+        "reason_not_ten": "GO density/wide table and independent stakeholder comprehension not tested; accepted simulation proxy limitations are not new blockers"
+      },
+      "source_preservation": {
+        "files_compared_excluding_cache": 145,
+        "unchanged": 139,
+        "expected_changed": 6,
+        "unexpected_changed": 0,
+        "input_data_changed": false,
+        "old_run_bytes_changed": false,
+        "od_write_attempted": false,
+        "od_rehashed": false
+      },
+      "acceptance": {
+        "technical_complete": true,
+        "mentor_decision": null,
+        "independent_reader_comprehension_tested": false
+      }
+    },
+    "stakeholder_brief_revision": {
+      "id": "I4-stakeholder-brief-20261023",
+      "status": "implemented_pending_mentor_review",
+      "decision_id": "D-053",
+      "plan_section": "7.10",
+      "tasks": [
+        "I4-D1",
+        "I4-D2",
+        "I4-D3",
+        "I4-D4"
+      ],
+      "completed_tasks": [
+        "I4-D1",
+        "I4-D2",
+        "I4-D3",
+        "I4-D4"
+      ],
+      "baseline_test_count": 109,
+      "ui_in_scope": false,
+      "rules_changed": false,
+      "inputs_changed": false,
+      "net_definition": "PILOG contribution after voyage costs and gross-freight commission; PI net not modelled; no relabel of net_revenue_usd",
+      "presentation": "One main decision brief with four supporting lenses; no repetitive simulation/review/audit wording, preserve exact source/mode/approval truth in technical evidence",
+      "tests_run": true,
+      "test_count": 123,
+      "additional_test_count": 14,
+      "report_version": "I4-BRIEF.4",
+      "financials_version": "I4-FINANCIALS.1",
+      "formula_rule_version": "I4.1",
+      "metrics_version": "I4-METRICS.1",
+      "completion_decision_id": "D-054",
+      "final_runs": [
+        "outputs/runs/i4_20261023T072029597821Z_79698a9f",
+        "outputs/runs/i4_20261023T072029607228Z_de76cd6a"
+      ],
+      "review_file": ".agents/reviews/ITERATION_04.md",
+      "independent_verification": {
+        "numeric_comparisons_per_case": 189,
+        "cases": 2,
+        "total_assertions": 504,
+        "mismatches": 0,
+        "calculation_helpers_used_for_independent_recalculation": false,
+        "snapshot_replay": true,
+        "original_economics_and_decisions_identical": true
+      },
+      "source_preservation": {
+        "files_compared": 166,
+        "unchanged": 158,
+        "expected_changed": 8,
+        "unexpected_changed": 0,
+        "missing": 0,
+        "data_changed": false,
+        "old_outputs_changed": false,
+        "od_write_attempted": false,
+        "od_rehashed": false
+      },
+      "subjective_review": {
+        "GO": 9.5,
+        "NO_GO": 9.5,
+        "scale": 10,
+        "reviewer": "agent role-based self-review, not actual PILOG stakeholder acceptance",
+        "remaining": "long complete brief, wide bid table, real stakeholder comprehension not yet tested"
+      },
+      "human_acceptance": null,
+      "production_or_mvp_readiness_asserted": false
+    }
+  },
+  "charter_hardening_revision": {
+    "id": "I5",
+    "revision": "D-077",
+    "name": "Chartered-vessel voyage estimation hardening",
+    "status": "implemented_verified_pending_human_review",
+    "updated_on": "2026-11-05",
+    "plan_file": "docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md",
+    "review_file": "docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md",
+    "review_sections": [
+      "7",
+      "8"
+    ],
+    "schema_version": "I5-CHARTER.1",
+    "package_version": "PILOG-CASE.2",
+    "vessel_mode": "chartered",
+    "vessel_classes": [
+      "Handysize",
+      "Supramax"
+    ],
+    "hire_default_usd_day": "13000",
+    "hire_source": "approved historical AQABA example",
+    "hire_editable": true,
+    "hire_preserved_on_profile_switch_and_market_refresh": true,
+    "tc_reference_source": "Fearnpulse by vessel class",
+    "running_cost_in_active_case": false,
+    "tce_before_hire": true,
+    "commission_fraction": "0",
+    "voyage_boundary": "one-way loading + laden + discharge + waiting",
+    "legacy_owned_replay_preserved": true,
+    "tests_passed": 277,
+    "tests_total": 277,
+    "tests_seconds": "25.218",
+    "python_version_tested": "3.11.9",
+    "browser_desktop_calculation": "PASS",
+    "browser_javascript_errors": 0,
+    "mobile_uat_complete": false,
+    "agent_test_server_stopped": true,
+    "raw_workbook_changed": false,
+    "git_pushed_in_this_task": false,
+    "deployment_changed_in_this_task": false,
+    "human_acceptance": null,
+    "self_review_rating_estimation_stage": "8/10",
+    "further_changes_from_review_authorized": false
   }
 }

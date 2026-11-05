@@ -1,5 +1,14 @@
 # Decision Log
 
+## Aktif D-077 — kapal sewa, Hire/day terpisah (5 November 2026)
+
+Pengguna menyetujui dan meminta implementasi hardening pada rencana aktif docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md. Jalur UI I5 sekarang I5-CHARTER.1: Handysize/Supramax kapal sewa, satu arah muat + laden + bongkar + tunggu, komisi 0%. TC Rates Fearnpulse sesuai kelas membentuk freight indikatif; Hire/day default historis USD 13.000 editable adalah biaya sewa terpisah. Running cost/F44 tidak dipakai pada kasus/profil aktif. Tidak menyalin nilainya menjadi hire, menambah markup, menambah input harga jual, atau mengikat hire ke refresh/perubahan kelas.
+
+TCE = (net freight revenue - voyage expenses) / total days, sebelum hire. Estimated surplus = net freight revenue - voyage expenses - Hire/day * hire days. Sensitivitas menahan freight baseline tetap. Schema/paket PILOG-CASE.2 mempertahankan nilai/sumber hire; I4 owned dan paket lama tetap replayable, UI meminta Kasus baru untuk basis lama. Belum ada integrasi KOBC/BDI baru. Tender/brief masih tersembunyi; tidak ada perubahan workbook/raw, push, deployment atau transaksi dari task ini.
+
+277/277 tes lulus (25,218 detik, Python venv 3.11.9); Chromium desktop menghitung dan menampilkan TCE tanpa error JS, fetch Fearnpulse otomatis berhasil; server agent 18651 dihentikan. Mobile sidebar pada resize masih menutupi konten, bukan UAT mobile selesai. Evidence/review/rating di bagian 7–8 rencana aktif. Penilaian tahap estimasi 8/10; review manusia belum dilakukan. Pengguna meminta rating/review saja setelah implementasi: jangan mengeksekusi temuan perbaikan review tanpa instruksi baru. Bagian owned/I4 di bawah adalah histori jika bertentangan dengan D-077 ini.
+
+
 ## D-076 — contoh bid/risiko acak, aturan tetap
 
 29 Oktober: pengguna meminta pengacakan pada editor bid/risiko, tombol tiga putaran. Penyebab contoh selalu GO adalah fixture GO yang statis serta harga freight yang dihitung terhadap target TCE; alpha hanya berpengaruh Gate A dan stress bukan veto. Diizinkan generator sintetis ber-seed, draft editor dan acak ulang, metadata replay serta pengujian. Tidak mengubah keputusan menjadi acak, rule/gate, source market, workbook atau fixed quote. Alpha di sekitar floor turunan indeks/OE membuat contoh memenuhi/gagal floor; risiko acak hanya stress. Metadata membedakan generated/applied sehingga edit manusia tidak diklaim reproduksi seed. Sidebar dan CLI contoh spesifik GO/NO GO tetap deterministik, deployment tetap belum dijalankan.

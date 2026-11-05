@@ -13,8 +13,12 @@ Tests (PowerShell): $env:PYTHONPATH='src'; venv/Scripts/python.exe -m unittest d
 
 I5: one editable input table, TC Rates from Fearnpulse, allowance-based capacity screen, voyage indication, TCE, break-even freight and fixed-freight sensitivity. Tender and commercial brief remain hidden in the active UI. Full-voyage cost is allocated to the entered cargo; no part-cargo allocation is implied.
 
+Active cases use chartered vessels (I5-CHARTER.1). Hire/day defaults to USD 13,000/day from the approved historical example and is editable in the input table; it is independent of the Fearnpulse TC reference used to form indicative freight. Owned-vessel running cost is excluded. Changing class or refreshing market data does not overwrite Hire/day. TCE = (net freight revenue - voyage expenses) / total voyage days; estimated surplus additionally deducts Hire/day x hire days. Baseline hire days equal the approved one-way voyage duration including loading, sailing, discharge and waiting.
+
+New charter packages use PILOG-CASE.2 and preserve Hire/day and its source. Historical owned packages remain replayable through the engine and retain their original meaning; the active UI asks for a new case rather than silently converting running cost to hire. When updating an existing browser session, choose Kasus baru if it still contains the old owned model.
+
 Download an editable case package from the sidebar and import it after refresh. Results are recalculated from the restored inputs; there is no permanent shared case list. Server working files and market cache are temporary. Runtime market data is written to outputs/market_cache, never to source seeds.
 
-Market reports remain historical PDF assessments. Missing regional comparables are shown as unavailable. Data quality enrichment, terminal/laycan readiness, charter economics, RBAC and live transactions require separate domain scope.
+Market reports remain historical PDF assessments. Regional/global context is labelled with its original price basis and route; it is not automatically a comparable destination quote. Actual vessel hire quotations, full delivery/redelivery scope, data enrichment, terminal/laycan readiness, RBAC and live transactions remain outside this estimate.
 
 This is an advisory simulation, not an automated award or transaction system.
