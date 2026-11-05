@@ -1,5 +1,20 @@
 # Task Iterasi 5 — deployment Streamlit existing
 
+## Aktif D-077 — kapal sewa, Hire/day terpisah (5 November 2026)
+
+Pengguna menyetujui dan meminta implementasi hardening pada rencana aktif docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md. Jalur UI I5 sekarang I5-CHARTER.1: Handysize/Supramax kapal sewa, satu arah muat + laden + bongkar + tunggu, komisi 0%. TC Rates Fearnpulse sesuai kelas membentuk freight indikatif; Hire/day default historis USD 13.000 editable adalah biaya sewa terpisah. Running cost/F44 tidak dipakai pada kasus/profil aktif. Tidak menyalin nilainya menjadi hire, menambah markup, menambah input harga jual, atau mengikat hire ke refresh/perubahan kelas.
+
+TCE = (net freight revenue - voyage expenses) / total days, sebelum hire. Estimated surplus = net freight revenue - voyage expenses - Hire/day * hire days. Sensitivitas menahan freight baseline tetap. Schema/paket PILOG-CASE.2 mempertahankan nilai/sumber hire; I4 owned dan paket lama tetap replayable, UI meminta Kasus baru untuk basis lama. Belum ada integrasi KOBC/BDI baru. Tender/brief masih tersembunyi; tidak ada perubahan workbook/raw, push, deployment atau transaksi dari task ini.
+
+277/277 tes lulus (25,218 detik, Python venv 3.11.9); Chromium desktop menghitung dan menampilkan TCE tanpa error JS, fetch Fearnpulse otomatis berhasil; server agent 18651 dihentikan. Mobile sidebar pada resize masih menutupi konten, bukan UAT mobile selesai. Evidence/review/rating di bagian 7–8 rencana aktif. Penilaian tahap estimasi 8/10; review manusia belum dilakukan. Pengguna meminta rating/review saja setelah implementasi: jangan mengeksekusi temuan perbaikan review tanpa instruksi baru. Bagian owned/I4 di bawah adalah histori jika bertentangan dengan D-077 ini.
+
+
+- [x] I5-H1/H2/H2a: schema, charter hire, cost boundary, legacy replay.
+- [x] I5-H3/H4: input Hire/day editable, source labels, TCE, results, fixed-indication sensitivity.
+- [x] I5-H5: 277 tests, browser smoke, README and plan evidence.
+- [ ] I5-H6: human UAT/review; no automatic next improvement.
+
+
 Status D-074: pengguna mengizinkan perubahan isi/nama empat sheet dan dua pemilih Step 1 sebelum deployment. Format/warna/posisi/ukuran workbook wajib tetap. Implementasi V0..V4 diizinkan; deployment/porting tetap belum dimulai. Acuan [plan I5](../../docs/it_5/ITERATION_05_PLAN.md). I4 accepted/pushed 57257c0; 239/239 release tests baseline.
 
 ## Revisi data dan pilihan kasus sebelum deployment

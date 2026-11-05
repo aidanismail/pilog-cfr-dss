@@ -1,5 +1,14 @@
 # Iteration Plan - PILOG CFR DSS
 
+## Aktif D-077 — kapal sewa, Hire/day terpisah (5 November 2026)
+
+Pengguna menyetujui dan meminta implementasi hardening pada rencana aktif docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md. Jalur UI I5 sekarang I5-CHARTER.1: Handysize/Supramax kapal sewa, satu arah muat + laden + bongkar + tunggu, komisi 0%. TC Rates Fearnpulse sesuai kelas membentuk freight indikatif; Hire/day default historis USD 13.000 editable adalah biaya sewa terpisah. Running cost/F44 tidak dipakai pada kasus/profil aktif. Tidak menyalin nilainya menjadi hire, menambah markup, menambah input harga jual, atau mengikat hire ke refresh/perubahan kelas.
+
+TCE = (net freight revenue - voyage expenses) / total days, sebelum hire. Estimated surplus = net freight revenue - voyage expenses - Hire/day * hire days. Sensitivitas menahan freight baseline tetap. Schema/paket PILOG-CASE.2 mempertahankan nilai/sumber hire; I4 owned dan paket lama tetap replayable, UI meminta Kasus baru untuk basis lama. Belum ada integrasi KOBC/BDI baru. Tender/brief masih tersembunyi; tidak ada perubahan workbook/raw, push, deployment atau transaksi dari task ini.
+
+277/277 tes lulus (25,218 detik, Python venv 3.11.9); Chromium desktop menghitung dan menampilkan TCE tanpa error JS, fetch Fearnpulse otomatis berhasil; server agent 18651 dihentikan. Mobile sidebar pada resize masih menutupi konten, bukan UAT mobile selesai. Evidence/review/rating di bagian 7–8 rencana aktif. Penilaian tahap estimasi 8/10; review manusia belum dilakukan. Pengguna meminta rating/review saja setelah implementasi: jangan mengeksekusi temuan perbaikan review tanpa instruksi baru. Bagian owned/I4 di bawah adalah histori jika bertentangan dengan D-077 ini.
+
+
 ## D-076 — contoh bid/risiko acak
 
 Plan §6.4 dan task BID1..3: generator seeded → session draft/acak ulang → apply metadata dan replay → tes. Full suite 262 lulus. Random alpha dapat memenuhi/gagal floor, bukan memaksa hasil. Stress acak bukan veto baseline. Explicit GO/NO GO ekonomi sidebar/CLI dipertahankan; tidak mengubah workbook/sumber/gate/deploy.

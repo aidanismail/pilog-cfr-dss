@@ -18,6 +18,7 @@ from pilog_cfr_dss.models.tender_clock import round_schedule
 from pilog_cfr_dss.reporting.formatting import price_time as time_label
 from pilog_cfr_dss.reporting.formatting import number_text
 from pilog_cfr_dss.validation.case_basis import BASIS_VERSION, COMMISSION_KEYS
+from pilog_cfr_dss.models.case import is_chartered
 from pilog_cfr_dss.validation.cost_forecast import COST_KEYS
 from pilog_cfr_dss.ui.presentation import source_label
 from pilog_cfr_dss.application.tender_examples import generate_example, record_applied_example
@@ -30,7 +31,7 @@ LABELS = {
     "waiting_days": "Waktu tunggu pelabuhan (hari)", "dwt_mt": "DWT kapal (MT)",
     "speed_knots": "Kecepatan saat bermuatan (knot)", "sea_fo_mt_day": "Konsumsi fuel oil saat berlayar (MT/hari)",
     "sea_do_mt_day": "Konsumsi diesel oil saat berlayar (MT/hari)", "port_do_mt_day": "Konsumsi diesel oil di pelabuhan (MT/hari)",
-    "running_usd_day": "Biaya operasional kapal harian (USD/hari)", "fo_price_usd_mt": "Harga fuel oil (USD/MT)",
+    "hire_usd_day": "Hire/day — sewa kapal (USD/hari)", "fo_price_usd_mt": "Harga fuel oil (USD/MT)",
     "do_price_usd_mt": "Harga diesel oil (USD/MT)", "port_other_total_usd": "Total pelabuhan dan biaya lain (USD)",
     "freight_commission_fraction": "Komisi freight (fraksi)", "broker_fraction": "Komisi broker (fraksi)",
     "additional_commission_fraction": "Komisi tambahan (fraksi)",
@@ -116,7 +117,10 @@ def sidebar(root, case, output_root):
         uploaded = st.file_uploader("Buka paket kasus", type=["json"])
         if st.button("Buka kasus", disabled=uploaded is None, width="stretch"):
             try:
-                st.session_state["case"] = import_case(uploaded.getvalue())
+                restored = import_case(uploaded.getvalue())
+                if not is_chartered(restored.context):
+                    raise ValueError("Paket kapal milik memakai running cost. Gunakan Kasus baru untuk model kapal sewa; nilai lama tidak diubah menjadi hire.")
+                st.session_state["case"] = restored
                 st.rerun()
             except (ValueError, OSError, KeyError, TypeError, UnicodeError) as error:
                 st.error("Paket tidak dapat dibuka: " + str(error))
@@ -165,7 +169,7 @@ def profile_selector(case, root, editing):
         apply_profile(case, by_id[selected], profiles["policy"])
         st.rerun()
     if any(row.get('source_status') == 'simulation_only_user_input' and row['key'] in {
-        'dwt_mt', 'speed_knots', 'sea_fo_mt_day', 'sea_do_mt_day', 'port_do_mt_day', 'running_usd_day'
+        'dwt_mt', 'speed_knots', 'sea_fo_mt_day', 'sea_do_mt_day', 'port_do_mt_day'
     } for row in case.rows):
         st.caption('Memilih profil lain mengganti spesifikasi kapal yang diubah manual.')
     snapshot = case.context.get('market_snapshot', {})
@@ -227,7 +231,7 @@ def input_editor(case, pending_route=None):
     keys = [
         "cargo_mt", "distance_nm", "loading_rate_mt_day", "discharge_rate_mt_day",
         "waiting_days", "port_other_total_usd", "dwt_mt", "speed_knots",
-        "sea_fo_mt_day", "sea_do_mt_day", "port_do_mt_day", "running_usd_day",
+        "sea_fo_mt_day", "sea_do_mt_day", "port_do_mt_day", "hire_usd_day",
         "fo_price_usd_mt", "do_price_usd_mt",
         "bunkers_allowance_mt", "constants_allowance_mt",
     ]
@@ -444,9 +448,9 @@ def voyage_view(case, root, output_root, editing):
     c3.metric("Indikasi freight (USD/MT)", fmt(pricing["computed_freight_usd_mt"]))
     c4.metric("Freight tetap (USD/MT)" if case.fixed else "Estimasi surplus/defisit voyage PILOG (USD)", fmt(pricing["freight_tender_usd_mt"]) if case.fixed else fmt(base["contribution_usd"]))
     tce_actual, breakeven = st.columns(2)
-    tce_actual.metric("TCE hasil voyage (USD/hari)", fmt(base["tce_before_running_usd_day"]))
+    tce_actual.metric("TCE hasil voyage (USD/hari)", fmt(base["tce_usd_day"]))
     breakeven.metric("Freight impas (USD/MT)", fmt(report["metrics"]["freight_break_even_usd_mt"], minimum=True))
-    st.caption("Surplus dihitung pada freight indikasi yang memenuhi TC Rates; belum membuktikan harga diterima buyer. TCE sebelum biaya operasional kapal.")
+    st.caption("TCE sebelum hire; surplus setelah hire. Keduanya dihitung pada freight indikatif.")
     st.caption("Dihitung " + time_label(pricing.get("calculated_at")) +
                (" · Freight ditetapkan " + time_label(case.context["freight_tender"].get("fixed_at")) if case.fixed else ""))
     duration, costs = st.columns(2)
@@ -462,8 +466,10 @@ def voyage_view(case, root, output_root, editing):
         st.dataframe([{"Komponen": title, "USD": fmt(base[key])} for title, key in (
             ("Fuel oil", "fo_cost_usd"), ("Diesel oil", "do_cost_usd"),
             ("Total bahan bakar", "bunker_usd"), ("Pelabuhan dan biaya lain", "port_other_usd"),
-            ("Operasional kapal", "running_usd"), ("Komisi", "commission_usd"),
-            ("Pendapatan freight", "revenue_usd"), ("Estimasi surplus/defisit voyage PILOG", "contribution_usd"))],
+            ("Hire kapal", "hire_usd"), ("Komisi", "commission_usd"),
+            ("Pendapatan freight kotor", "revenue_usd"), ("Net freight revenue", "net_revenue_usd"),
+            ("Total biaya termasuk hire", "total_cash_cost_usd"),
+            ("Estimasi surplus/defisit voyage PILOG", "contribution_usd"))],
             hide_index=True, width="stretch")
     market_comparables_view(case, root, report)
     with st.expander('Pembebanan biaya & kapasitas'):
@@ -475,7 +481,7 @@ def voyage_view(case, root, output_root, editing):
             ('Sisa kapasitas setelah cargo', 'capacity_headroom_mt', 'MT'),
             ('Bunker per MT cargo', 'bunker_per_mt_usd', 'USD/MT'),
             ('Pelabuhan dan lainnya per MT cargo', 'port_other_per_mt_usd', 'USD/MT'),
-            ('Operasional kapal per MT cargo', 'running_per_mt_usd', 'USD/MT'))], hide_index=True, width='stretch')
+            ('Hire per MT cargo', 'hire_per_mt_usd', 'USD/MT'))], hide_index=True, width='stretch')
     with st.expander('Sensitivitas biaya — freight baseline tetap'):
         from pilog_cfr_dss.decisions.tender_decision import risk_label
         st.caption('Skenario dari parameter kasus; freight tidak dihitung ulang saat biaya atau waktu berubah.')
@@ -483,7 +489,7 @@ def voyage_view(case, root, output_root, editing):
                        'Tambahan waktu pelabuhan (hari)': fmt(row['extra_port_days']),
                        'Freight (USD/MT)': fmt(row['economics']['freight_usd_mt']),
                        'Biaya voyage (USD)': fmt(row['economics']['total_cash_cost_usd']),
-                       'TCE (USD/hari)': fmt(row['economics']['tce_before_running_usd_day']),
+                       'TCE (USD/hari)': fmt(row['economics']['tce_usd_day']),
                        'Surplus/defisit (USD)': fmt(row['economics']['contribution_usd']),
                        'Status': risk_label(Decimal(row['economics']['contribution_usd'])),
                        'Perubahan surplus (USD)': fmt(row['change_from_baseline_usd'])}
@@ -493,8 +499,12 @@ def voyage_view(case, root, output_root, editing):
             "- Hari laut: jarak ÷ kecepatan profil kapal ÷ 24.\n"
             "- Kebutuhan bahan bakar: konsumsi profil kapal × durasi yang sesuai.\n"
             "- Biaya fuel oil/diesel oil: kebutuhan masing-masing × harga bunker yang dipakai di Step 1.\n"
-            "- Indikasi freight: biaya pelayaran + target harian × total hari, dibagi muatan; komisi 0%.\n"
-            "- Estimasi Surplus PILOG: pendapatan freight dikurangi biaya voyage dan komisi.")
+            "- Indikasi freight: (voyage expenses + TC Rates × total hari) ÷ muatan; komisi 0%.\n"
+            "- Hire kapal: Hire/day × total hari voyage.\n"
+            "- Net freight revenue: freight × muatan − komisi.\n"
+            "- TCE: (net freight revenue − voyage expenses) ÷ total hari voyage.\n"
+            "- Estimated surplus: net freight revenue − voyage expenses − hire kapal.\n"
+            "- TC Rates membentuk freight; Hire/day adalah input biaya sewa terpisah.")
 def cost_forecast_view(case, output_root, input_editing):
     if not case.fixed:
         return False
@@ -519,7 +529,7 @@ def cost_forecast_view(case, output_root, input_editing):
             edits[field] = cols[index % 2].text_input(LABELS[field] + " — estimasi terbaru", values[field])
         with st.expander("Parameter operasi"):
             cols = st.columns(2)
-            for index, field in enumerate(field for field in COST_KEYS if field not in basic):
+            for index, field in enumerate(field for field in COST_KEYS if field not in basic and field in values):
                 edits[field] = cols[index % 2].text_input(LABELS[field] + " — estimasi terbaru", values[field])
         reason = st.text_area("Alasan perubahan biaya")
         submitted = st.form_submit_button("Terapkan estimasi biaya", type="primary")
@@ -829,6 +839,10 @@ def render(root: Path, output_root: Path | None = None):
             st.warning('Laporan indeks belum terbaca; menggunakan data terakhir yang tersedia.')
         st.session_state["case"] = fresh
     case = st.session_state["case"]
+    if not is_chartered(case.context):
+        sidebar(root, case, output_root)
+        st.warning('Kasus ini memakai model kapal milik sebelumnya. Pilih Kasus baru untuk model kapal sewa dengan Hire/day; histori tetap dipertahankan.')
+        return
     if not case.fixed and case.context.get('capacity_basis') != 'dataset_allowances_v1':
         case.context['capacity_basis'] = 'dataset_allowances_v1'
         case.context['cost_allocation_basis'] = 'entire_modelled_voyage_to_case_cargo'

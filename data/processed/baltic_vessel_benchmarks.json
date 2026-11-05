@@ -6,7 +6,19 @@
   "source_url": "https://www.balticexchange.com/content/dam/balticexchange/consumer/documents/data-services/documentation/ocean-bulk-guides-policies/GMB.pdf",
   "verification": "Read from official document via web reader; direct Python HTTP request returned 403.",
   "profiles": {
-    "Handysize": {"page": 84, "dwt_mt": "38200", "speed_knots": "12", "sea_fo_mt_day": "18", "sea_do_mt_day": "0.1"},
-    "Supramax": {"page": 83, "dwt_mt": "63500", "speed_knots": "12", "sea_fo_mt_day": "20", "sea_do_mt_day": "0"}
+    "Handysize": {
+      "page": 84,
+      "dwt_mt": "38200",
+      "speed_knots": "12",
+      "sea_fo_mt_day": "18",
+      "sea_do_mt_day": "0.1"
+    },
+    "Supramax": {
+      "page": 83,
+      "dwt_mt": "63500",
+      "speed_knots": "14",
+      "sea_fo_mt_day": "20",
+      "sea_do_mt_day": "0"
+    }
   }
 }

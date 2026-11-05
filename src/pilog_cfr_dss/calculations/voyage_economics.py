@@ -1,9 +1,10 @@
-"""One-way owned dry-bulk days and cost. Pure functions, no workbook I/O."""
+"""One-way dry-bulk costs; charter hire and historical owned costs stay separate."""
 from decimal import Decimal
 from pilog_cfr_dss.calculations.voyage_days import sea_days, port_days
 from pilog_cfr_dss.calculations.fuel import sea_fuel_mt, fuel_cost_usd
 from pilog_cfr_dss.calculations.costs import daily_cost_usd
 from pilog_cfr_dss.models.case import Case04
+from pilog_cfr_dss.models.case import is_chartered
 
 
 def port_expenses_total(components) -> Decimal:
@@ -30,10 +31,12 @@ def voyage(case: Case04, fuel_shock: Decimal = Decimal(0), extra_port_days: Deci
     diesel = fuel_cost_usd(sea_do + port_do, n("do_price_usd_mt") * (1 + fuel_shock))
     bunker = fo + diesel
     other = n("port_other_total_usd")
-    running = daily_cost_usd(days, n("running_usd_day"))
+    chartered = is_chartered(case.context)
+    daily = daily_cost_usd(days, n("hire_usd_day" if chartered else "running_usd_day"))
     return {"sea_days": sea, "loading_days": loading, "discharge_days": discharge,
             "waiting_days": n("waiting_days"), "extra_port_days": extra_port_days,
             "total_days": days, "fo_mt": fo_mt, "sea_do_mt": sea_do, "port_do_mt": port_do,
             "fo_cost_usd": fo, "do_cost_usd": diesel, "bunker_usd": bunker,
-            "port_other_usd": other, "running_usd": running,
-            "voyage_expenses_usd": bunker + other, "total_cash_cost_usd": bunker + other + running}
+            "port_other_usd": other, ("hire_usd" if chartered else "running_usd"): daily,
+            "voyage_expenses_usd": bunker + other, "total_cash_cost_usd": bunker + other + daily,
+            **({"hire_days": days} if chartered else {})}

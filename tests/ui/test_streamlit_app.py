@@ -40,6 +40,53 @@ class StreamlitWorkflowTests(unittest.TestCase):
         self.assertTrue(any(x.label == "Unduh kasus" for x in self.app.get("download_button")))
         self.assertFalse(any(x.label == "Buka draft tersimpan" for x in self.app.selectbox))
 
+    def test_hire_input_is_editable_and_survives_class_switch(self):
+        frame = next(f.value for f in self.app.dataframe if 'Parameter' in f.value.columns)
+        hire_index = next(i for i, name in enumerate(frame['Parameter']) if name.startswith('Hire/day'))
+        self.assertEqual(frame.iloc[hire_index]['Nilai'], 13000)
+        self.assertIn('historis', frame.iloc[hire_index]['Sumber'])
+        self.assertFalse(any('operasional kapal harian' in name.lower() for name in frame['Parameter']))
+        case = self.app.session_state['case']
+        key = f'inputs_table_{case.draft_id}_{case.revision}_None'
+        self.app.session_state[key] = {'edited_rows': {hire_index: {'Nilai': 18000.5}}, 'added_rows': [], 'deleted_rows': []}
+        self.app.run()
+        self.assertFalse(self.app.exception)
+        self.assertEqual(self.app.session_state['case'].values()['hire_usd_day'], '18000.5')
+        selector = next(x for x in self.app.selectbox if x.label == 'Pilih profil kapal')
+        selector.set_value('ve_godau').run()
+        self.assertFalse(self.app.exception)
+        self.assertEqual(self.app.session_state['case'].values()['hire_usd_day'], '18000.5')
+        next(x for x in self.app.button if x.label == 'Hitung ekonomi voyage').click().run()
+        self.assertFalse(self.app.exception)
+        result = self.app.session_state['case'].preparation
+        self.assertIn('tce_usd_day', result['baseline'])
+        self.assertNotIn('running_usd', result['baseline'])
+
+    def test_hire_and_tce_are_visible_and_running_cost_is_absent_from_results(self):
+        next(x for x in self.app.button if x.label == 'Hitung ekonomi voyage').click().run()
+        self.assertFalse(self.app.exception)
+        components = [str(value) for frame in self.app.dataframe if 'Komponen' in frame.value.columns
+                      for value in frame.value['Komponen']]
+        self.assertIn('Hire kapal', components)
+        self.assertIn('Net freight revenue', components)
+        self.assertFalse(any('Operasional kapal' in value or 'Running' in value for value in components))
+        self.assertTrue(any('TCE sebelum hire' in item.value for item in self.app.caption))
+        self.assertTrue(any('net freight revenue − voyage expenses' in item.value for item in self.app.markdown))
+
+    def test_legacy_session_explains_cost_model_instead_of_silent_conversion(self):
+        from pilog_cfr_dss.application.interactive_case import InteractiveCase
+        legacy = InteractiveCase.read(ROOT / 'data/processed/case_template.json')
+        before = legacy.fingerprint
+        self.app.session_state['case'] = legacy
+        self.app.run()
+        self.assertFalse(self.app.exception)
+        self.assertTrue(any('model kapal milik sebelumnya' in item.value for item in self.app.warning))
+        self.assertFalse(any(x.label == 'Hitung ekonomi voyage' for x in self.app.button))
+        self.assertEqual(self.app.session_state['case'].fingerprint, before)
+        next(x for x in self.app.button if x.label == 'Kasus baru').click().run()
+        self.assertFalse(self.app.exception)
+        self.assertEqual(self.app.session_state['case'].values()['vessel_mode'], 'chartered')
+
     def test_output_exposes_fixed_rate_sensitivity(self):
         next(x for x in self.app.button if x.label == "Hitung ekonomi voyage").click().run()
         self.assertFalse(self.app.exception)

@@ -115,7 +115,7 @@ class WorkspaceHardening(unittest.TestCase):
         self.assertEqual(scenario['fuel_price_increase_percent'], '0')
         self.assertEqual(scenario['economics']['freight_usd_mt'], result['baseline']['freight_usd_mt'])
         self.assertLess(Decimal(scenario['change_from_baseline_usd']), 0)
-        self.assertLess(Decimal(scenario['economics']['tce_before_running_usd_day']), Decimal(result['baseline']['tce_before_running_usd_day']))
+        self.assertLess(Decimal(scenario['economics']['tce_usd_day']), Decimal(result['baseline']['tce_usd_day']))
 
     def test_package_roundtrip_recalculates_same_values(self):
         case = workspace()

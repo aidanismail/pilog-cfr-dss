@@ -4,6 +4,7 @@ from decimal import Decimal
 from typing import Any
 
 VERSION = "I4.1"
+CHARTER_VERSION = "I5-CHARTER.1"
 REPORT_VERSION = "I4-BRIEF.4"
 MARKET_REPORT_VERSION = "I4-BRIEF.5"
 CLEAN_REPORT_VERSION = "I4-BRIEF.6"
@@ -24,6 +25,17 @@ UNITS = {
     "freight_commission_fraction": "fraction", "broker_fraction": "fraction",
     "additional_commission_fraction": "fraction",
 }
+
+CHARTER_UNITS = {key: unit for key, unit in UNITS.items() if key != "running_usd_day"}
+CHARTER_UNITS["hire_usd_day"] = "USD/day"
+
+
+def is_chartered(context: dict) -> bool:
+    return context.get("schema_version") == CHARTER_VERSION
+
+
+def units_for(context: dict) -> dict[str, str]:
+    return CHARTER_UNITS if is_chartered(context) else UNITS
 
 
 @dataclass(frozen=True)

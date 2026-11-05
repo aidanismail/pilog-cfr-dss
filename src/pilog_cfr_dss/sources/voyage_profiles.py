@@ -16,16 +16,18 @@ PROFILE_IDS = {"HS36": "ve_sheet1", "SUP58A": "ve_aqaba", "SUP58B": "ve_sby", "H
                "HS38": "ve_aqaba", "SUP54": "ve_sby", "SUP58": "ve_godau"}
 
 
-def read_profiles(path: Path) -> dict:
+def read_profiles(path: Path, *, include_owned_running: bool = True) -> dict:
     from openpyxl import load_workbook
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
     workbook = load_workbook(path, read_only=True, data_only=False)
     profiles = []
+    cells = {key: cell for key, cell in PROFILE_CELLS.items()
+             if include_owned_running or key != "running_usd_day"}
     try:
         for sheet in workbook:
-            if any(sheet[cell].value is None for cell in PROFILE_CELLS.values()):
+            if any(sheet[cell].value is None for cell in cells.values()):
                 continue
-            fields = {key: str(number(sheet[cell].value, sheet.title + "!" + cell, Decimal(0))) for key, cell in PROFILE_CELLS.items()}
+            fields = {key: str(number(sheet[cell].value, sheet.title + "!" + cell, Decimal(0))) for key, cell in cells.items()}
             dwt = Decimal(fields["dwt_mt"])
             if not 0 < dwt <= 60000:
                 continue
@@ -49,7 +51,7 @@ def read_profiles(path: Path) -> dict:
                 "market_class_proxy": vessel_class == "Handymax", "fields": fields,
                 "source_status": "simulation_only_workbook_vessel_profile" if demo else "observed_workbook_profile_transfer",
                 "source_reference": "data/raw/Voyage Estimate.xlsx", "source_sha256": digest,
-                "source_cells": {**PROFILE_CELLS, "port_do_mt_day": "J6"},
+                "source_cells": {**cells, "port_do_mt_day": "J6"},
                 "source_formula": {"J6": formula},
                 "note": ("Spesifikasi kapal sintetis untuk demo; bukan spesifikasi atau penawaran kapal tertentu dari Fearnpulse. "
                          if demo else "Spesifikasi kapal dari workbook; ") +

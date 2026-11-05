@@ -4,14 +4,14 @@ from decimal import Decimal
 import hashlib
 import json
 
-from pilog_cfr_dss.models.case import UNITS
+from pilog_cfr_dss.models.case import units_for
 
 FORECAST_VERSION = "COST-FORECAST.1"
 REVIEW_VERSION = "I4-COMMERCIAL.1"
 COST_KEYS = (
     "port_other_total_usd", "fo_price_usd_mt", "do_price_usd_mt", "waiting_days",
     "loading_rate_mt_day", "discharge_rate_mt_day", "speed_knots", "sea_fo_mt_day",
-    "sea_do_mt_day", "port_do_mt_day", "running_usd_day",
+    "sea_do_mt_day", "port_do_mt_day", "running_usd_day", "hire_usd_day",
 )
 POSITIVE_KEYS = {"loading_rate_mt_day", "discharge_rate_mt_day", "speed_knots"}
 
@@ -38,10 +38,11 @@ def forecast_values(context: dict, rows: list | tuple, values: dict) -> dict:
         raise ValueError("MISSING_COST_FORECAST_EVIDENCE")
     timestamp(forecast["recorded_at"])
     overrides = forecast.get("overrides")
-    if not isinstance(overrides, dict) or set(overrides) - set(COST_KEYS):
+    units = units_for(context)
+    if not isinstance(overrides, dict) or set(overrides) - (set(COST_KEYS) & set(units)):
         raise ValueError("UNSUPPORTED_COST_FORECAST_FIELD")
     for key, record in overrides.items():
-        if not isinstance(record, dict) or record.get("unit") != UNITS[key] or not record.get("source_status"):
+        if not isinstance(record, dict) or record.get("unit") != units[key] or not record.get("source_status"):
             raise ValueError("INVALID_COST_FORECAST_UNIT_OR_SOURCE:" + key)
         value = number(record.get("value"), key, Decimal(0))
         if key in POSITIVE_KEYS and value <= 0:

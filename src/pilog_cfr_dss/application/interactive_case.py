@@ -11,7 +11,7 @@ from uuid import uuid4
 from zipfile import ZipFile, ZIP_DEFLATED
 from decimal import localcontext
 
-from pilog_cfr_dss.models.case import UNITS
+from pilog_cfr_dss.models.case import units_for
 from pilog_cfr_dss.orchestration.case_evaluation import evaluate, prepare_voyage, persist_run, fixed_freight_record
 from pilog_cfr_dss.validation.case import unique_object
 from pilog_cfr_dss.calculations.tender_pricing import index_prices, minimum_alpha
@@ -103,7 +103,7 @@ class InteractiveCase:
             raise ValueError("FREIGHT_NOT_FIXED")
         if not isinstance(reason, str) or not reason.strip():
             raise ValueError("COST_FORECAST_REASON_REQUIRED")
-        if not isinstance(values, dict) or set(values) - set(COST_KEYS):
+        if not isinstance(values, dict) or set(values) - (set(COST_KEYS) & set(units_for(self.context))):
             raise ValueError("UNSUPPORTED_COST_FORECAST_FIELD")
         from pilog_cfr_dss.orchestration.price_records import utc_now
         overrides = deepcopy(self.context.get("cost_forecast", {}).get("overrides", {}))
@@ -113,7 +113,7 @@ class InteractiveCase:
             if value == number(original[key], key):
                 overrides.pop(key, None)
             else:
-                overrides[key] = {"value": str(value), "unit": UNITS[key],
+                overrides[key] = {"value": str(value), "unit": units_for(self.context)[key],
                     "source_status": "simulation_only_user_cost_reforecast", "source_reference": reason.strip()}
         context = deepcopy(self.context)
         previous = context.get("cost_forecast", {})
@@ -154,7 +154,7 @@ class InteractiveCase:
         positive = {'cargo_mt', 'dwt_mt', 'distance_nm', 'speed_knots', 'loading_rate_mt_day', 'discharge_rate_mt_day'}
         if not isinstance(values, dict):
             raise ValueError('INVALID_INPUT_EDITS')
-        if set(values) - set(UNITS):
+        if set(values) - set(units_for(self.context)):
             raise ValueError('UNKNOWN_VOYAGE_FIELD')
         if self.context.get('case_basis_version') in {BASIS_VERSION, ROUTE_VERSION}:
             if any(number(values[key], key) != 0 for key in COMMISSION_KEYS if key in values):
@@ -182,7 +182,7 @@ class InteractiveCase:
                                 observations: dict[str, dict[str, str]], oe_hps: str) -> None:
         if self.fixed:
             raise ValueError("BASIS_FIXED_CREATE_REVISION")
-        if set(values) - set(UNITS):
+        if set(values) - set(units_for(self.context)):
             raise ValueError("UNKNOWN_VOYAGE_FIELD")
         from pilog_cfr_dss.validation.case_basis import BASIS_VERSION, ROUTE_VERSION, COMMISSION_KEYS
         if self.context.get("case_basis_version") == BASIS_VERSION:

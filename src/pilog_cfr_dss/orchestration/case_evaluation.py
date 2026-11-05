@@ -13,7 +13,7 @@ from pilog_cfr_dss.calculations.voyage_economics import voyage
 from pilog_cfr_dss.calculations.freight_pricing import required_freight, economics, total_commission, contribution_delta, decision_metrics, commercial_financials, pricing_diagnostics, fraction_percent
 from pilog_cfr_dss.calculations.tender_pricing import index_prices, bid_prices, od_delta, minimum_alpha
 from pilog_cfr_dss.decisions.tender_decision import evaluate_tender, decide, risk_label, review_step
-from pilog_cfr_dss.models.case import VERSION, REPORT_VERSION, METRICS_VERSION, MARKET_REPORT_VERSION, CLEAN_REPORT_VERSION, COMMERCIAL_REPORT_VERSION
+from pilog_cfr_dss.models.case import VERSION, REPORT_VERSION, METRICS_VERSION, MARKET_REPORT_VERSION, CLEAN_REPORT_VERSION, COMMERCIAL_REPORT_VERSION, is_chartered
 from pilog_cfr_dss.validation.case import load_case, number
 from pilog_cfr_dss.reporting.commercial_brief import commercial_brief, calculation_audit
 from pilog_cfr_dss.orchestration.price_records import utc_now, price_records
@@ -57,7 +57,7 @@ def voyage_basis(case) -> dict[str, Any]:
         rate = number(case.context["freight_tender"]["value"], "freight tender") if case.context.get("freight_tender") is not None else computed
         baseline = economics(costs, rate, case.number("cargo_mt"), commission)
         metrics = decision_metrics(baseline, case.number("cargo_mt"), commission,
-                                   current_case.number("running_usd_day"), current_case.number("port_do_mt_day"),
+                                   current_case.number("hire_usd_day" if is_chartered(case.context) else "running_usd_day"), current_case.number("port_do_mt_day"),
                                    current_case.number("do_price_usd_mt"))
         quoted = economics(voyage(case), rate, case.number("cargo_mt"), commission)
         return {"baseline": baseline, "metrics": metrics, "commission": commission,
@@ -105,7 +105,7 @@ def prepare_voyage(path: Path) -> dict[str, Any]:
         diagnostics['capacity_scope'] = 'dataset_allowances_screen' if c.get('capacity_basis') == 'dataset_allowances_v1' else 'gross_dwt_screen_only'
     od = c.get("od_reference")
     captured = {"case_fixture.json": raw, dataset.name: content, **distance_inputs(c)}
-    result = serial({"case_id": c["case_id"], "version": VERSION, "mode": "simulation",
+    result = serial({"case_id": c["case_id"], "version": c["schema_version"], "mode": "simulation",
         "advisory_only": True, "case": basis["effective_case"].values,
         "baseline": basis["baseline"], "metrics": basis["metrics"],
         "pricing_diagnostics": diagnostics, "fixed_freight_sensitivities": sensitivity,
