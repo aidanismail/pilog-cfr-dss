@@ -17,6 +17,12 @@ def contribution_delta(contribution: Decimal, baseline: Decimal) -> Decimal:
     return contribution - baseline
 
 
+def fraction_percent(value: Decimal) -> Decimal:
+    if not value.is_finite() or value < 0:
+        raise ValueError('INVALID_SCENARIO_FRACTION')
+    return value * Decimal(100)
+
+
 def required_freight(voyage_expenses: Decimal, days: Decimal, quantity: Decimal,
                      target_tce: Decimal, commission_fraction: Decimal) -> Decimal:
     values = (voyage_expenses, days, quantity, target_tce, commission_fraction)

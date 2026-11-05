@@ -10,7 +10,7 @@ from typing import Any
 from uuid import uuid4
 
 from pilog_cfr_dss.calculations.voyage_economics import voyage
-from pilog_cfr_dss.calculations.freight_pricing import required_freight, economics, total_commission, contribution_delta, decision_metrics, commercial_financials, pricing_diagnostics
+from pilog_cfr_dss.calculations.freight_pricing import required_freight, economics, total_commission, contribution_delta, decision_metrics, commercial_financials, pricing_diagnostics, fraction_percent
 from pilog_cfr_dss.calculations.tender_pricing import index_prices, bid_prices, od_delta, minimum_alpha
 from pilog_cfr_dss.decisions.tender_decision import evaluate_tender, decide, risk_label, review_step
 from pilog_cfr_dss.models.case import VERSION, REPORT_VERSION, METRICS_VERSION, MARKET_REPORT_VERSION, CLEAN_REPORT_VERSION, COMMERCIAL_REPORT_VERSION
@@ -98,6 +98,8 @@ def prepare_voyage(path: Path) -> dict[str, Any]:
             outcome = economics(costs, basis['rate'], case.number('cargo_mt'), basis['commission'])
             sensitivity.append({'label': shock.get('label', shock['scenario_id']), 'scenario_id': shock['scenario_id'],
                 'source_status': shock.get('source_status', 'not_recorded'), 'economics': outcome,
+                'fuel_price_increase_percent': fraction_percent(number(shock['fuel_price_increase_fraction'], 'fuel shock')),
+                'extra_port_days': number(shock['extra_port_days'], 'port delay'),
                 'freight_held_constant': True, 'change_from_baseline_usd': contribution_delta(outcome['contribution_usd'], basis['baseline']['contribution_usd'])})
         diagnostics = pricing_diagnostics(basis['baseline'], basis['rate'], case.number('cargo_mt'), basis['commission'], case.number('dwt_mt'), case.number('bunkers_allowance_mt'), case.number('constants_allowance_mt'))
         diagnostics['capacity_scope'] = 'dataset_allowances_screen' if c.get('capacity_basis') == 'dataset_allowances_v1' else 'gross_dwt_screen_only'

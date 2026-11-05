@@ -2,6 +2,15 @@
 
 Diperbarui 4 November 2026. Pengguna mengizinkan implementasi perbaikan review produk. Prioritas bersama mentor: sempurnakan logika pipeline dahulu; kualitas dan kelengkapan data aktual ditingkatkan kemudian. Dokumen ini menjadi acuan aktif dan menggantikan rencana historis yang bertentangan. Aplikasi tetap Streamlit.
 
+### Tindak lanjut review produk
+
+- Peralihan profil mempertahankan TC Rates serta harga bunker yang diedit manual. TC Rates yang belum diedit mengikuti benchmark kelas baru; spesifikasi kapal manual tetap diganti oleh profil baru dengan pemberitahuan.
+- Acuan TC Rates dan ukuran serinya ditampilkan; perubahan speed manual ditandai karena konsumsi tidak berubah otomatis.
+- Tabel harga menyatakan basis CFR dan kecocokan negara/kawasan. Freight disebut konteks voyage; baris menampilkan kawasan, asal, tujuan, tonase, jenis komoditas, tanggal dan selisih aritmetika hanya ketika kedua kawasan dipetakan cocok. Peringkat global berdasarkan tonase, bukan validasi komersial.
+- Kesalahan pembacaan Argus dan Fertecon dinyatakan per penerbit, terpisah dari kondisi seri wilayah tidak tersedia.
+- Sensitivitas menyertakan besaran kenaikan bunker, tambahan hari, hasil dan status; freight tetap. Surplus baseline tetap memakai freight indikasi dan bukan bukti penerimaan buyer.
+- Verifikasi lokal: suite lengkap 255 tes lulus; setelah penyesuaian label dan status terakhir, 33 tes integrasi dan UI terkait lulus. UAT mentor, kalibrasi data aktual dan validasi deployment belum dilakukan; angka rating bukan jaminan hasil.
+
 ## Keputusan bisnis yang berlaku
 
 - Urea granular bulk, kapal milik, satu arah laden. Tender dan commercial decision brief tetap disembunyikan pada UI aktif; engine historis tetap dapat diuji.
