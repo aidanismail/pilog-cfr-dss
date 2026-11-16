@@ -1,889 +1,455 @@
-"""Restrained blue/white interface around the existing I4 workflow."""
+"""White/blue freight desk. No business calculations or tender imports."""
+from copy import deepcopy
+from datetime import datetime, timezone
 import json
-import re
-from html import escape
 from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 
-from pilog_cfr_dss.application.interactive_case import InteractiveCase
+from pilog_cfr_dss.application.freight_desk import (
+    default_case, digest, evaluate, export_case, import_case, matrix, override,
+    serializable, update_route, select_terms,
+)
+from pilog_cfr_dss.models.freight_desk import COMMODITIES, TERMS
 from pilog_cfr_dss.reporting.commercial_brief import commercial_brief
-from pilog_cfr_dss.application.market_case import new_market_case, apply_profile, apply_route, active_catalog, voyage_catalog, apply_voyage
-from pilog_cfr_dss.sources.route_distance import ports, distance
-from pilog_cfr_dss.sources.urea_reports import read_reports
-from pilog_cfr_dss.sources.baltic_profiles import verify_benchmarks
-from pilog_cfr_dss.sources.fearnpulse import latest_saved, fetch_snapshot, save_runtime_snapshot
-from pilog_cfr_dss.models.tender_clock import round_schedule
-from pilog_cfr_dss.reporting.formatting import price_time as time_label
-from pilog_cfr_dss.reporting.formatting import number_text
-from pilog_cfr_dss.validation.case_basis import BASIS_VERSION, COMMISSION_KEYS
-from pilog_cfr_dss.models.case import is_chartered
-from pilog_cfr_dss.validation.cost_forecast import COST_KEYS
-from pilog_cfr_dss.ui.presentation import source_label
-from pilog_cfr_dss.application.tender_examples import generate_example, record_applied_example
-from pilog_cfr_dss.reporting.commercial_brief import cost_change_lines, pricing_bridge_lines, price_reference
+from pilog_cfr_dss.reporting.formatting import number_text as fmt, price_time
+from pilog_cfr_dss.sources.fearnpulse import fetch_snapshot, latest_saved, save_runtime_snapshot
+from pilog_cfr_dss.sources.fertilizer_reports import for_product, read_assessments
+from pilog_cfr_dss.sources.route_distance import ports
+from pilog_cfr_dss.validation.numbers import timestamp
 
-
-LABELS = {
-    "cargo_mt": "Volume cargo (MT)", "distance_nm": "Jarak satu arah (NM)",
-    "loading_rate_mt_day": "Kecepatan muat (MT/hari)", "discharge_rate_mt_day": "Kecepatan bongkar (MT/hari)",
-    "waiting_days": "Waktu tunggu pelabuhan (hari)", "dwt_mt": "DWT kapal (MT)",
-    "speed_knots": "Kecepatan saat bermuatan (knot)", "sea_fo_mt_day": "Konsumsi fuel oil saat berlayar (MT/hari)",
-    "sea_do_mt_day": "Konsumsi diesel oil saat berlayar (MT/hari)", "port_do_mt_day": "Konsumsi diesel oil di pelabuhan (MT/hari)",
-    "hire_usd_day": "Hire/day — sewa kapal (USD/hari)", "fo_price_usd_mt": "Harga fuel oil (USD/MT)",
-    "do_price_usd_mt": "Harga diesel oil (USD/MT)", "port_other_total_usd": "Total pelabuhan dan biaya lain (USD)",
-    "freight_commission_fraction": "Komisi freight (fraksi)", "broker_fraction": "Komisi broker (fraksi)",
-    "additional_commission_fraction": "Komisi tambahan (fraksi)",
-    "bunkers_allowance_mt": "Allowance bunker (MT)",
-    "constants_allowance_mt": "Allowance constants kapal (MT)",
-}
 STYLE = """
 <style>
-h1,h2,h3 {font-weight:650; letter-spacing:-.025em;}
-.workspace-header {border-top:4px solid #1E70B8;padding:16px 0;margin-bottom:8px;}
-.workspace-header .eyebrow {color:#52697B;font-size:11px;font-weight:700;letter-spacing:.14em;}
-.workspace-header h1 {color:#142D43;font-size:36px;line-height:1.12;margin:0;}
-.workspace-header p {color:#52697B;font-size:15px;margin:0;}
-.workflow-strip {display:flex;flex-wrap:wrap;gap:12px 28px;border-top:1px solid #DFE7EE;
- border-bottom:1px solid #DFE7EE;padding:13px 0;margin:0 0 20px;color:#52697B;font-size:12px;}
-.workflow-strip strong {color:#1E70B8; margin-right:6px;}
-.workflow-strip a {color:#52697B;text-decoration:none;}
-.workflow-strip a:hover {color:#1E70B8;text-decoration:underline;}
-.section-heading {margin:20px 0 14px;border-top:1px solid #DFE7EE;padding-top:18px;}
-section[data-testid="stSidebar"] [data-testid="stImage"] {margin:0 auto 8px;}
-.section-heading .number {font-size:11px;font-weight:700;letter-spacing:.13em;color:#1E70B8;}
-.section-heading h2 {font-size:27px;color:#142D43;margin:3px 0 4px;}
-.section-heading p {font-size:14px;color:#52697B;margin:0;}
-.decision-banner {border-left:5px solid #1E70B8;background:#F4F7FA;padding:20px 24px;margin-bottom:18px;}
-.decision-banner.no-go {border-left-color:#B44136;}
-.decision-banner .action {font-size:32px;font-weight:750;color:#142D43;letter-spacing:-.03em;}
-.decision-banner p {margin:5px 0 0;color:#344F64;line-height:1.5;}
-.source-note {font-size:12px;color:#52697B;line-height:1.5;}
-@media(max-width:640px) {.workspace-header h1 {font-size:31px;} .workflow-strip {gap:10px 16px;}}
+.block-container{max-width:1280px;padding-top:2rem}
+h1,h2,h3{color:#142D43;font-weight:650;letter-spacing:-.025em}
+h1{font-size:2rem} h2{font-size:1.4rem}
+[data-testid="stMetric"]{border:1px solid #DFE7EE;border-radius:6px;padding:12px}
+.stButton>button[kind="primary"]{background:#1E70B8;border-color:#1E70B8}
+hr{border-color:#DFE7EE}
 </style>
 """
 
 
 @st.cache_data(ttl=60, show_spinner=False)
-def _fresh_market():
+def fresh_market():
     return fetch_snapshot()
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
-def _baltic_check():
-    return verify_benchmarks()
+@st.cache_data(show_spinner=False)
+def port_catalog(path, version):
+    return ports(Path(path))
 
 
-def fmt(value, *, minimum=False):
-    """Display formatting only, never inputs to the financial engine."""
-    return number_text(value, minimum=minimum)
+def get_value(case, path):
+    value = case
+    for key in path.split("."):
+        value = value[key]
+    return value
 
 
-def display_reference(value):
-    """Neutral display copy; preserve original provenance in input snapshots."""
-    if isinstance(value, dict):
-        return {key: display_reference(item) for key, item in value.items()}
-    if isinstance(value, (tuple, list)):
-        return [display_reference(item) for item in value]
-    if not isinstance(value, str):
-        return value
-    value = value.replace("Mentor/user I4 plan and D-040/D-042", "Parameter kasus I4")
-    value = value.replace("mentor aggregate interpretation from Sby audit", "interpretasi total biaya pada audit sheet Sby")
-    return re.sub(r"\bmentor\b", "peninjau domain", value, flags=re.IGNORECASE)
+def widget_prefix(case):
+    return case["case_id"] + "_" + str(st.session_state.get("widget_generation", 0))
 
 
-def section(number, title):
-    st.html(f'<div class="section-heading" id="pilog-step-{escape(number)}"><span class="number">{escape(number)}</span>'
-            f'<h2>{escape(title)}</h2></div>')
+def edit_table(case, entries, key, compact=False):
+    rows = []
+    for path, label, unit in entries:
+        value = get_value(case, path)
+        source = case["sources"].get(path, {})
+        source_text = ("Input manual" if source.get("status") == "manual_override" else
+                       "Fearnpulse (harga pembanding)" if source.get("status") == "market_proxy" else
+                       "Estimasi rute laut" if source.get("source_status") == "estimated_sea_route" else
+                       "Baltic" if "balticexchange" in source.get("source", "") else
+                       "Voyage Estimate" if "Estimate.xlsx" in source.get("source", "") else
+                       "Nilai awal")
+        rows.append({"Parameter": label, "Nilai": None if value is None else float(value),
+                     "Satuan": unit, "Sumber": source_text})
+    frame = pd.DataFrame(rows)
+    if compact:
+        frame = frame.drop(columns=["Sumber"])
+    edited = st.data_editor(frame, key=widget_prefix(case) + "_" + key, hide_index=True,
+        width="stretch", disabled=["Parameter", "Satuan", "Sumber"],
+        column_config={"Nilai": st.column_config.NumberColumn(min_value=0.0,
+                       help="Presisi input dipertahankan; ringkasan hasil dua desimal.")},
+        num_rows="fixed")
+    for index, (path, _, _) in enumerate(entries):
+        value = edited.iloc[index]["Nilai"]
+        converted = None if pd.isna(value) else str(value)
+        old = get_value(case, path)
+        # Compare numeric values rather than "13000" versus "13000.0".
+        if (converted is None) != (old is None) or (
+                converted is not None and old is not None and str(float(old)) != str(float(converted))):
+            override(case, path, converted)
 
 
-def _close_editor(key):
-    st.session_state["_close_editor"] = key
-    st.rerun()
-
-
-def sidebar(root, case, output_root):
-    from pilog_cfr_dss.application.case_package import export_case, import_case
-    with st.sidebar:
-        st.image(str(root / "public/Pupuk_Indonesia_Logistik.png"), width=62)
-        st.divider()
-        if st.button("Kasus baru", width="stretch"):
-            st.session_state.pop("case", None)
-            st.rerun()
-        st.markdown("**Paket kasus**")
-        st.download_button("Unduh kasus", export_case(case), "pilog_case.json",
-                           mime="application/json", width="stretch")
-        uploaded = st.file_uploader("Buka paket kasus", type=["json"])
-        if st.button("Buka kasus", disabled=uploaded is None, width="stretch"):
+def calendar_editor(case, side):
+    port = case["ports"][side]
+    prefix = widget_prefix(case) + "_" + side
+    with st.expander("Kalender kerja"):
+        mode = st.selectbox("Basis waktu", ["factor", "calendar"],
+            index=0 if port["time_basis"] == "factor" else 1,
+            format_func=lambda x: "Faktor terms" if x == "factor" else "Kalender operasi",
+            key=prefix + "_basis")
+        override(case, "ports." + side + ".time_basis", mode)
+        if mode == "factor":
+            st.caption("Faktor estimasi: " + fmt(TERMS[port["terms"]]["factor"]) +
+                       ". Sumber: referensi terms CMN.")
+            return
+        zone = st.text_input("Zona waktu (IANA)", port["calendar"]["timezone"],
+                             key=prefix + "_timezone", help="Contoh Asia/Jakarta atau Asia/Kolkata. UTC adalah default perencanaan.")
+        override(case, "ports." + side + ".calendar.timezone", zone.strip())
+        dates = st.text_area("Tanggal tidak bekerja", "\n".join(port["calendar"].get("holidays", [])),
+            key=prefix + "_holidays", help="Satu tanggal YYYY-MM-DD per baris. Daftar diisi pengguna, bukan kalender libur otomatis.")
+        override(case, "ports." + side + ".calendar.holidays", [v.strip() for v in dates.splitlines() if v.strip()])
+        custom_key = prefix + "_custom_calendar"
+        custom = st.checkbox("Ubah jam kerja mingguan", value="windows" in port["calendar"], key=custom_key)
+        if custom:
+            from pilog_cfr_dss.calculations.port_time import working_windows
+            seed = port["calendar"].get("windows") or {str(i): working_windows(port["terms"], i) for i in range(7)}
+            raw = st.text_area("Interval kerja per hari", json.dumps(seed), key=prefix + "_windows",
+                help='0=Senin … 6=Minggu. Interval dalam menit: [0,1440] berarti satu hari penuh; [] berarti tidak bekerja.')
             try:
-                restored = import_case(uploaded.getvalue())
-                if not is_chartered(restored.context):
-                    raise ValueError("Paket kapal milik memakai running cost. Gunakan Kasus baru untuk model kapal sewa; nilai lama tidak diubah menjadi hire.")
-                st.session_state["case"] = restored
-                st.rerun()
-            except (ValueError, OSError, KeyError, TypeError, UnicodeError) as error:
-                st.error("Paket tidak dapat dibuka: " + str(error))
-        st.caption("Unduh kasus sebelum refresh untuk melanjutkan input yang sama.")
-        st.divider()
-        st.caption("Internal PI/PILOG")
+                windows = json.loads(raw)
+                if not isinstance(windows, dict) or set(windows) != {str(i) for i in range(7)}:
+                    raise ValueError()
+                if "windows" in port["calendar"]:
+                    override(case, "ports." + side + ".calendar.windows", windows)
+                else:
+                    port["calendar"]["windows"] = windows
+            except (ValueError, TypeError):
+                st.error("Format interval kalender belum valid.")
+                st.session_state["input_errors"].append("Interval kalender belum valid.")
+        else:
+            port["calendar"].pop("windows", None)
+        st.caption("Kalender operasi menggantikan faktor terms. Hari libur yang belum dimasukkan tidak diperhitungkan.")
 
 
-def profile_name(profile):
-    fields = profile.get("fields", profile)
-    return profile["vessel_class"] + " · " + fmt(fields["dwt_mt"]) + " DWT · " + fmt(fields["speed_knots"]) + " knot"
-
-
-def voyage_selector(case, root, editing):
-    voyages = voyage_catalog(root)
-    by_id = {v["voyage_id"]: v for v in voyages["voyages"]}
-    current = case.context.get("voyage_estimate", {})
-    current_id = current.get("voyage_id")
-    if current_id not in by_id:
-        current_id = next((vid for vid,v in by_id.items() if
-                          v["fields"]["loading_port"] == case.values()["loading_port"] and
-                          v["fields"]["discharging_port"] == case.values()["discharging_port"]), next(iter(by_id)))
-    selected = st.selectbox("Pilih Voyage Estimate", list(by_id), index=list(by_id).index(current_id),
-        format_func=lambda vid: by_id[vid]["label"] + " · " + fmt(by_id[vid]["fields"]["cargo_mt"]) + " MT",
-        disabled=case.fixed or editing, key="voyage_" + case.draft_id + "_" + str(case.revision))
-    if selected != current_id and not case.fixed and not editing:
-        apply_voyage(case, by_id[selected], root)
-        st.rerun()
-    if current.get("source_sha256") != voyages["source_sha256"]:
-        st.caption("Kasus memakai versi workbook sebelumnya.")
-        if st.button("Gunakan workbook terbaru", disabled=editing):
-            st.session_state["case"] = new_market_case(root, case.context["market_snapshot"],
-                case.context["vessel_profile"]["profile_id"], selected)
+def port_card(case, root, choices, side, title):
+    port = case["ports"][side]
+    prefix = widget_prefix(case) + "_" + side
+    with st.container(border=True):
+        st.subheader(title)
+        current = (port["name"], port["country"])
+        if current not in choices:
+            choices = sorted([*choices, current])
+        chosen = st.selectbox("Pelabuhan", choices, index=choices.index(current),
+            format_func=lambda x: x[0] + ", " + x[1], key=prefix + "_port")
+        if chosen != current:
+            override(case, "ports." + side + ".name", chosen[0])
+            override(case, "ports." + side + ".country", chosen[1])
+            # Never transfer a terminal draft limit to a different port.
+            override(case, "ports." + side + ".draft_limit_m", None)
+            update_route(case, root)
             st.rerun()
+        terms = st.selectbox("Terms", list(TERMS), index=list(TERMS).index(port["terms"]),
+            format_func=lambda x: x + " — " + TERMS[x]["label"], key=prefix + "_terms")
+        select_terms(case, side, terms)
+        entries = [(f"ports.{side}.rate_mt_day", "Kecepatan muat" if side == "load" else "Kecepatan bongkar", "MT/24 jam kerja"),
+            (f"ports.{side}.port_da_usd", "Port DA", "USD"),
+            (f"ports.{side}.draft_limit_m", "Batas draft port (opsional)", "m"),
+            (f"ports.{side}.waiting_days", "Waktu tunggu", "hari"),
+            (f"ports.{side}.allowance_days", "Tambahan waktu operasi", "hari")]
+        edit_table(case, entries, side, compact=True)
+        calendar_editor(case, side)
 
 
-def profile_selector(case, root, editing):
-    profiles = active_catalog(root)
-    by_id = {profile["profile_id"]: profile for profile in profiles["profiles"]}
-    current_id = case.context["vessel_profile"]["profile_id"]
-    selected = st.selectbox("Pilih profil kapal", list(by_id), index=list(by_id).index(current_id) if current_id in by_id else 0,
-        format_func=lambda pid: profile_name(by_id[pid]),
-        disabled=case.fixed or editing, key="profile_" + case.draft_id + "_" + str(case.revision),
-        help="Profil acuan Baltic dengan nilai tambahan dari Voyage Estimate.")
-    if selected != current_id and not case.fixed and not editing:
-        apply_profile(case, by_id[selected], profiles["policy"])
-        st.rerun()
-    if any(row.get('source_status') == 'simulation_only_user_input' and row['key'] in {
-        'dwt_mt', 'speed_knots', 'sea_fo_mt_day', 'sea_do_mt_day', 'port_do_mt_day'
-    } for row in case.rows):
-        st.caption('Memilih profil lain mengganti spesifikasi kapal yang diubah manual.')
-    snapshot = case.context.get('market_snapshot', {})
-    quote = snapshot.get('tc_rates', {}).get(by_id[selected]['market_family'], {})
-    if quote:
-        st.caption('Acuan TC Rates: ' + quote['series'] + '. TC Rates dan harga bunker yang diubah manual tetap dipertahankan.')
-def route_selector(case, root, editing):
-    choices = ports(root / 'data/raw/Ports.xlsx')
-    current = case.values()
-    def find(name):
-        return next((p for p in choices if p[0].casefold() == name.casefold()), choices[0])
+def inputs(case, root):
+    st.session_state["input_errors"] = []
+    st.header("Input pengiriman")
+    a, b, c = st.columns([2, 1, 1])
+    with a:
+        commodity = st.selectbox("Komoditas", list(COMMODITIES),
+            index=list(COMMODITIES).index(case["commodity"]), format_func=COMMODITIES.get,
+            key=widget_prefix(case) + "_commodity")
+        override(case, "commodity", commodity)
+    with b:
+        current_start = timestamp(case["start_at"]).astimezone(timezone.utc)
+        start_date = st.date_input("Mulai muat (UTC)", current_start.date(),
+            key=widget_prefix(case) + "_date", format="DD/MM/YYYY",
+            help="Default awal bulan adalah jadwal perencanaan, bukan jadwal aktual.")
+    with c:
+        start_time = st.time_input("Jam (UTC)", current_start.time().replace(tzinfo=None),
+            key=widget_prefix(case) + "_time", step=60)
+    start = datetime.combine(start_date, start_time, timezone.utc)
+    if start != timestamp(case["start_at"]):
+        override(case, "start_at", start.isoformat())
+    edit_table(case, [
+        ("cargo_mt", "Muatan nominal", "MT"),
+        ("stowage_factor_m3_mt", "Stowage factor", "m³/MT"),
+        ("tolerance_percent", "Tolerance ±", "%"),
+        ("distance_nm", "Jarak laut satu arah", "NM"),
+        ("hire_usd_day", "Hire/day", "USD/hari"),
+        ("fuel.VLSFO.value", "Harga VLSFO", "USD/MT"),
+        ("fuel.LSMGO.value", "Harga LSMGO", "USD/MT"),
+        ("bunker_delay_days", "Bunker delay", "hari"),
+        ("selling_freight_usd_mt", "Tarif jual freight (opsional)", "USD/MT"),
+    ], "shipment")
+    choices = port_catalog(str(root / "data/raw/Ports.xlsx"), (root / "data/raw/Ports.xlsx").stat().st_mtime_ns)
     a, b = st.columns(2)
     with a:
-        origin = st.selectbox('Pelabuhan muat (PoL)', choices, index=choices.index(find(current['loading_port'])),
-                              format_func=lambda p: p[0] + ', ' + p[1], disabled=case.fixed or editing)
+        port_card(case, root, choices, "load", "Pelabuhan muat")
     with b:
-        dest = st.selectbox('Pelabuhan bongkar (PoD)', choices, index=choices.index(find(current['discharging_port'])),
-                            format_func=lambda p: p[0] + ', ' + p[1], disabled=case.fixed or editing)
-    changed = (origin[0] != current['loading_port'] or dest[0] != current['discharging_port']
-               or st.session_state.get('route_failure_' + case.draft_id) == (origin, dest))
-    if changed:
-        route_key = (origin, dest)
-        failure_key = 'route_failure_' + case.draft_id
-        if st.session_state.get(failure_key) != route_key and not case.fixed and not editing:
-            try:
-                with st.spinner('Memperbarui jarak…'):
-                    ref = distance(origin, dest, root / 'data/raw/Simulasi Tarif Internasional_Mei 2025.xlsx')
-                apply_route(case, origin, dest, ref)
-                st.session_state.pop(failure_key, None)
-                st.rerun()
-            except (ValueError, OSError):
-                st.session_state[failure_key] = route_key
-        if origin == dest:
-            st.error('Pelabuhan muat dan bongkar harus berbeda.')
-        else:
-            st.warning('Jarak belum tersedia. Isi jarak manual pada input di bawah.')
-        return route_key
-    st.session_state.pop('route_failure_' + case.draft_id, None)
-    return None
+        port_card(case, root, choices, "discharge", "Pelabuhan bongkar")
+    with st.expander("Profil kapal dan biaya lain"):
+        st.caption("Supramax memakai benchmark Baltic BSI63, 63.500 DWT. Konsumsi tidak berubah otomatis saat speed diedit.")
+        columns = st.columns(2)
+        labels = [
+            ("dwt_mt", "DWT", "MT"), ("summer_draft_m", "Summer draft", "m"),
+            ("grain_m3", "Kapasitas palka grain", "m³"), ("tpc_mt_cm", "TPC", "MT/cm"),
+            ("speed_knots", "Kecepatan bermuatan", "knot"),
+            ("sea_vlsfo_mt_day", "VLSFO saat berlayar", "MT/hari"),
+            ("sea_lsmgo_mt_day", "LSMGO saat berlayar", "MT/hari"),
+            ("port_vlsfo_mt_day", "VLSFO di port", "MT/hari"),
+            ("port_lsmgo_mt_day", "LSMGO di port", "MT/hari"),
+            ("bunkers_allowance_mt", "Allowance bunker", "MT"),
+            ("constants_allowance_mt", "Allowance constants", "MT")]
+        for column, family in zip(columns, case["profiles"]):
+            with column:
+                st.subheader(family)
+                edit_table(case, [(f"profiles.{family}.{key}", label, unit) for key, label, unit in labels], family)
+        st.subheader("Biaya tambahan")
+        rows = pd.DataFrame(case["other_costs"], columns=["id", "label", "amount", "unit"])
+        edited = st.data_editor(rows, key=widget_prefix(case) + "_other", num_rows="dynamic", hide_index=True,
+            column_config={"amount": st.column_config.NumberColumn("Nilai USD", min_value=0.0),
+                           "unit": st.column_config.SelectboxColumn(options=["USD"], default="USD")})
+        cleaned = []
+        for row in edited.to_dict("records"):
+            if not row.get("id") and not row.get("label"):
+                continue
+            cleaned.append({k: str(v) for k, v in row.items()})
+        if cleaned != case["other_costs"]:
+            override(case, "other_costs", cleaned)
 
 
-def review_data(case, root, editing=False):
-    pending_route = route_selector(case, root, editing)
-    profile_selector(case, root, editing)
-    return pending_route
-
-
-def input_editor(case, pending_route=None):
-    """One editable table, applied when the user commits a cell."""
-    from copy import deepcopy
-    from decimal import Decimal, InvalidOperation
-    from pilog_cfr_dss.validation.case import number
-
-    if case.fixed:
-        st.caption("Buat kasus baru untuk mengubah input.")
-        return False
-    values = case.values()
-    fields = {row["key"]: row for row in case.rows}
-    keys = [
-        "cargo_mt", "distance_nm", "loading_rate_mt_day", "discharge_rate_mt_day",
-        "waiting_days", "port_other_total_usd", "dwt_mt", "speed_knots",
-        "sea_fo_mt_day", "sea_do_mt_day", "port_do_mt_day", "hire_usd_day",
-        "fo_price_usd_mt", "do_price_usd_mt",
-        "bunkers_allowance_mt", "constants_allowance_mt",
-    ]
-    target_raw = case.context["pricing"]["target_tce"]["value"]
-    table = []
-    for key in keys:
-        original = values[key]
-        value = None if pending_route and key == "distance_nm" else float(number(original, key))
-        date = None
-        if key in {'fo_price_usd_mt', 'do_price_usd_mt'} and fields[key].get('source_status') == 'observed_public_market':
-            date = case.context.get('market_snapshot', {}).get('bunkers', {}).get(key, {}).get('source_observed_on')
-        table.append({"Parameter": LABELS[key], "Nilai": value, "Satuan": fields[key]["unit"],
-                      "Sumber": source_label(fields[key]), "Tanggal sumber": date or '—'})
-    table.append({"Parameter": "TC Rates (USD/hari)", "Nilai": float(number(target_raw, "target")),
-                  "Satuan": "USD/hari",
-                  "Sumber": "Input manual" if case.context["pricing"]["target_tce"]["source_status"] == "simulation_only_user_input" else "Fearnpulse",
-                  "Tanggal sumber": case.context['pricing']['target_tce'].get('source_observed_on', '—')})
-    st.caption("Urea granular bulk · Komisi 0%")
-    if fields['speed_knots'].get('source_status') == 'simulation_only_user_input':
-        st.caption('Kecepatan diubah manual; konsumsi bahan bakar tidak berubah otomatis.')
-    default_route = case.context.get('voyage_estimate', {}).get('fields', {})
-    if (values['loading_port'], values['discharging_port']) != (default_route.get('loading_port'), default_route.get('discharging_port')):
-        st.caption('Handling, waktu tunggu dan biaya pelabuhan tetap memakai input kasus; pemilihan rute hanya memperbarui jarak.')
-    snapshot = case.context.get("market_snapshot", {})
-    family = case.context.get("vessel_profile", {}).get("market_family")
-    quote = snapshot.get("tc_rates", {}).get(family, {})
-    st.caption("Fearnpulse diambil: " + time_label(snapshot.get("fetched_at")) +
-               " · Tanggal TC Rates: " + str(quote.get("source_observed_on") or "Tidak tersedia"))
-    grid = st.data_editor(pd.DataFrame(table), hide_index=True, width="stretch",
-                          disabled=["Parameter", "Satuan", "Sumber", "Tanggal sumber"],
-                          column_config={"Nilai": st.column_config.NumberColumn("Nilai", min_value=0.0)},
-                          key=f"inputs_table_{case.draft_id}_{case.revision}_{str(pending_route)}")
-    edits = {}
-    try:
-        for index, key in enumerate(keys):
-            raw = grid.iloc[index]["Nilai"]
-            if pd.isna(raw):
-                if key == "distance_nm" and pending_route:
-                    st.warning("Masukkan jarak satu arah (NM) untuk rute ini.")
-                    return True
-                raise ValueError(LABELS[key] + " wajib diisi.")
-            value = Decimal(str(raw))
-            if not value.is_finite() or value < 0:
-                raise ValueError(LABELS[key] + " harus berupa angka tidak negatif.")
-            if key in {"cargo_mt", "distance_nm", "loading_rate_mt_day", "discharge_rate_mt_day", "dwt_mt", "speed_knots"} and value <= 0:
-                raise ValueError(LABELS[key] + " harus lebih besar dari nol.")
-            original = values[key]
-            edits[key] = original if original and Decimal(str(float(number(original, key)))) == value and not (pending_route and key == "distance_nm") else format(value.normalize(), "f")
-        target_value = grid.iloc[len(keys)]["Nilai"]
-        if pd.isna(target_value) or Decimal(str(target_value)) < 0:
-            raise ValueError("TC Rates harus berupa angka tidak negatif.")
-        target = target_raw if Decimal(str(float(number(target_raw, "target")))) == Decimal(str(target_value)) else str(target_value)
-        if pending_route:
-            origin, dest = pending_route
-            if origin == dest:
-                raise ValueError("Pelabuhan muat dan bongkar harus berbeda.")
-            case = deepcopy(case)
-            ref = {"value": edits["distance_nm"], "unit": "NM", "loading_port": origin[0],
-                   "discharging_port": dest[0], "source_status": "simulation_only_user_input",
-                   "source_reference": "Input jarak manual"}
-            apply_route(case, origin, dest, ref)
-        before = case.fingerprint
-        observations = {p: {k: case.context["market_index"][p][k] for k in ("low", "high")}
-                        for p in ("argus", "fertecon")}
-        case.apply_inputs(edits, target_tce=target, observations=observations,
-                          oe_hps=case.context["oe_hps"]["value"])
-        if case.fingerprint != before or pending_route:
-            st.session_state["case"] = case
-            if pending_route:
-                st.session_state.pop("route_failure_" + case.draft_id, None)
-            st.rerun()
-    except (ValueError, KeyError, TypeError, InvalidOperation) as error:
-        st.error("Periksa input: " + str(error))
-        return True
-    return False
-
-
-def market_comparables_view(case, root, report):
-    from pilog_cfr_dss.sources.market_comparables import (
-        read_comparables, read_argus_comparables, destination_country, voyage_matches, comparison_delta,
-    )
-    st.markdown("#### Pembanding pasar")
-    values = case.current_values()
-    country = destination_country(root, values["discharging_port"])
-    data, argus = None, None
-    failed_sources = []
-    try:
-        data = read_comparables(root)
-    except (OSError, ValueError, KeyError, TypeError, IndexError):
-        failed_sources.append('Fertecon')
-    try:
-        argus = read_argus_comparables(root)
-    except (OSError, ValueError, KeyError, TypeError, IndexError):
-        failed_sources.append('Argus')
-    if failed_sources:
-        st.warning('Laporan ' + ' dan '.join(failed_sources) + ' belum dapat dibaca; pembanding dari laporan tersebut tidak tersedia.')
-    a, b = st.columns(2)
-    with a:
-        st.markdown("**Harga urea CFR tujuan**")
-        entries = []
-        for publisher, source in (("Fertecon", data), ("Argus", argus)):
-            record = (source.get("cfr_ports", {}).get(values["discharging_port"]) or source["cfr"].get(country)) if source else None
-            if record:
-                is_regional = (values["discharging_port"] in source.get("cfr_ports", {}) or
-                               'asia' in record['label'].lower() or 'gulf' in record['label'].lower() or
-                               'west coast' in record['label'].lower())
-                entries.append({"Sumber": publisher, "Basis": "CFR", "Pasar assessment": record["label"],
-                    "Kecocokan": "Kawasan / pasar acuan" if is_regional else "Negara sesuai label",
-                    "USD/MT": fmt(record["low"]) + "–" + fmt(record["high"]),
-                    "Tanggal": record["date"], "Halaman": record["page"]})
-        if entries:
-            st.dataframe(entries, hide_index=True, width="stretch")
-            st.caption('Nama pasar yang tertera adalah basis assessment; pasar regional dapat berbeda dari pelabuhan tujuan.')
-        else:
-            st.caption("Assessment CFR tujuan belum tersedia dalam laporan.")
-        regional = argus["regional_fob"].get(country) if argus else None
-        if regional:
-            st.markdown("**Konteks regional: harga FOB asal**")
-            st.write(f'Argus · {regional["label"]} · USD {fmt(regional["low"])}–{fmt(regional["high"])}/MT')
-            st.caption(f'FOB North Africa, bukan CFR tujuan · {regional["date"]} · halaman {regional["page"]}')
-        elif not entries:
-            references = []
-            for publisher, source in (("Fertecon", data), ("Argus", argus)):
-                record = source.get('global_fob') if source else None
-                if record:
-                    references.append({"Sumber": publisher, "Pasar": record['label'],
-                        "USD/MT": fmt(record['low']) + '–' + fmt(record['high']),
-                        "Tanggal": record['date'], "Halaman": record['page']})
-            if references:
-                st.markdown('**Konteks pasar global: FOB Asia Tenggara**')
-                st.dataframe(references, hide_index=True, width='stretch')
-                st.caption('Assessment FOB Asia Tenggara; wilayah dan basis dapat berbeda dari tujuan kasus.')
-    with b:
-        st.markdown("**Konteks freight voyage**")
-        matches = voyage_matches(data["voyages"], values["loading_port"], values["discharging_port"]) if data else []
-        if not matches:
-            st.caption("Rute pembanding yang cukup cocok belum tersedia.")
-        else:
-            matches = sorted(matches, key=lambda r: abs(r["cargo_mt"] - float(values["cargo_mt"])))[:3]
-            scope_labels = {'rute_kawasan': 'Rute kawasan',
-                'tujuan_kawasan_asal_berbeda': 'Tujuan kawasan; asal berbeda',
-                'asal_kawasan_tujuan_berbeda': 'Asal kawasan; tujuan berbeda',
-                'rute_global_berbeda': 'Konteks global; asal dan tujuan berbeda'}
-            st.dataframe([{"Rute assessment": r["origin"] + " → " + r["destination"],
-                "Muatan (MT)": fmt(r["cargo_mt"]), "Freight (USD/MT)": fmt(r["low"]) + "–" + fmt(r["high"]),
-                "Komoditas": "Pupuk dry bulk",
-                "Cakupan": scope_labels[r["match_scope"]],
-                "Selisih aritmetika (USD/MT)": "—" if r["match_scope"] != "rute_kawasan" else
-                    " s.d. ".join(fmt(x) for x in comparison_delta(report["pricing"]["computed_freight_usd_mt"], r)),
-                "Tanggal": r["date"]} for r in matches], hide_index=True, width="stretch")
-            st.caption("Fertecon · halaman 2. Diurutkan berdasarkan tonase; rute dan ketentuan dapat berbeda.")
-    st.caption("Harga laporan bersifat historis; bukan penawaran freight untuk rute ini.")
-
-
-def voyage_view(case, root, output_root, editing):
-    section("02", "Voyage Economics")
-    profile = case.context["vessel_profile"]
-    values = case.current_values()
-    profiles = active_catalog(root)
-    from decimal import Decimal, InvalidOperation
-    try:
-        over_capacity = Decimal(str(values['cargo_mt'])) > Decimal(str(values['dwt_mt']))
-    except (InvalidOperation, ValueError):
-        over_capacity = False
-    if over_capacity:
-        st.error('Muatan melebihi DWT kapal. Kurangi muatan atau pilih kapal lain.')
-    from pilog_cfr_dss.calculations.capacity import deadweight_headroom_mt, gross_dwt_screen
-    capacity_invalid = False
-    try:
-        if case.context.get('capacity_basis') == 'dataset_allowances_v1':
-            capacity_invalid = deadweight_headroom_mt(Decimal(values['dwt_mt']), Decimal(values['bunkers_allowance_mt']),
-                Decimal(values['constants_allowance_mt']), Decimal(values['cargo_mt'])) < 0
-            if capacity_invalid and not over_capacity:
-                st.error('Cargo melebihi sisa kapasitas setelah allowance bunker dan constants. Periksa muatan dan allowance.')
-        bounds = case.context['vessel_policy'][values['vessel_class']]
-        class_ok, class_reason = gross_dwt_screen(Decimal(values['dwt_mt']), Decimal(values['cargo_mt']), Decimal(str(bounds[0])), Decimal(str(bounds[1])))
-        if not class_ok and class_reason == 'CASE_VESSEL_OUTSIDE_CLASS_RANGE':
-            st.error('DWT tidak sesuai rentang kebijakan kelas kapal terpilih. Periksa DWT atau pilih kelas lain.')
-            capacity_invalid = True
-    except (ValueError, KeyError, InvalidOperation):
-        capacity_invalid = True
-    left, right = st.columns([1, 2])
-    error_key = "voyage_error_" + case.draft_id
-    if st.session_state.get(error_key + '_basis') != case.fingerprint:
-        st.session_state.pop(error_key, None)
-    if st.session_state.get(error_key):
-        error = st.session_state[error_key]
-        st.error('Muatan melebihi DWT kapal. Kurangi muatan atau pilih kapal lain.' if error == 'CARGO_EXCEEDS_CASE_GROSS_DWT' else 'Voyage belum dapat dihitung: ' + error)
-    with left:
-        if st.button("Hitung ekonomi voyage", type="primary", disabled=editing or over_capacity or capacity_invalid, width="stretch"):
-            try:
-                with st.spinner("Menghitung durasi, biaya dan tarif…"):
-                    case.prepare(output_root / "ui_cases")
-                st.session_state.pop(error_key, None)
-                st.rerun()
-            except (ValueError, TypeError, KeyError, OSError, ArithmeticError) as error:
-                st.session_state[error_key] = str(error)
-                st.session_state[error_key + '_basis'] = case.fingerprint
-                st.rerun()
-    with right:
-        if case.fixed:
-            st.caption("Freight tetap tidak berubah saat dihitung ulang.")
-    report = case.preparation
-    if editing:
-        return
-    if report is None:
-        if case.fixed:
-            st.caption("Freight tetap " + fmt(case.context["freight_tender"]["value"]) + " USD/MT · ditetapkan " + time_label(case.context["freight_tender"].get("fixed_at")))
-        return
-    base, pricing = report["baseline"], report["pricing"]
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Durasi voyage (hari)", fmt(base["total_days"]))
-    c2.metric("Biaya voyage (USD)", fmt(base["total_cash_cost_usd"]))
-    c3.metric("Indikasi freight (USD/MT)", fmt(pricing["computed_freight_usd_mt"]))
-    c4.metric("Freight tetap (USD/MT)" if case.fixed else "Estimasi surplus/defisit voyage PILOG (USD)", fmt(pricing["freight_tender_usd_mt"]) if case.fixed else fmt(base["contribution_usd"]))
-    tce_actual, breakeven = st.columns(2)
-    tce_actual.metric("TCE hasil voyage (USD/hari)", fmt(base["tce_usd_day"]))
-    breakeven.metric("Freight impas (USD/MT)", fmt(report["metrics"]["freight_break_even_usd_mt"], minimum=True))
-    st.caption("TCE sebelum hire; surplus setelah hire. Keduanya dihitung pada freight indikatif.")
-    st.caption("Dihitung " + time_label(pricing.get("calculated_at")) +
-               (" · Freight ditetapkan " + time_label(case.context["freight_tender"].get("fixed_at")) if case.fixed else ""))
-    duration, costs = st.columns(2)
-    with duration, st.container(border=True):
-        st.markdown("**Durasi & kebutuhan bahan bakar**")
-        st.dataframe([{"Komponen": title, "Nilai": fmt(base[key]), "Satuan": unit} for title, key, unit in (
-            ("Hari laut", "sea_days", "hari"), ("Hari muat", "loading_days", "hari"),
-            ("Hari bongkar", "discharge_days", "hari"), ("Waktu tunggu", "waiting_days", "hari"),
-            ("Fuel oil saat berlayar", "fo_mt", "MT"), ("Diesel oil saat berlayar", "sea_do_mt", "MT"),
-            ("Diesel oil di pelabuhan", "port_do_mt", "MT"))], hide_index=True, width="stretch")
-    with costs, st.container(border=True):
-        st.markdown("**Biaya & estimasi surplus/defisit voyage PILOG**")
-        st.dataframe([{"Komponen": title, "USD": fmt(base[key])} for title, key in (
-            ("Fuel oil", "fo_cost_usd"), ("Diesel oil", "do_cost_usd"),
-            ("Total bahan bakar", "bunker_usd"), ("Pelabuhan dan biaya lain", "port_other_usd"),
-            ("Hire kapal", "hire_usd"), ("Komisi", "commission_usd"),
-            ("Pendapatan freight kotor", "revenue_usd"), ("Net freight revenue", "net_revenue_usd"),
-            ("Total biaya termasuk hire", "total_cash_cost_usd"),
-            ("Estimasi surplus/defisit voyage PILOG", "contribution_usd"))],
+def market_context(case):
+    snapshot = case["market_snapshot"]
+    st.caption("Fearnpulse terakhir diambil: " + price_time(snapshot.get("fetched_at")))
+    with st.expander("Data pasar dan sumber"):
+        st.subheader("TC Rates — pembanding")
+        st.dataframe(pd.DataFrame([{"Kelas": k, "TC Rates USD/hari": fmt(v["value"]),
+            "Seri": v["series"], "Tanggal": v["source_observed_on"]} for k, v in snapshot["tc_rates"].items()]),
             hide_index=True, width="stretch")
-    market_comparables_view(case, root, report)
-    with st.expander('Pembebanan biaya & kapasitas'):
-        d = report.get('pricing_diagnostics', {})
-        st.caption('Seluruh biaya satu voyage dibebankan ke cargo kasus. Satu arah bermuatan; kapasitas berbasis allowance belum membuktikan draft dan ruang muat aktual.')
-        st.dataframe([{'Komponen': title, 'Nilai': fmt(d.get(key)), 'Satuan': unit} for title, key, unit in (
-            ('Cargo / gross DWT', 'cargo_to_gross_dwt_percent', '%'),
-            ('Kapasitas cargo setelah allowance', 'cargo_capacity_after_allowances_mt', 'MT'),
-            ('Sisa kapasitas setelah cargo', 'capacity_headroom_mt', 'MT'),
-            ('Bunker per MT cargo', 'bunker_per_mt_usd', 'USD/MT'),
-            ('Pelabuhan dan lainnya per MT cargo', 'port_other_per_mt_usd', 'USD/MT'),
-            ('Hire per MT cargo', 'hire_per_mt_usd', 'USD/MT'))], hide_index=True, width='stretch')
-    with st.expander('Sensitivitas biaya — freight baseline tetap'):
-        from pilog_cfr_dss.decisions.tender_decision import risk_label
-        st.caption('Skenario dari parameter kasus; freight tidak dihitung ulang saat biaya atau waktu berubah.')
-        st.dataframe([{'Skenario': row['label'], 'Kenaikan harga bunker (%)': fmt(row['fuel_price_increase_percent']),
-                       'Tambahan waktu pelabuhan (hari)': fmt(row['extra_port_days']),
-                       'Freight (USD/MT)': fmt(row['economics']['freight_usd_mt']),
-                       'Biaya voyage (USD)': fmt(row['economics']['total_cash_cost_usd']),
-                       'TCE (USD/hari)': fmt(row['economics']['tce_usd_day']),
-                       'Surplus/defisit (USD)': fmt(row['economics']['contribution_usd']),
-                       'Status': risk_label(Decimal(row['economics']['contribution_usd'])),
-                       'Perubahan surplus (USD)': fmt(row['change_from_baseline_usd'])}
-                      for row in report.get('fixed_freight_sensitivities', [])], hide_index=True, width='stretch')
-    with st.expander("Dasar perhitungan"):
-        st.markdown(
-            "- Hari laut: jarak ÷ kecepatan profil kapal ÷ 24.\n"
-            "- Kebutuhan bahan bakar: konsumsi profil kapal × durasi yang sesuai.\n"
-            "- Biaya fuel oil/diesel oil: kebutuhan masing-masing × harga bunker yang dipakai di Step 1.\n"
-            "- Indikasi freight: (voyage expenses + TC Rates × total hari) ÷ muatan; komisi 0%.\n"
-            "- Hire kapal: Hire/day × total hari voyage.\n"
-            "- Net freight revenue: freight × muatan − komisi.\n"
-            "- TCE: (net freight revenue − voyage expenses) ÷ total hari voyage.\n"
-            "- Estimated surplus: net freight revenue − voyage expenses − hire kapal.\n"
-            "- TC Rates membentuk freight; Hire/day adalah input biaya sewa terpisah.")
-def cost_forecast_view(case, output_root, input_editing):
-    if not case.fixed:
-        return False
-    key = "edit_cost_" + case.draft_id
-    editing = st.toggle("Perbarui estimasi biaya", key=key, disabled=input_editing)
-    forecast = case.context.get("cost_forecast")
-    if forecast and not editing:
-        st.caption("Estimasi biaya terbaru: " + time_label(forecast["recorded_at"]))
-        with st.expander("Perubahan estimasi biaya"):
-            st.write(forecast["reason"])
-            st.dataframe([{"Parameter": LABELS[field], "Saat penawaran": case.values()[field], "Terbaru": record["value"]}
-                          for field, record in forecast["overrides"].items()], hide_index=True, width="stretch")
-    if not editing:
-        return False
-    values = case.current_values()
-    with st.form("cost_forecast_" + case.draft_id):
-        st.caption("Harga freight dan bid tetap. Simpan sebagai salinan estimasi baru.")
-        edits = {}
-        basic = ("port_other_total_usd", "fo_price_usd_mt", "do_price_usd_mt", "waiting_days")
-        cols = st.columns(2)
-        for index, field in enumerate(basic):
-            edits[field] = cols[index % 2].text_input(LABELS[field] + " — estimasi terbaru", values[field])
-        with st.expander("Parameter operasi"):
-            cols = st.columns(2)
-            for index, field in enumerate(field for field in COST_KEYS if field not in basic and field in values):
-                edits[field] = cols[index % 2].text_input(LABELS[field] + " — estimasi terbaru", values[field])
-        reason = st.text_area("Alasan perubahan biaya")
-        submitted = st.form_submit_button("Terapkan estimasi biaya", type="primary")
-    if submitted:
-        try:
-            changed = case.reforecast_costs(edits, reason)
-            changed.prepare(output_root / "ui_cases")
-            st.session_state["case"] = changed
-            _close_editor(key)
-        except (ValueError, TypeError, KeyError, OSError, ArithmeticError) as error:
-            st.error("Estimasi biaya belum diterapkan: " + str(error))
-    return True
+        st.caption("Hire/day tetap input sewa terpisah. TC Rates tidak ditambahkan ke freight biaya.")
+        st.dataframe(pd.DataFrame([{"Input": grade, "Harga USD/MT": fmt(v["value"]), "Jenis harga pembanding": v["series"],
+            "Tanggal seri": v["source_observed_on"], "Sumber nilai": "Input manual" if case["sources"].get("fuel."+grade+".value",{}).get("status")=="manual_override" else v["source_reference"]} for grade, v in case["fuel"].items()]),
+            hide_index=True, width="stretch")
+        st.caption("Seri Singapore 380 CST dan Singapore MGO tersedia sebagai harga pembanding; jenisnya belum tentu sama dengan grade bahan bakar yang digunakan.")
+        st.subheader("Harga barang — " + COMMODITIES[case["commodity"]])
+        records = [dict(row, context_scope="Basis dan wilayah asli sumber")
+            for row in for_product(case["report_snapshot"], case["commodity"])]
+        if records:
+            st.dataframe(pd.DataFrame([{"Penerbit": x["publisher"], "Assessment": x["label"], "Basis": x["basis"],
+                "Low USD/MT": fmt(x["low"]), "High USD/MT": fmt(x["high"]), "Tanggal": x["observation_date"],
+                "Cakupan": x["context_scope"], "Halaman": x["page"], "File": x["source_file"]} for x in records]), hide_index=True, width="stretch")
+        else:
+            st.warning("Assessment produk belum terbaca; perhitungan biaya tidak memakai harga produk lain.")
+        if case["commodity"] == "ammonium_chloride":
+            st.caption("Argus: CFR Southeast Asia. Ammonium chloride tidak ditemukan pada laporan Fertecon yang tersedia.")
+        st.subheader("Freight pembanding")
+        freight = [x for x in case["report_snapshot"]["records"] if x["kind"] == "freight"
+            and x["product"] in (case["commodity"], "dry_bulk_fertilizer")]
+        if freight:
+            st.dataframe(pd.DataFrame([{"Penerbit": x["publisher"], "Rute sumber": x["label"],
+                "Cargo sumber (kt)": x["cargo_kt"], "Low USD/MT": fmt(x["low"]), "High USD/MT": fmt(x["high"]),
+                "Produk sumber": x["product"], "Tanggal": x["observation_date"], "Halaman": x["page"]} for x in freight]),
+                hide_index=True, width="stretch")
+            st.caption("Konteks rute/tonase sumber; bukan quote pelabuhan tujuan. Freight pupuk umum bukan assessment khusus ZA/chloride.")
+        for error in case["report_snapshot"]["errors"]:
+            st.warning(error["source"] + ": " + error["error"])
 
 
-def _round_heading(case, round_number):
-    st.markdown("#### Putaran " + str(round_number))
-    if case.context.get("auction_clock"):
-        window = round_schedule(case.context["auction_clock"], round_number)[-1]
-        st.caption(time_label(window["opens_at"]) + " – " + time_label(window["closes_at"]))
-
-
-def tender_tables(case):
-    """Read-only prices and validity from the shared deterministic engine."""
-    try:
-        preview = case.tender_preview()
-        for round_number in sorted({row["round"] for row in preview}):
-            with st.container(border=True, key="tender_round_" + str(round_number)):
-                _round_heading(case, round_number)
-                st.dataframe([{"Buyer": row["buyer_id"], "Alpha (USD/MT)": fmt(row["alpha_usd_mt"]),
-                    "Freight (USD/MT)": fmt(row["freight_usd_mt"]), "FOB (USD/MT)": fmt(row["fob_usd_mt"]),
-                    "CFR (USD/MT)": fmt(row["cfr_usd_mt"]), "Status": row["reason"]}
-                    for row in preview if row["round"] == round_number], hide_index=True, width="stretch")
-        with st.expander("Rincian bid"):
-            st.dataframe([{"Bid ID": row["bid_id"], "Buyer": row["buyer_id"], "Putaran": row["round"],
-                "Urutan": row["sequence"], "Status input": row["status"],
-                "Waktu masuk": time_label(row.get("submitted_at")),
-                "Berlaku sampai": time_label(row.get("valid_until"))}
-                for row in preview], hide_index=True, width="stretch")
-    except (ValueError, KeyError, TypeError, ArithmeticError) as error:
-        st.warning("Harga bid belum dapat ditampilkan: " + str(error))
-
-
-def tender_view(case, root, output_root, input_editing):
-    section("03", "Tendering")
-    if not case.fixed:
-        st.caption("Tetapkan freight untuk membuka tender.")
-        return False
-    st.markdown("**Freight tetap: " + fmt(case.context["freight_tender"]["value"]) + " USD/MT**")
-    st.caption("Ditetapkan " + time_label(case.context["freight_tender"].get("fixed_at")))
-    key = "edit_tender_" + case.draft_id
-    editing = st.toggle("Edit bid & risiko", key=key, disabled=input_editing)
-    columns = ["bid_id", "buyer_id", "sequence", "alpha_usd_mt", "status", "submitted_at", "valid_until"]
-    raw = case.context.get("bids", [])
-    if editing:
-        round_key = "round_count_" + case.draft_id
-        example_key = "tender_example_draft_" + case.draft_id
-        pending = st.session_state.get(example_key)
-        if pending and pending["basis_fingerprint"] != case.fingerprint:
-            st.session_state.pop(example_key, None)
-            pending = None
-        if st.button("Acak ulang bid & risiko" if raw or pending else "Isi contoh bid tiga putaran"):
-            try:
-                example = generate_example(case)
-                st.session_state[example_key] = {"basis_fingerprint": case.fingerprint, "example": example}
-                st.session_state[round_key] = 3
-                st.rerun()
-            except (ValueError, KeyError, TypeError, ArithmeticError) as error:
-                st.error("Contoh belum dibuat: " + str(error))
-        draft_risks = case.context["scenarios"]
-        editor_version = str(case.revision)
-        if pending:
-            raw = pending["example"]["bids"]
-            draft_risks = pending["example"]["scenarios"]
-            editor_version += "_" + pending["example"]["metadata"]["seed"]
-            st.caption("Contoh acak belum diterapkan.")
-        count = max(st.session_state.get(round_key, 3), max((bid["round"] for bid in raw), default=3))
-        if st.button("Tambah putaran"):
-            st.session_state[round_key] = count + 1
-            st.rerun()
-        st.caption("FOB dan CFR ditampilkan setelah perubahan diterapkan. Freight tetap.")
-        with st.form("tender_" + case.draft_id):
-            edited_rounds = []
-            for round_number in range(1, count + 1):
-                _round_heading(case, round_number)
-                grid = st.data_editor(pd.DataFrame([{k: str(bid.get(k, "")) for k in columns}
-                    for bid in raw if bid["round"] == round_number], columns=columns),
-                    num_rows="dynamic", hide_index=True, width="stretch",
-                    column_config={
-                        "bid_id": st.column_config.TextColumn("Bid ID"), "buyer_id": st.column_config.TextColumn("Buyer"),
-                        "sequence": st.column_config.TextColumn("Urutan"),
-                        "alpha_usd_mt": st.column_config.TextColumn("Alpha (USD/MT)"),
-                        "status": st.column_config.SelectboxColumn("Status", options=["active", "withdrawn", "expired", "replaced"]),
-                        "submitted_at": st.column_config.TextColumn("Waktu masuk (ISO + zona)"),
-                        "valid_until": st.column_config.TextColumn("Berlaku sampai (ISO + zona)"),
-                    }, key="bid_grid_" + case.draft_id + "_" + editor_version + "_" + str(round_number))
-                edited_rounds.append((round_number, grid))
-            with st.expander("Waktu dan pilihan PI"):
-                cutoff = st.text_input("Cutoff evaluasi (ISO dengan zona waktu)",
-                    pending["example"]["evaluation_cutoff"] if pending else case.context["evaluation_cutoff"],
-                    key="cutoff_" + case.draft_id + "_" + editor_version)
-                start = st.text_input("Mulai putaran pertama (ISO dengan zona waktu)", case.context["auction_clock"]["starts_at"]) if case.context.get("auction_clock") else None
-                selection = st.text_input("Bid pilihan PI (opsional)", "" if pending else case.context.get("pi_selected_bid_id") or "",
-                    key="selection_" + case.draft_id + "_" + editor_version,
-                    help="Kosong: kandidat ranking. Isi jika PI telah memilih bid; tidak mengubah hasil hitungan.")
-                st.caption("3 menit tetap per putaran. Tambahan putaran memerlukan penyesuaian cutoff.")
-            with st.expander("Skenario risiko"):
-                scenario_columns = ["scenario_id", "label", "fuel_price_increase_fraction", "extra_port_days"]
-                scenarios = st.data_editor(pd.DataFrame([{k: str(row.get(k, "")) for k in scenario_columns} for row in draft_risks],
-                    columns=scenario_columns), hide_index=True, num_rows="dynamic", width="stretch",
-                    column_config={"fuel_price_increase_fraction": st.column_config.TextColumn("Kenaikan bahan bakar (fraksi; 0.25 = 25%)"),
-                                   "extra_port_days": st.column_config.TextColumn("Tambahan hari pelabuhan")},
-                    key="scenario_grid_" + case.draft_id + "_" + editor_version)
-            submitted = st.form_submit_button("Terapkan bid & risiko", type="primary")
-        if submitted:
-            try:
-                bids = []
-                for round_number, grid in edited_rounds:
-                    for row in grid.fillna("").to_dict("records"):
-                        if any(str(value).strip() for value in row.values()):
-                            bids.append({**row, "round": str(round_number)})
-                case.apply_tender(bids, cutoff.strip(), selection.strip() or None, start.strip() if start else None)
-                case.apply_scenarios(scenarios.fillna("").to_dict("records"))
-                if pending:
-                    record_applied_example(case, pending["example"])
-                    st.session_state.pop(example_key, None)
-                _close_editor(key)
-            except (ValueError, TypeError, KeyError) as error:
-                st.error(f"Perubahan belum diterapkan: {error}")
-    elif raw:
-        if case.context.get("tender_example"):
-            st.caption("Bid dan skenario risiko: contoh acak.")
-        tender_tables(case)
-    else:
-        st.caption("Belum ada bid.")
-    if st.button("Evaluasi tender & DSS", type="primary", disabled=editing or input_editing):
-        try:
-            with st.status("Mengevaluasi tender…", expanded=False) as status:
-                case.evaluate(output_root / "ui_cases", output_root / "runs")
-                status.update(label="Evaluasi tersimpan", state="complete")
-            st.rerun()
-        except (ValueError, TypeError, KeyError, OSError, ArithmeticError) as error:
-            st.error(f"Hasil belum dapat disimpan: {error}")
-    return editing
-
-
-def supporting_analysis(report, fallback_parts):
-    with st.expander("Analisis pendukung"):
-        exposure, risk, logistics, pricing = st.tabs(["Exposure", "Risiko", "Dampak logistik", "Konsekuensi harga"])
-        if not report.get("metrics") or not report.get("baseline"):
-            for tab, body in zip((exposure, risk, logistics, pricing), fallback_parts):
-                with tab:
-                    st.markdown(body)
-            return
-        base, metrics, case = report["baseline"], report["metrics"], report["case"]
-        review = report.get("commercial_review", {})
-        if report["recommendation"]["gate_a"] != "PASS":
-            st.caption("Gate B belum dievaluasi; angka freight berikut bersifat diagnostik.")
-        with exposure:
-            per_mt, break_even, delay = st.columns(3)
-            per_mt.metric("Kontribusi per MT (USD)", fmt(metrics["contribution_per_mt_usd"]))
-            break_even.metric("Freight impas (USD/MT)", fmt(review.get("break_even_offer_usd_mt", metrics["freight_break_even_usd_mt"]), minimum=True))
-            buffer = metrics["additional_port_days_to_break_even"]
-            delay.metric("Tambahan hari sampai impas", fmt(buffer) if buffer is not None else "—")
-            if metrics["delay_buffer_status"] == "BASELINE_ALREADY_NEGATIVE":
-                st.caption("Baseline sudah rugi; tidak ada buffer tambahan delay.")
-            elif metrics["delay_buffer_status"] == "NO_INCREMENTAL_DAILY_COST_MODELLED":
-                st.caption("Biaya harian tambahan belum dimodelkan.")
+def results_view(result):
+    st.header("Hasil freight")
+    st.info(result["recommendation"]["action"])
+    for family, scenarios in result["classes"].items():
+        nominal = scenarios["nominal"]
+        title = family + (" · " + fmt(nominal["freight_usd_mt"]) + " USD/MT" if nominal["feasible"] else " · Muatan atau input perlu diperiksa")
+        with st.expander(title, expanded=True):
+            if not nominal["feasible"]:
+                st.warning(nominal.get("error", "Muatan nominal melebihi kapasitas screening kapal."))
             else:
-                st.caption("Sensitivitas delay hanya menambah operasional kapal dan diesel oil pelabuhan.")
-            changes = cost_change_lines(report)
-            if changes:
-                st.markdown(display_reference("\n".join(changes)))
-        with risk:
-            st.markdown("**Sensitivitas biaya**")
-            st.dataframe([{"Skenario": row["label"], "Estimasi Surplus PILOG (USD)": fmt(row["economics"]["contribution_usd"]),
-                "Perubahan (USD)": fmt(row["change_from_baseline_usd"]), "Dampak": row["interpretation"]}
-                for row in report.get("scenarios", [])], hide_index=True, width="stretch")
-            st.caption("Cakupan lanjutan: probabilitas risiko dan mitigasi/hedging.")
-        with logistics:
-            st.markdown("**" + case["loading_port"] + " → " + case["discharging_port"] + " · satu arah bermuatan**")
-            duration, capacity = st.columns(2)
-            with duration:
-                st.dataframe([{"Durasi": title, "Hari": fmt(base[key])} for title, key in (
-                    ("Laut", "sea_days"), ("Muat", "loading_days"), ("Bongkar", "discharge_days"),
-                    ("Waktu tunggu", "waiting_days"), ("Total", "total_days"))], hide_index=True, width="stretch")
-            with capacity:
-                st.dataframe([{"Parameter": "Muatan", "Nilai": fmt(case["cargo_mt"]), "Satuan": "MT"},
-                    {"Parameter": "DWT kapal", "Nilai": fmt(case["dwt_mt"]), "Satuan": "MT"},
-                    {"Parameter": "Jarak satu arah", "Nilai": fmt(case["distance_nm"]), "Satuan": "NM"}],
+                a, b, c = st.columns(3)
+                a.metric("Total biaya USD", fmt(nominal["total_usd"]))
+                b.metric("Hari voyage", fmt(nominal["days"]))
+                c.metric("Minimum penawaran USD/MT", fmt(nominal["minimum_offer_usd_mt"]))
+                if nominal["commercial"]:
+                    a, b, c = st.columns(3)
+                    a.metric("Pendapatan freight USD", fmt(nominal["commercial"]["net_freight_revenue_usd"]))
+                    b.metric("Surplus/defisit USD", fmt(nominal["commercial"]["surplus_usd"]))
+                    c.metric("TCE hasil USD/hari", fmt(nominal["commercial"]["tce_usd_day"]))
+                st.dataframe(pd.DataFrame([{"Aktivitas": x["activity"], "Hari": fmt(x["days"]),
+                    "Hire USD": fmt(x["hire_usd"]), "VLSFO MT": fmt(x["vlsfo_mt"]), "LSMGO MT": fmt(x["lsmgo_mt"]),
+                    "Bunker USD": fmt(x["bunker_usd"]), "Port DA USD": fmt(x["port_da_usd"]),
+                    "Lain USD": fmt(x["other_usd"]), "Total USD": fmt(x["total_usd"])} for x in nominal["ledger"]]),
                     hide_index=True, width="stretch")
-                checks = report["recommendation"].get("checks", [])
-                screen = next((check["status"] for check in checks if check["name"] == "Kapasitas — screen awal"), "Belum dievaluasi")
-                st.caption("Screen DWT: " + screen)
-            st.caption("Cakupan lanjutan: DWCC, kesiapan kapal/terminal dan jadwal/laycan.")
-        with pricing:
-            reference = price_reference(report)
-            if reference:
-                st.caption("Bid rujukan: " + reference["buyer_id"] + " / " + reference["bid_id"])
-                fob, freight, cfr = st.columns(3)
-                fob.metric("FOB PI (USD/MT)", fmt(reference["fob_usd_mt"]))
-                freight.metric("Freight PILOG (USD/MT)", fmt(reference["freight_usd_mt"]))
-                cfr.metric("CFR (USD/MT)", fmt(reference["cfr_usd_mt"]))
-            st.caption("FOB = indeks + alpha buyer · CFR = FOB + freight tetap")
-            st.dataframe([{"Buyer": row["buyer_id"], "Bid": row["bid_id"], "Alpha": fmt(row["alpha_usd_mt"]),
-                "FOB PI": fmt(row["fob_usd_mt"]), "Freight PILOG": fmt(row["freight_usd_mt"]),
-                "CFR": fmt(row["cfr_usd_mt"]), "Gap OE/HPS": fmt(row["oe_gap_usd_mt"]), "Hasil": row["reason"]}
-                for row in report["tender"].get("bids", []) if row["is_latest"]], hide_index=True, width="stretch")
-            st.caption("Harga dalam USD/MT · OE/HPS dan gap hanya untuk internal.")
-            if review:
-                with st.expander("Asal tarif dan waktu harga"):
-                    st.markdown(display_reference("\n".join(pricing_bridge_lines(report))))
+            scenario_names = {"minimum": "Minimum", "nominal": "Nominal", "maximum": "Maksimum"}
+            st.dataframe(pd.DataFrame([{"Skenario": scenario_names[label], "Muatan MT": fmt(row["cargo_mt"]),
+                "Batas MT": fmt(row.get("capacity", {}).get("limit_mt")), "Hari": fmt(row.get("days")),
+                "Freight USD/MT": fmt(row.get("freight_usd_mt")),
+                "Status": "Lolos pemeriksaan awal" if row["feasible"] else row.get("error", "Kapasitas tidak cukup")}
+                for label, row in scenarios.items()]), hide_index=True, width="stretch")
+    st.caption("Dihitung: " + price_time(result["calculated_at"]))
+    with st.expander("Commercial brief", expanded=True):
+        brief = commercial_brief(result)
+        st.markdown(brief)
+        st.download_button("Download brief", brief, "commercial_brief.md", mime="text/markdown")
+        st.download_button("Download Detailed Brief", json.dumps(serializable(result), ensure_ascii=False, indent=2),
+                        "freight_result.json", mime="application/json")
+
+
+def matrix_view(result, root):
+    case = result["case"]
+    with st.expander("Spread matrix"):
+        choices = port_catalog(str(root / "data/raw/Ports.xlsx"), (root / "data/raw/Ports.xlsx").stat().st_mtime_ns)
+        a, b = st.columns(2)
+        origins = a.multiselect("Port muat", choices, default=[(case["ports"]["load"]["name"], case["ports"]["load"]["country"])],
+                               format_func=lambda p: p[0] + ", " + p[1])
+        destinations = b.multiselect("Port bongkar", choices, default=[(case["ports"]["discharge"]["name"], case["ports"]["discharge"]["country"])],
+                                    format_func=lambda p: p[0] + ", " + p[1])
+        a, b, c = st.columns(3)
+        family = a.selectbox("Kelas matrix", list(case["profiles"]))
+        basis = b.selectbox("Muatan matrix", ["nominal", "minimum", "maximum"],
+                            format_func={"nominal": "Nominal", "minimum": "Minimum", "maximum": "Maksimum"}.get)
+        display = c.selectbox("Tampilan", ["Flat", "Delta"])
+        rows_input = []
+        for side, selected in (("load", origins), ("discharge", destinations)):
+            reference = case["ports"][side]
+            for chosen_port in selected:
+                if tuple(chosen_port) != (reference["name"], reference["country"]):
+                    rows_input.append({"Sisi": side, "Port": chosen_port[0], "Negara": chosen_port[1],
+                        "Rate MT/hari": float(reference["rate_mt_day"]), "Port DA USD": float(reference["port_da_usd"]),
+                        "Batas draft m": None, "Terms": reference["terms"]})
+        overrides = {}
+        edited_ports = rows_input
+        if rows_input:
+            st.caption("Parameter port tambahan; nilai awal diwariskan dari input muat/bongkar.")
+            edited_ports = st.data_editor(pd.DataFrame(rows_input), key="matrix_ports_" + result["input_sha256"],
+                hide_index=True, disabled=["Sisi", "Port", "Negara"],
+                column_config={"Terms": st.column_config.SelectboxColumn(options=list(TERMS)),
+                    "Rate MT/hari": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
+                    "Port DA USD": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
+                    "Batas draft m": st.column_config.NumberColumn(min_value=0.0, format="%.2f")}).to_dict("records")
+            for row in edited_ports:
+                for field in ("Rate MT/hari", "Port DA USD", "Batas draft m"):
+                    row[field] = None if pd.isna(row[field]) else row[field]
+                overrides[(row["Sisi"], row["Port"], row["Negara"])] = {
+                    "rate_mt_day": str(row["Rate MT/hari"]), "port_da_usd": str(row["Port DA USD"]),
+                    "draft_limit_m": None if row["Batas draft m"] is None else str(row["Batas draft m"]),
+                    "terms": row["Terms"]}
+        key = digest({"case": result["input_sha256"], "origins": origins, "destinations": destinations,
+                      "family": family, "basis": basis, "ports": edited_ports})
+        saved = st.session_state.get("matrix")
+        if origins and destinations and (not saved or saved[0] != key):
+            try:
+                with st.spinner("Menghitung matrix…"):
+                    st.session_state["matrix"] = (key, matrix(case, origins, destinations, family, root, basis, overrides))
+            except ValueError as error:
+                st.session_state.pop("matrix", None)
+                st.error(str(error))
+        elif not origins or not destinations:
+            st.session_state.pop("matrix", None)
+            st.caption("Pilih minimal satu port muat dan satu port bongkar.")
+        saved = st.session_state.get("matrix")
+        if origins and destinations and saved and saved[0] == key:
+            cells = saved[1]
+            rows = []
+            for dest in destinations:
+                row = {"PoD": dest[0] + ", " + dest[1]}
+                for origin in origins:
+                    cell = next(x for x in cells if tuple(x["origin"]) == tuple(origin) and tuple(x["destination"]) == tuple(dest))
+                    row[origin[0] + ", " + origin[1]] = fmt(cell["rate"] if display == "Flat" else cell["delta"])
+                rows.append(row)
+            event = st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch",
+                key="matrix_grid_" + key + display, on_select="rerun", selection_mode="single-cell")
+            selected_cells = event.selection.cells
+            if selected_cells and selected_cells[0][1] != "PoD":
+                index, column = selected_cells[0]
+                dest = destinations[index]
+                origin = next(p for p in origins if p[0] + ", " + p[1] == column)
+                chosen = next(i for i, cell in enumerate(cells)
+                    if tuple(cell["origin"]) == tuple(origin) and tuple(cell["destination"]) == tuple(dest))
             else:
-                st.markdown(fallback_parts[3])
+                chosen = st.selectbox("Rincian sel", range(len(cells)),
+                    format_func=lambda i: cells[i]["origin"][0] + " → " + cells[i]["destination"][0])
+            cell = cells[chosen]
+            if cell.get("result"):
+                st.caption("Port baru mewarisi rate, Port DA, terms dan kalender input; batas draft baru belum diisi." if cell["inherited_ports"] else "Kasus dasar.")
+                st.markdown(commercial_brief(cell["result"]))
+            else:
+                st.warning(cell.get("error", "Opsi tidak tersedia."))
+            st.download_button("Download matrix", json.dumps(serializable(cells), ensure_ascii=False, indent=2),
+                               "spread_matrix.json", mime="application/json")
+        st.caption("Flat: USD/MT. Delta: selisih terhadap rute dasar. Maksimum 25 sel; bukan selisih laba.")
 
 
-def decision_view(case, editing):
-    section("04", "Commercial Decision Brief")
-    if editing:
-        st.caption("Editor aktif. Hasil disembunyikan agar tidak terbaca sebagai hasil input yang belum diterapkan.")
-        return
-    report = case.result
-    if report is None:
-        st.caption("Belum dievaluasi.")
-        return
-    rec = report["recommendation"]
-    action = "GO" if rec["action"] == "GO" else "NO GO"
-    st.html('<div class="decision-banner ' + ("no-go" if action == "NO GO" else "") + '">' +
-            '<div class="action">' + action + '</div><p>' + escape(rec["summary"]) + '</p></div>')
-    text = display_reference(commercial_brief(report))
-    parts = re.split(r"^## [1-5]\. .*$", text, flags=re.MULTILINE)
-    def screen_body(body):
-        return "\n".join(line for line in body.splitlines() if not line.startswith(("Case: ", "Dibuat (UTC): ", "Brief I4-")))
-    if len(parts) == 6:
-        main = screen_body(parts[1])
-        # Separate the short decision statements; preserve all table rows and figures.
-        main = re.sub(r"(?m)^(\*\*(?:Cakupan keputusan|GO:|NO GO:)|Kandidat tender:|Bid barang yang|Risiko utama yang|Tarif penawaran)", r"\n\1", main)
-        st.markdown(main)
-        supporting_analysis(report, [screen_body(body) for body in parts[2:]])
-    else:
-        st.markdown(text)
-    with st.expander("Seluruh bid dan hasil perhitungan"):
-        rows = report.get("tender", {}).get("bids", [])
-        if rows:
-            st.dataframe([{key: fmt(bid[key]) if key in {
-                "alpha_usd_mt", "fob_usd_mt", "freight_usd_mt", "cfr_usd_mt", "oe_gap_usd_mt"} else bid.get(key) for key in (
-                "bid_id", "buyer_id", "round", "alpha_usd_mt", "fob_usd_mt", "freight_usd_mt", "cfr_usd_mt",
-                "oe_gap_usd_mt", "is_latest", "eligible_rank", "reason")} for bid in rows], hide_index=True, width="stretch")
-        if case.run_dir:
-            st.markdown(display_reference((case.run_dir / "calculation_audit.md").read_text(encoding="utf-8")))
-    st.divider()
-    st.caption("Dihitung " + time_label(report.get("pricing", {}).get("calculated_at")) + " · Freight ditetapkan " +
-               time_label((case.context.get("freight_tender") or {}).get("fixed_at")))
-    a, b, c = st.columns(3)
-    a.download_button("Unduh decision brief", text, "commercial_decision_brief.md", mime="text/markdown", width="stretch")
-    b.download_button("Unduh hasil JSON", json.dumps(report, ensure_ascii=False, indent=2), "result.json", mime="application/json", width="stretch")
-    c.download_button("Unduh paket + snapshot", case.bundle(), report["run_id"] + ".zip", mime="application/zip", width="stretch")
-
-
-def render(root: Path, output_root: Path | None = None):
-    output_root = output_root or root / "outputs"
-    st.set_page_config(page_title="PILOG · CFR Decision Workspace", layout="wide")
+def render(root: Path, output_root=None):
+    st.set_page_config(page_title="PILOG Freight Desk", page_icon="⚓", layout="wide")
     st.html(STYLE)
-    closed = st.session_state.pop("_close_editor", None)
-    if closed:
-        st.session_state[closed] = False
-    if "available_market" not in st.session_state:
+    runtime = (output_root or root / "outputs") / "market_cache"
+    try:
+        market = fresh_market()
         try:
-            st.session_state["available_market"] = _fresh_market()
-        except Exception:
-            st.session_state["available_market"] = latest_saved(root, output_root / 'market_cache')
-            st.session_state['market_offline'] = True
-        if st.session_state.get('available_market'):
-            try:
-                save_runtime_snapshot(st.session_state['available_market'], output_root / 'market_cache')
-            except (ValueError, OSError):
-                st.session_state['market_cache_unavailable'] = True
-    if not st.session_state["available_market"]:
-        st.error("Belum ada snapshot Fearnpulse. Jalankan scripts/refresh_market_inputs.py terlebih dahulu.")
+            save_runtime_snapshot(market, runtime)
+        except OSError:
+            pass
+        market_error = None
+    except Exception as error:
+        market = latest_saved(root, runtime)
+        market_error = str(error)
+    if market is None:
+        st.error("Snapshot pasar belum tersedia.")
         return
-    if st.session_state.get('market_offline'):
-        st.caption('Data pasar terakhir tersedia digunakan.')
-    if "case" not in st.session_state:
-        fresh = new_market_case(root, st.session_state["available_market"], dynamic_route=True)
-        try:
-            fresh.context['baltic_source'] = _baltic_check()
-        except (ValueError, OSError):
-            fresh.context['baltic_source'] = {'url':'https://www.balticexchange.com/en/data-services/market-information0/dry-services.html',
-                                               'source_status':'reference_checked_2026-11-03', 'live_verified':False}
-        choices = ports(root / 'data/raw/Ports.xlsx')
-        origin = next((p for p in choices if p[0] == fresh.values()['loading_port']), None)
-        dest = next((p for p in choices if p[0] == fresh.values()['discharging_port']), None)
-        if origin and dest:
-            try:
-                ref = distance(origin, dest, root / 'data/raw/Simulasi Tarif Internasional_Mei 2025.xlsx')
-                apply_route(fresh, origin, dest, ref)
-            except (ValueError, OSError):
-                st.session_state['route_failure_' + fresh.draft_id] = (origin, dest)
-                fresh.context['case_basis_version'] = 'I5-ROUTE.1'
-        else:
-            st.error('Pelabuhan default tidak ditemukan di daftar pelabuhan.')
-            return
-        profiles = active_catalog(root)
-        apply_profile(fresh, profiles['profiles'][0], profiles['policy'])
-        try:
-            fresh.context['market_index'] = read_reports(root)
-        except Exception:
-            st.warning('Laporan indeks belum terbaca; menggunakan data terakhir yang tersedia.')
-        st.session_state["case"] = fresh
-    case = st.session_state["case"]
-    if not is_chartered(case.context):
-        sidebar(root, case, output_root)
-        st.warning('Kasus ini memakai model kapal milik sebelumnya. Pilih Kasus baru untuk model kapal sewa dengan Hire/day; histori tetap dipertahankan.')
-        return
-    if not case.fixed and case.context.get('capacity_basis') != 'dataset_allowances_v1':
-        case.context['capacity_basis'] = 'dataset_allowances_v1'
-        case.context['cost_allocation_basis'] = 'entire_modelled_voyage_to_case_cargo'
-        case._invalidate(voyage=True)
-    sidebar(root, case, output_root)
-    if case.context.get('distance_reference', {}).get('source_status') in {'observed_workbook_distance', 'pending_route'}:
-        if case.fixed:
-            st.warning('Draft ini memakai jarak OD lama. Buat kasus baru untuk menghitung jarak terbaru.')
-            return
-        choices = ports(root / 'data/raw/Ports.xlsx')
-        origin = next((p for p in choices if p[0] == case.values()['loading_port']), None)
-        dest = next((p for p in choices if p[0] == case.values()['discharging_port']), None)
-        if origin and dest:
-            try:
-                ref = distance(origin, dest, root / 'data/raw/Simulasi Tarif Internasional_Mei 2025.xlsx')
-                apply_route(case, origin, dest, ref)
-                st.rerun()
-            except (ValueError, OSError):
-                st.session_state['route_failure_' + case.draft_id] = (origin, dest)
-                case.context['case_basis_version'] = 'I5-ROUTE.1'
-        else:
-            st.error('Pelabuhan draft tidak ditemukan di daftar pelabuhan.')
-            return
-    if case.context.get('case_basis_version') != 'I5-ROUTE.1':
-        st.warning('Draft lama memakai basis sebelumnya. Buat kasus baru untuk memakai input saat ini.')
-        return
-    if not case.context.get("market_snapshot") or case.context.get("case_basis_version") not in (BASIS_VERSION, 'I5-ROUTE.1'):
-        st.warning("Draft lama. Buat salinan dengan komisi 0% dan jarak OD; freight serta bid lama tidak diubah.")
-        if st.button("Salin dengan basis terbaru"):
-            st.session_state["case"] = new_market_case(root, st.session_state["available_market"])
+    with st.sidebar:
+        st.image(str(root / "public/Pupuk_Indonesia_Logistik.png"), width=100)
+        if st.button("Kasus baru", width="stretch"):
+            for key in ("freight_case", "freight_result", "matrix"):
+                st.session_state.pop(key, None)
             st.rerun()
-        return
-    st.html('<header class="workspace-header"><h1>CFR Decision Workspace</h1></header>')
-    st.html('<nav class="workflow-strip" aria-label="Alur analisis">'
-            '<a href="#pilog-step-01" target="_self"><strong>01</strong>Data & kapal</a>'
-            '<a href="#pilog-step-02" target="_self"><strong>02</strong>Voyage Economics</a></nav>')
-    section("01", "Data Pengiriman & Kapal")
-    prior_editing = any(st.session_state.get(prefix + case.draft_id, False)
-        for prefix in ("edit_input_", "edit_cost_", "edit_tender_"))
-    pending_route = review_data(case, root, prior_editing)
-    editing = input_editor(case, pending_route)
-    cost_was_editing = st.session_state.get("edit_cost_" + case.draft_id, False)
-    bid_was_editing = st.session_state.get("edit_tender_" + case.draft_id, False)
-    voyage_view(case, root, output_root, editing or cost_was_editing or bool(pending_route))
+        upload = st.file_uploader("Buka paket kasus", type=["json"])
+        if st.button("Buka kasus", disabled=upload is None, width="stretch"):
+            try:
+                st.session_state["freight_case"] = import_case(upload.getvalue())
+                st.session_state["widget_generation"] = st.session_state.get("widget_generation", 0) + 1
+                st.session_state["replay_case"] = True
+                st.session_state.pop("freight_result", None)
+                st.session_state.pop("matrix", None)
+                st.rerun()
+            except (ValueError, KeyError, TypeError) as error:
+                st.error(str(error))
+        st.caption("Internal PI/PILOG")
+    if "freight_case" not in st.session_state:
+        st.session_state["freight_case"] = default_case(root, market)
+        st.session_state["replay_case"] = False
+    case = st.session_state["freight_case"]
+    # New feed affects default market inputs, never manual overrides or imported replay.
+    if not st.session_state.get("replay_case"):
+        case["market_snapshot"] = deepcopy(market)
+        case["report_snapshot"] = read_assessments(root)
+        for grade, key in (("VLSFO", "fo_price_usd_mt"), ("LSMGO", "do_price_usd_mt")):
+            field = "fuel." + grade + ".value"
+            if case["sources"].get(field, {}).get("status") != "manual_override":
+                case["fuel"][grade] = dict(deepcopy(market["bunkers"][key]), requested_grade=grade,
+                                           proxy=True, original_value=market["bunkers"][key]["value"])
+    st.title("Automated Freight Desk PILOG    ")
+    if market_error:
+        st.caption("Fearnpulse tidak terhubung; menggunakan data pasar yang tersimpan.")
+    inputs(case, root)
+    market_context(case)
+    with st.sidebar:
+        st.download_button("Download kasus", export_case(case), "pilog_freight_case.json",
+                           mime="application/json", width="stretch")
+    if st.button("Hitung freight", type="primary", width="stretch"):
+        try:
+            if st.session_state["input_errors"]:
+                raise ValueError("; ".join(st.session_state["input_errors"]))
+            st.session_state["freight_result"] = evaluate(case)
+        except (ValueError, KeyError, TypeError) as error:
+            st.session_state.pop("freight_result", None)
+            st.error("Periksa input: " + str(error))
+    result = st.session_state.get("freight_result")
+    if result and result["input_sha256"] == digest(case):
+        results_view(result)
+        matrix_view(result, root)
+    elif result:
+        st.caption("Input berubah. Hitung freight untuk memperbarui hasil.")

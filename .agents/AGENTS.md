@@ -1,5 +1,21 @@
 # Panduan Agentic Coding - PILOG CFR DSS
 
+## Aktif — D-078: Freight Desk FD.1, selesai teknis 13 November 2026
+
+Pengguna memberi execute rencana docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md. B0–B6 selesai teknis; bukti dan batas ada di bagian 14. Menunggu review pengguna/domain, bukan persetujuan komersial atau produksi.
+
+Runtime sekarang: models/freight_desk.py → sources/ → calculations/freight_desk.py + capacity.py + port_time.py → application/freight_desk.py → decisions/freight_desk.py → reporting/commercial_brief.py → ui/views.py. Entry apps/streamlit_app.py. CLI scripts/run_market_simulation.py tanpa tender. Input/schema PILOG-FREIGHT.1; formula FD.1; terms CMN-TERMS.2. Paket lama ditolak eksplisit; jangan menghidupkan modul tender lama.
+
+Scope: Urea granular, Ammonium sulphate/ZA dan Ammonium chloride; semua dry bulk charter. SF 1,315 m³/MT; tolerance ±10%, nominal utama dan full min/maks. 23 terms: 22 screenshot + THEX3 konfirmasi pengguna, sebagai estimasi faktor atau kalender operasi yang menggantikannya. Summer draft kapal terpisah port limit; capacity berat/grain/TPC screening bukan loading approval. Baltic BHSI38/BSI63 satu set; Supramax 14 knot berpasangan konsumsi 29 MT/hari, bukan konsumsi 12 knot.
+
+Freight = total hire+bunker+dua Port DA+other dibagi cargo, komisi 0%. Hire default 13.000 USD/hari editable; TC Rates hanya benchmark. Tanpa tarif jual independen, rekomendasi biaya minimum/opsi, bukan profit. Brief tetap preskriptif lima bagian dengan tindakan/angka/cek status. Market sumber/as-of/fetched/calculated terpisah; manual override dan replay tidak ditimpa feed. Chloride Argus-only, tidak mengarang Fertecon.
+
+80/80 tes lulus (14,356 detik, Python 3.11.9), browser desktop dan ekspor/impor/defisit/matrix dasar PASS/0 JS errors; CLI replay hash sama. Server agen dihentikan. Mobile screenshot masih sidebar overlay sesudah resize; bukan mobile UAT selesai. Manifest 29 retired source modules dan 19 retired test files/230 methods + 6 clock methods di state; tes FD.1 bukan klaim seluruh workflow historis tetap diuji.
+
+Tidak ada perubahan workbook/PDF sumber, Fleetra, stage/commit/push/deploy/transaksi. Snapshot spesifikasi Baltic dikoreksi sesuai sumber; .gitignore milik pengguna tidak diubah. README dan plan bagian 14 adalah handover. Catatan setelah heading berikut adalah histori jika bertentangan dengan D-078.
+
+THEX3 (Kamis 12:00–Sabtu 08:00 EXCL, faktor 1,35) ditambahkan atas koreksi pengguna. Catalog v1 tetap replayable tanpa perubahan; pemilihan THEX3 pada kasus lama memperbarui catalog secara eksplisit. Regresi faktor, kalender dan biaya lolos.
+
 ## Aktif D-077 — kapal sewa, Hire/day terpisah (5 November 2026)
 
 Pengguna menyetujui dan meminta implementasi hardening pada rencana aktif docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md. Jalur UI I5 sekarang I5-CHARTER.1: Handysize/Supramax kapal sewa, satu arah muat + laden + bongkar + tunggu, komisi 0%. TC Rates Fearnpulse sesuai kelas membentuk freight indikatif; Hire/day default historis USD 13.000 editable adalah biaya sewa terpisah. Running cost/F44 tidak dipakai pada kasus/profil aktif. Tidak menyalin nilainya menjadi hire, menambah markup, menambah input harga jual, atau mengikat hire ke refresh/perubahan kelas.

@@ -6,6 +6,13 @@ from typing import Iterable
 from pilog_cfr_dss.models.contracts import CostLine
 
 
+def port_expenses_total(values):
+    amounts = tuple(values)
+    if any(not x.is_finite() or x < 0 for x in amounts):
+        raise ValueError("INVALID_PORT_COST")
+    return sum(amounts, Decimal(0))
+
+
 def daily_cost_usd(payable_days: Decimal, rate_usd_day: Decimal) -> Decimal:
     if payable_days < 0 or rate_usd_day < 0:
         raise ValueError("INVALID_DAILY_COST_INPUT")

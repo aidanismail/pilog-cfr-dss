@@ -6,9 +6,6 @@ from unittest.mock import patch
 
 from pilog_cfr_dss.sources.fearnpulse import normalize_payloads, _request
 from pilog_cfr_dss.sources.voyage_profiles import read_profiles
-from pilog_cfr_dss.models.tender_clock import round_window, bid_in_round
-from pilog_cfr_dss.decisions.tender_decision import evaluate_tender
-from pilog_cfr_dss.calculations.tender_pricing import bid_prices
 from pilog_cfr_dss.reporting.formatting import price_time
 from decimal import Decimal as D
 
@@ -118,39 +115,3 @@ class WorkbookProfilesTests(unittest.TestCase):
         self.assertTrue(all("sintetis" in p["note"] for p in profiles))
         self.assertEqual({p["profile_id"] for p in profiles},{"ve_sheet1","ve_aqaba","ve_sby","ve_godau"})
         self.assertEqual([p["market_family"] for p in profiles],["Handysize","Handysize","Supramax","Supramax"])
-
-class FixedRoundTests(unittest.TestCase):
-    clock = {"mode": "fixed_window", "round_duration_seconds": 180, "starts_at": "2026-10-27T02:00:00+00:00"}
-
-    def test_open_inclusive_close_exclusive(self):
-        self.assertTrue(bid_in_round({"round": 1, "submitted_at": "2026-10-27T02:00:00+00:00"}, self.clock))
-        self.assertTrue(bid_in_round({"round": 1, "submitted_at": "2026-10-27T02:02:59+00:00"}, self.clock))
-        self.assertFalse(bid_in_round({"round": 1, "submitted_at": "2026-10-27T02:03:00+00:00"}, self.clock))
-        self.assertFalse(bid_in_round({"round": 1, "submitted_at": "2026-10-27T01:59:59+00:00"}, self.clock))
-
-    def test_round_four_is_supported_without_resetting_clock(self):
-        start, end = round_window(self.clock, 4)
-        self.assertEqual(start.isoformat(), "2026-10-27T02:09:00+00:00")
-        self.assertEqual(end.isoformat(), "2026-10-27T02:12:00+00:00")
-
-    def test_late_bid_cannot_displace_valid_last_bid(self):
-        bids = [{"bid_id": "valid", "buyer_id": "A", "round": 1, "sequence": 1, "alpha_usd_mt": "10", "status": "active", "submitted_at": "2026-10-27T02:01:00+00:00"},
-                {"bid_id": "late", "buyer_id": "A", "round": 1, "sequence": 2, "alpha_usd_mt": "100", "status": "active", "submitted_at": "2026-10-27T02:03:01+00:00"}]
-        result = evaluate_tender(bid_prices(D(415), D(420), D(25), bids), {"auction_clock": self.clock, "evaluation_cutoff": "2026-10-27T02:10:00+00:00"})
-        self.assertEqual(result["candidate_bid_ids"], ["valid"])
-        self.assertIn("3 menit", result["bids"][1]["reason"])
-
-    def test_invalid_clock_cannot_silently_extend_round(self):
-        with self.assertRaisesRegex(ValueError, "INVALID_AUCTION_CLOCK"):
-            round_window({**self.clock, "round_duration_seconds": 181}, 1)
-
-    def test_scheduled_last_bid_follows_received_time_not_edited_sequence(self):
-        bids = [{"bid_id": "later", "buyer_id": "A", "round": 1, "sequence": 1, "alpha_usd_mt": "10", "status": "active", "submitted_at": "2026-10-27T02:02:00+00:00"},
-                {"bid_id": "earlier", "buyer_id": "A", "round": 1, "sequence": 2, "alpha_usd_mt": "100", "status": "active", "submitted_at": "2026-10-27T02:01:00+00:00"}]
-        result = evaluate_tender(bid_prices(D(415), D(420), D(25), bids), {"auction_clock": self.clock, "evaluation_cutoff": "2026-10-27T02:03:00+00:00"})
-        self.assertEqual(result["candidate_bid_ids"], ["later"])
-
-    def test_timestamp_formatting_never_invents_unknown_or_date_only_time(self):
-        self.assertEqual(price_time(None), "Tidak tersedia")
-        self.assertEqual(price_time("2026-10-21"), "2026-10-21")
-        self.assertIn("09:00:00 WIB", price_time("2026-10-27T02:00:00+00:00"))
