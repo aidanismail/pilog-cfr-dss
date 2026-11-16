@@ -4,9 +4,9 @@ from pathlib import Path
 import re
 from decimal import Decimal, localcontext
 
-from pilog_cfr_dss.calculations.voyage_economics import port_expenses_total
+from pilog_cfr_dss.calculations.costs import port_expenses_total
 from pilog_cfr_dss.sources.od_distance import read_distance
-from pilog_cfr_dss.validation.case import number
+from pilog_cfr_dss.validation.numbers import number
 
 SOURCE = "data/raw/Voyage Estimate.xlsx"
 

@@ -1,5 +1,20 @@
 # Task Iterasi 5 — deployment Streamlit existing
 
+## Aktif 13 November — Freight Desk FD.1
+
+User memberi execute untuk rencana RENCANA_PENYESUAIAN_INPUT_VOYAGE.md. B0 approved; B1 schema/source/dependency, B2 engine, B3 UI, B4 brief, B5 matrix, B6 tests/review. Tidak ada push/deploy/transaksi.
+
+- [x] B0 definisi/plan disetujui.
+- [x] B1 kontrak data/source dan retire tender.
+- [x] B2 engine quantity/capacity/terms/activity/pricing.
+- [x] B3 input UI dan source timestamps.
+- [x] B4 hasil per kelas dan commercial brief.
+- [x] B5 spread matrix.
+- [x] B6 pengujian/review/handover.
+
+
+Evidence: 77 tes, browser desktop/0 JS error, CLI/replay, review pada plan bagian 14. Selesai teknis, belum review/approval domain, commit/push/deploy.
+
 ## Aktif D-077 — kapal sewa, Hire/day terpisah (5 November 2026)
 
 Pengguna menyetujui dan meminta implementasi hardening pada rencana aktif docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md. Jalur UI I5 sekarang I5-CHARTER.1: Handysize/Supramax kapal sewa, satu arah muat + laden + bongkar + tunggu, komisi 0%. TC Rates Fearnpulse sesuai kelas membentuk freight indikatif; Hire/day default historis USD 13.000 editable adalah biaya sewa terpisah. Running cost/F44 tidak dipakai pada kasus/profil aktif. Tidak menyalin nilainya menjadi hire, menambah markup, menambah input harga jual, atau mengikat hire ke refresh/perubahan kelas.

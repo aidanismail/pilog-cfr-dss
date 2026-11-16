@@ -19,6 +19,7 @@ htmlcov/
 !.env.example
 .streamlit/secrets.toml
 *.log
+docs/
 
 # OS/editor files
 .DS_Store

@@ -2,23 +2,29 @@
   "document": "Guide to Market Benchmarks",
   "document_version": "8.8",
   "publication_date": "2026-09",
-  "verified_date": "2026-11-03",
+  "verified_date": "2026-11-13",
   "source_url": "https://www.balticexchange.com/content/dam/balticexchange/consumer/documents/data-services/documentation/ocean-bulk-guides-policies/GMB.pdf",
-  "verification": "Read from official document via web reader; direct Python HTTP request returned 403.",
+  "verification": "Official Baltic GMB v8.8 PDF pages 83-84, source-consistent speed/consumption pairs; added SSW draft, grain and TPC. Not vessel availability/loading approval.",
   "profiles": {
     "Handysize": {
       "page": 84,
       "dwt_mt": "38200",
       "speed_knots": "12",
       "sea_fo_mt_day": "18",
-      "sea_do_mt_day": "0.1"
+      "sea_do_mt_day": "0.1",
+      "summer_draft_m": "10.538",
+      "grain_m3": "47125",
+      "tpc_mt_cm": "49"
     },
     "Supramax": {
       "page": 83,
       "dwt_mt": "63500",
       "speed_knots": "14",
-      "sea_fo_mt_day": "20",
-      "sea_do_mt_day": "0"
+      "sea_fo_mt_day": "29",
+      "sea_do_mt_day": "0",
+      "summer_draft_m": "13.418",
+      "grain_m3": "80500",
+      "tpc_mt_cm": "61.4"
     }
   }
 }

@@ -1,5 +1,15 @@
 {
   "schema_version": "1.0.0",
+  "active_work": {
+    "runtime": "FD.1",
+    "authorization": "D-078",
+    "iteration": "I5",
+    "status": "implemented_verified_pending_user_domain_review",
+    "plan_and_review": "docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md section 14",
+    "task": ".agents/tasks/ITERATION_05.md",
+    "state_key": "freight_desk_revision",
+    "historical_sections_not_current_runtime": true
+  },
   "random_bid_risk_revision": {
     "decision_id": "D-076",
     "updated_on": "2026-10-29",
@@ -1604,5 +1614,237 @@
     "human_acceptance": null,
     "self_review_rating_estimation_stage": "8/10",
     "further_changes_from_review_authorized": false
+  },
+  "freight_desk_revision": {
+    "updated_on": "2026-11-13",
+    "status": "implemented_verified_pending_user_domain_review",
+    "plan": "docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md",
+    "requested_product_direction": "PI/PILOG freight desk/calculator, CMNavigator UX benchmark, white and blue",
+    "requested_remove_tender_from_active_product": true,
+    "runtime_tender_removed": true,
+    "implementation_authorized": true,
+    "implemented_baseline": "FD.1 / D-078",
+    "proposed_pricing_not_approved": null,
+    "preserve_sources_timestamps": true,
+    "data_quality_priority": "logic_and_workflow_first_proxy_labelled",
+    "spread_matrix": "origins_columns_destinations_rows_flat_delta_base_one_period_per_dry_bulk_commodity_and_vessel_class",
+    "pending_clarifications": [],
+    "evidence": [
+      "8 user UI reference images",
+      "Freight Rate Calculator - FAQ.pdf all 5 pages",
+      "official public CMNavigator calculator/matrix pages",
+      "baseline calculation and source code inspection",
+      "Python Decimal screenshot arithmetic reconciliation",
+      "2 added terms dropdown screenshots: 22 visible options",
+      "Baltic GMB v8.8 PDF pages 83-84",
+      "BIMCO Laytime Definitions 2013"
+    ],
+    "verification": {
+      "unittest": {
+        "passed": 80,
+        "total": 80,
+        "seconds": 14.356,
+        "python": "3.11.9"
+      },
+      "streamlit_apptest": {
+        "passed": 10
+      },
+      "browser": "PASS",
+      "javascript_errors": 0,
+      "desktop_visual_review": true,
+      "mobile_uat_complete": false,
+      "mobile_issue": "sidebar overlays content after resizing",
+      "cli": "PASS",
+      "offline_replay": "same input hash and calculations",
+      "thex3": "factor/calendar/cost/legacy replay and UI option count verified"
+    },
+    "push_performed": false,
+    "deployment_performed": false,
+    "approved_pricing_definition": "cost_based_freight_including_charter_hire_TC_benchmark_only",
+    "requested_commodities": [
+      "urea_granular",
+      "ammonium_sulphate",
+      "ammonium_chloride"
+    ],
+    "commodity_models_must_be_separate": false,
+    "confirmed_defaults": {
+      "time_allowances_and_bunker_delay": "zero_editable",
+      "loading_port_da_usd": "100000",
+      "discharge_port_da_usd": "100000",
+      "market_sourced_labelled_fuel_proxy": true,
+      "stowage_factor_m3_per_mt": "1.315",
+      "tolerance_percent": "10"
+    },
+    "excluded_commodities_this_revision": [
+      "ammonia",
+      "UAN",
+      "NPK",
+      "ammonium_nitrate",
+      "calcium_ammonium_nitrate",
+      "phosphates",
+      "urea_prilled_new_option"
+    ],
+    "commodity_assessments_must_be_product_specific": true,
+    "report_fetch_scope": "automatic_read_of_repo_PDFs_hash_cached_not_paid_service_download",
+    "commodity_source_coverage": {
+      "urea_granular": {
+        "argus": "Nitrogen PDF pages 1-2",
+        "fertecon": "Nitrogen PDF pages 1-2"
+      },
+      "ammonium_sulphate": {
+        "argus": "Nitrogen PDF pages 1-2",
+        "fertecon": "Nitrogen PDF pages 1-2",
+        "grades_preserved": true
+      },
+      "ammonium_chloride": {
+        "argus": "Nitrogen PDF page 2 CFR Southeast Asia",
+        "fertecon": null,
+        "not_found_in_current_fertecon_report": true
+      }
+    },
+    "report_reader_implementation_status": "NITROGEN.1_three_products_verified",
+    "required_final_output": "prescriptive_commercial_brief_PI_PILOG_actions_numbers_checks_five_sections",
+    "new_input_confirmation": {
+      "sf_m3_per_mt": "1.315",
+      "sf_editable": true,
+      "tolerance_percent": "10",
+      "tolerance_editable": true,
+      "quantity_basis": "nominal_primary_full_min_nom_max_scenarios",
+      "port_start_datetime_calendar_editable": true,
+      "summer_draft_separate_from_port_limits": true,
+      "terms_screenshots_read": [
+        "docs/UI References/terms_1.jpeg",
+        "docs/UI References/term_2.jpeg"
+      ],
+      "terms_count": 23,
+      "terms_catalog": [
+        "CQD1",
+        "FHEX1",
+        "FHEX2",
+        "FHEX3",
+        "FHEX4",
+        "FHINC",
+        "SHEX0",
+        "SHEX1",
+        "SHEX10",
+        "SHEX2",
+        "SHEX3",
+        "SHEX4",
+        "SHEX5",
+        "SHEX6",
+        "SHEX7",
+        "SHEX8",
+        "SHEX9",
+        "SHINC",
+        "SSINCHEX",
+        "THEX",
+        "THEX1",
+        "THEX2",
+        "THEX3"
+      ]
+    },
+    "proposed_methods_for_plan_audit": {
+      "terms": "screenshot_factors_estimation_or_explicit_operating_calendar_never_both_not_contract_settlement",
+      "capacity": "weight_grain_volume_and_labelled_linear_TPC_draft_screen_not_loading_approval",
+      "port_draft_limits": "editable_no_invented_defaults_missing_not_pass",
+      "brief": "feasible_cost_comparison_actions_optional_independent_selling_quote_for_surplus",
+      "status": "implemented_after_user_execute"
+    },
+    "plan_review_required": false,
+    "retirement_manifest": {
+      "source_files": [
+        "src\\pilog_cfr_dss\\application\\case_package.py",
+        "src\\pilog_cfr_dss\\application\\interactive_case.py",
+        "src\\pilog_cfr_dss\\application\\market_case.py",
+        "src\\pilog_cfr_dss\\application\\tender_examples.py",
+        "src\\pilog_cfr_dss\\calculations\\commercial_review.py",
+        "src\\pilog_cfr_dss\\calculations\\freight_pricing.py",
+        "src\\pilog_cfr_dss\\calculations\\physical.py",
+        "src\\pilog_cfr_dss\\calculations\\tender.py",
+        "src\\pilog_cfr_dss\\calculations\\tender_pricing.py",
+        "src\\pilog_cfr_dss\\calculations\\voyage_economics.py",
+        "src\\pilog_cfr_dss\\decisions\\gates.py",
+        "src\\pilog_cfr_dss\\decisions\\tender_decision.py",
+        "src\\pilog_cfr_dss\\models\\case.py",
+        "src\\pilog_cfr_dss\\models\\tender_clock.py",
+        "src\\pilog_cfr_dss\\orchestration\\case_evaluation.py",
+        "src\\pilog_cfr_dss\\orchestration\\pipeline.py",
+        "src\\pilog_cfr_dss\\orchestration\\price_records.py",
+        "src\\pilog_cfr_dss\\reporting\\brief.py",
+        "src\\pilog_cfr_dss\\scenarios\\build.py",
+        "src\\pilog_cfr_dss\\scenarios\\economics.py",
+        "src\\pilog_cfr_dss\\sources\\market_comparables.py",
+        "src\\pilog_cfr_dss\\sources\\urea_reports.py",
+        "src\\pilog_cfr_dss\\ui\\presentation.py",
+        "src\\pilog_cfr_dss\\validation\\case.py",
+        "src\\pilog_cfr_dss\\validation\\case_basis.py",
+        "src\\pilog_cfr_dss\\validation\\commercial_input.py",
+        "src\\pilog_cfr_dss\\validation\\cost_forecast.py",
+        "src\\pilog_cfr_dss\\validation\\ingest.py",
+        "src\\pilog_cfr_dss\\validation\\market_sources.py"
+      ],
+      "test_files": [
+        "tests\\integration\\test_case_basis_revision.py",
+        "tests\\integration\\test_case_evaluation.py",
+        "tests\\integration\\test_charter_hardening.py",
+        "tests\\integration\\test_commercial_brief.py",
+        "tests\\integration\\test_commercial_review_revision.py",
+        "tests\\integration\\test_data_contract.py",
+        "tests\\integration\\test_i5_inputs.py",
+        "tests\\integration\\test_market_pipeline.py",
+        "tests\\integration\\test_owned_e2e_simulation.py",
+        "tests\\integration\\test_random_tender_examples.py",
+        "tests\\integration\\test_run_snapshot.py",
+        "tests\\integration\\test_scenario_economics.py",
+        "tests\\integration\\test_ui_engine_parity.py",
+        "tests\\integration\\test_voyage_selection.py",
+        "tests\\integration\\test_workspace_hardening.py",
+        "tests\\unit\\test_commercial_review.py",
+        "tests\\unit\\test_gates.py",
+        "tests\\unit\\test_interactive_case.py",
+        "tests\\unit\\test_voyage_economics.py"
+      ],
+      "retired_test_methods": 230,
+      "auction_methods_removed_from_market_sources": 6,
+      "preserved_generic_calculation_modules": [
+        "pilog_cfr_dss.calculations.economics",
+        "pilog_cfr_dss.calculations.pricing"
+      ],
+      "reason": "Approved scope replaces auction/owned-vessel/tender workflows; generic calculation, parsing, unit, formatting and source tests retained; replacement Freight Desk tests passed before retirement."
+    },
+    "agent_test_servers_stopped": true,
+    "review_location": "docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md section 14",
+    "completed_batches": [
+      "B0",
+      "B1",
+      "B2",
+      "B3",
+      "B4",
+      "B5",
+      "B6"
+    ],
+    "final_check": {
+      "syntax": "PASS",
+      "internal_imports": "PASS",
+      "cli_replay_input_and_calculations": "identical",
+      "diff_check": "PASS",
+      "source_workbook_and_PDFs_unchanged": true,
+      "user_gitignore_untouched": true
+    },
+    "source_coverage_records": {
+      "urea": 37,
+      "sulphate": 19,
+      "chloride": 1,
+      "argus_urea_freight": 14,
+      "fertecon_fertilizer_freight": 20
+    },
+    "terms_catalog_version": "CMN-TERMS.2",
+    "terms_correction": {
+      "id": "THEX3",
+      "excluded": "Thursday 12:00 to Saturday 08:00",
+      "factor": "1.35",
+      "source": "user confirmation 2026-11-13",
+      "legacy_terms_replay_preserved": true
+    }
   }
 }
