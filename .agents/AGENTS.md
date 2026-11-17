@@ -1,5 +1,11 @@
 # Panduan Agentic Coding - PILOG CFR DSS
 
+## Terbaru — FD.2, 17 November 2026
+
+Pembaruan pengguna: kasus baru memakai default margin waktu 25% untuk kedua port; dapat diedit. Paket tersimpan tidak ditimpa, migrasi FD.1 tetap 0% untuk menjaga replay. Jangan mengklaim 25% sebagai standar CMN terverifikasi.
+
+Pengguna mengizinkan implementasi rencana port margin dan rute §15 di docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md. Formula aktif FD.2; margin waktu muat/bongkar default 0%, setelah faktor terms atau kalender. Paket FD.1 diperiksa hash dan dimigrasikan in-memory dengan 0%, tanpa mengubah file sumber. Editor jarak di-reset saat perubahan port; sumber dan hasil rute harus cocok. 87 tes lokal lulus (AppTest, bukan browser UAT). CMN margin dan penyebab pasti screenshot jarak belum terverifikasi; tidak ada push/deploy. Catatan FD.1 di bawah adalah histori jika bertentangan.
+
 ## Aktif — D-078: Freight Desk FD.1, selesai teknis 13 November 2026
 
 Pengguna memberi execute rencana docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md. B0–B6 selesai teknis; bukti dan batas ada di bagian 14. Menunggu review pengguna/domain, bukan persetujuan komersial atau produksi.

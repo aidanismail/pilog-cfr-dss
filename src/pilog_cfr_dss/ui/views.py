@@ -68,7 +68,10 @@ def edit_table(case, entries, key, compact=False):
     frame = pd.DataFrame(rows)
     if compact:
         frame = frame.drop(columns=["Sumber"])
-    edited = st.data_editor(frame, key=widget_prefix(case) + "_" + key, hide_index=True,
+    editor_key = widget_prefix(case) + "_" + key
+    if key == "shipment":
+        editor_key += "_route_" + str(st.session_state.get("route_generation", 0))
+    edited = st.data_editor(frame, key=editor_key, hide_index=True,
         width="stretch", disabled=["Parameter", "Satuan", "Sumber"],
         column_config={"Nilai": st.column_config.NumberColumn(min_value=0.0,
                        help="Presisi input dipertahankan; ringkasan hasil dua desimal.")},
@@ -141,6 +144,7 @@ def port_card(case, root, choices, side, title):
             # Never transfer a terminal draft limit to a different port.
             override(case, "ports." + side + ".draft_limit_m", None)
             update_route(case, root)
+            st.session_state["route_generation"] = st.session_state.get("route_generation", 0) + 1
             st.rerun()
         terms = st.selectbox("Terms", list(TERMS), index=list(TERMS).index(port["terms"]),
             format_func=lambda x: x + " — " + TERMS[x]["label"], key=prefix + "_terms")
@@ -149,8 +153,10 @@ def port_card(case, root, choices, side, title):
             (f"ports.{side}.port_da_usd", "Port DA", "USD"),
             (f"ports.{side}.draft_limit_m", "Batas draft port (opsional)", "m"),
             (f"ports.{side}.waiting_days", "Waktu tunggu", "hari"),
-            (f"ports.{side}.allowance_days", "Tambahan waktu operasi", "hari")]
+            (f"ports.{side}.allowance_days", "Tambahan waktu operasi", "hari"),
+            (f"ports.{side}.time_margin_percent", "Margin waktu pelabuhan", "%")]
         edit_table(case, entries, side, compact=True)
+        st.caption("Margin menambah durasi setelah terms/kalender. Periksa agar tidak menghitung hambatan yang sama dua kali.")
         calendar_editor(case, side)
 
 
@@ -278,6 +284,11 @@ def results_view(result):
                     a.metric("Pendapatan freight USD", fmt(nominal["commercial"]["net_freight_revenue_usd"]))
                     b.metric("Surplus/defisit USD", fmt(nominal["commercial"]["surplus_usd"]))
                     c.metric("TCE hasil USD/hari", fmt(nominal["commercial"]["tce_usd_day"]))
+                st.dataframe(pd.DataFrame([{"Pelabuhan": label, "Hari dasar": fmt(t["base_days"]),
+                    "Hari setelah terms/kalender": fmt(t["terms_days"]), "Margin waktu %": fmt(t["margin_percent"]),
+                    "Tambahan margin hari": fmt(t["margin_days"]), "Hari operasi": fmt(t["operation_days"])}
+                    for side, label in (("load", "Muat"), ("discharge", "Bongkar"))
+                    for t in [nominal["port_times"][side]]]), hide_index=True, width="stretch")
                 st.dataframe(pd.DataFrame([{"Aktivitas": x["activity"], "Hari": fmt(x["days"]),
                     "Hire USD": fmt(x["hire_usd"]), "VLSFO MT": fmt(x["vlsfo_mt"]), "LSMGO MT": fmt(x["lsmgo_mt"]),
                     "Bunker USD": fmt(x["bunker_usd"]), "Port DA USD": fmt(x["port_da_usd"]),
@@ -289,7 +300,8 @@ def results_view(result):
                 "Freight USD/MT": fmt(row.get("freight_usd_mt")),
                 "Status": "Lolos pemeriksaan awal" if row["feasible"] else row.get("error", "Kapasitas tidak cukup")}
                 for label, row in scenarios.items()]), hide_index=True, width="stretch")
-    st.caption("Dihitung: " + price_time(result["calculated_at"]))
+    st.caption("Rute: " + result["case"]["ports"]["load"]["name"] + " → " + result["case"]["ports"]["discharge"]["name"]
+               + " · Jarak: " + fmt(result["case"]["distance_nm"]) + " NM · Dihitung: " + price_time(result["calculated_at"]))
     with st.expander("Commercial brief", expanded=True):
         brief = commercial_brief(result)
         st.markdown(brief)
@@ -319,7 +331,8 @@ def matrix_view(result, root):
                 if tuple(chosen_port) != (reference["name"], reference["country"]):
                     rows_input.append({"Sisi": side, "Port": chosen_port[0], "Negara": chosen_port[1],
                         "Rate MT/hari": float(reference["rate_mt_day"]), "Port DA USD": float(reference["port_da_usd"]),
-                        "Batas draft m": None, "Terms": reference["terms"]})
+                        "Batas draft m": None, "Terms": reference["terms"],
+                        "Margin waktu %": float(reference["time_margin_percent"])})
         overrides = {}
         edited_ports = rows_input
         if rows_input:
@@ -329,14 +342,15 @@ def matrix_view(result, root):
                 column_config={"Terms": st.column_config.SelectboxColumn(options=list(TERMS)),
                     "Rate MT/hari": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
                     "Port DA USD": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
-                    "Batas draft m": st.column_config.NumberColumn(min_value=0.0, format="%.2f")}).to_dict("records")
+                    "Batas draft m": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
+                    "Margin waktu %": st.column_config.NumberColumn(min_value=0.0, format="%.2f")}).to_dict("records")
             for row in edited_ports:
-                for field in ("Rate MT/hari", "Port DA USD", "Batas draft m"):
+                for field in ("Rate MT/hari", "Port DA USD", "Batas draft m", "Margin waktu %"):
                     row[field] = None if pd.isna(row[field]) else row[field]
                 overrides[(row["Sisi"], row["Port"], row["Negara"])] = {
                     "rate_mt_day": str(row["Rate MT/hari"]), "port_da_usd": str(row["Port DA USD"]),
                     "draft_limit_m": None if row["Batas draft m"] is None else str(row["Batas draft m"]),
-                    "terms": row["Terms"]}
+                    "terms": row["Terms"], "time_margin_percent": str(row["Margin waktu %"])}
         key = digest({"case": result["input_sha256"], "origins": origins, "destinations": destinations,
                       "family": family, "basis": basis, "ports": edited_ports})
         saved = st.session_state.get("matrix")
@@ -374,7 +388,7 @@ def matrix_view(result, root):
                     format_func=lambda i: cells[i]["origin"][0] + " → " + cells[i]["destination"][0])
             cell = cells[chosen]
             if cell.get("result"):
-                st.caption("Port baru mewarisi rate, Port DA, terms dan kalender input; batas draft baru belum diisi." if cell["inherited_ports"] else "Kasus dasar.")
+                st.caption("Port baru mewarisi rate, Port DA, terms, kalender dan margin waktu input; batas draft baru belum diisi." if cell["inherited_ports"] else "Kasus dasar.")
                 st.markdown(commercial_brief(cell["result"]))
             else:
                 st.warning(cell.get("error", "Opsi tidak tersedia."))

@@ -1,5 +1,7 @@
 # Iterasi 5 — rencana revisi PILOG Freight Desk
 
+> **Rencana tambahan 17 November:** lihat bagian 15 untuk investigasi jarak dan usulan port margin setelah perbandingan CMNavigator. Bagian tersebut merupakan rencana, belum implementasi.
+
 Tanggal revisi: 13 November 2026.
 Status: **FD.1 selesai teknis setelah execute pengguna; 77 tes lulus, browser desktop lulus; menunggu review pengguna/domain**.
 
@@ -666,3 +668,68 @@ Status review: selesai teknis, menunggu review pengguna/domain; tidak dinyatakan
 ### Koreksi THEX3 — 13 November 2026
 
 THEX3 ditambahkan atas konfirmasi pengguna: Kamis 12:00–Sabtu 08:00 dikecualikan, faktor 1,35. Dalam basis faktor, Q/rate dikalikan 1,35; tambahan waktu masuk hire dan bunker port, kemudian total biaya/freight. Dalam basis kalender, interval pengecualian dihitung melalui jadwal dan faktor tidak dikalikan ulang. Catalog CMN-TERMS.2 menyimpan sumber konfirmasi pengguna; tidak mengarang bukti hash screenshot untuk opsi baru. Catalog v1 tetap replayable dengan hasil sama; memilih THEX3 pada kasus lama secara eksplisit memakai catalog v2. Suite final 80/80 lulus (14,356 detik), termasuk dampak biaya, pengecualian kalender dan replay versi lama. Tidak push/deploy.
+
+## 15. Rencana investigasi dan perbaikan port days serta jarak — 17 November 2026
+
+**Status 17 November: diimplementasikan dan diuji secara lokal.** Pembaruan pengguna berikutnya menetapkan default margin **25%** untuk kedua port pada kasus baru; rincian awal 0% di bawah adalah histori. Paket tersimpan mempertahankan nilainya dan migrasi FD.1 memakai 0%. Aplikasi terdeploy belum diperbarui. Tender tetap proses bisnis PI Group; kalkulator menyediakan masukan freight.
+
+### 15.1 Temuan port days dan batasnya
+
+Pada screenshot CMN kasus Kerteh–Hai Phong, quantity 24.000 MT, cadence 4.000/6.000 MT per hari dan SHINC. Sistem PILOG menghitung 6 dan 4 hari dasar; CMN menampilkan 7,46 dan 4,97 hari. Keduanya cocok dengan 6 × 1,243 = 7,458 dan 4 × 1,243 = 4,972. Kasus Bontang–Mundra sebelumnya juga cocok secara numerik dengan 24,30% dan 25% yang terlihat pada kolom Sea/Port Margin.
+
+Ini **hipotesis yang konsisten pada dua contoh**, belum bukti dokumentasi CMN atau bahwa persentase tersebut merupakan standar industri. Nilai di screenshot berada pada baris konsumsi bahan bakar; hubungan persisnya dengan hari dan asal nilai perlu diverifikasi. Jangan menyatakan rumus internal CMN sudah terbukti. Jangan menetapkan 24,30% atau 25% sebagai default semua port atau standar PILOG.
+
+### 15.2 Temuan jarak yang sudah diuji
+
+- Pemanggilan langsung fungsi rute di checkout lokal untuk Kerteh, Malaysia → Hai Phong, Vietnam menghasilkan **1.197,59 NM**; paket contoh 02 yang tersimpan juga memiliki angka tersebut. CMN pada screenshot menunjukkan **1.308 NM**. Selisih sekitar −110,41 NM (−8,44% terhadap CMN); keduanya estimasi, belum dibuktikan jarak navigasi aktual atau rute yang sama.
+- Koordinat yang dipakai lokal: Kerteh MYKER **4,31° N, 103,27° E** dari katalog Searoute; Hai Phong VNHPH **20,85° N, 106,683333° E** dari katalog UN/LOCODE. Itu titik indikatif, belum tentu terminal yang dipakai CMN. Perlu memeriksa geometri rute dan titik snapping, bukan langsung memilih angka CMN sebagai ground truth.
+- Screenshot aplikasi menampilkan 10,64 hari laut. Jika speed hasil tersebut 12 knot dan tanpa komponen waktu laut lain, nilai itu mengimplikasikan kira-kira **3.064 NM**; screenshot hasil saja tidak memperlihatkan speed, jarak input, riwayat edit atau versi aplikasi. Penyebab tepatnya belum terbukti.
+- Risiko yang perlu direproduksi: sinkronisasi widget tabel Streamlit dan state jarak setelah pergantian port atau edit manual, hasil hitung lama, impor paket kasus/snapshot, cache, dan perbedaan versi lokal dengan aplikasi terdeploy. Kode memperbarui jarak pada perubahan port tetapi tabel jarak menggunakan data editor yang ber-state; ini **hipotesis bug**, belum hasil reproduksi. Hasil tersimpan `outputs/latest_freight/case.json` yang diperiksa adalah kasus lain, bukan bukti untuk screenshot tersebut.
+
+### 15.3 Batch A — reproduksi state jarak dan bukti rute
+
+1. Cocokkan commit/versi lokal dan deployment yang digunakan saat screenshot; jangan menyimpulkan keduanya identik tanpa bukti.
+2. Jalankan ulang alur pengguna: pilih Kerteh dan Hai Phong dari kasus baru dan dari kasus lama; ulangi setelah edit jarak manual, pergantian masing-masing port, impor paket, refresh, lalu hitung. Catat nilai tabel, `case.distance_nm`, sumber/koordinat dan nilai yang masuk hasil. Jangan menimpa paket atau output pengguna.
+3. Uji fungsi rute dengan koordinat katalog yang sama serta simpan inspeksi geometri/snapping secara lokal untuk review; periksa lintasan laut, urutan longitude/latitude dan unit. Jangan mengklaim beda 110 NM adalah kesalahan provider tanpa bukti jalur/terminal yang sebanding.
+4. Uji beberapa rute kontrol jarak dekat dan jauh, dengan port yang dikenal dan batas unit, serta sumber yang gagal; hindari mengasumsikan setiap angka CMN identik dengan rute fisik yang dipakai kalkulator.
+
+### 15.4 Batch B — perbaikan jarak sesuai penyebab yang terbukti
+
+- Perbaiki state widget jika reproduksi membuktikan nilai jarak lama menimpa perhitungan baru. Perubahan rute harus menyegarkan jarak, sumber dan identitas rute secara atomik; nilai manual terdahulu tidak diam-diam ikut ke rute baru.
+- Kasus impor tetap mereproduksi snapshot aslinya. Pengguna dapat memperbarui rute secara jelas bila menginginkan estimasi baru; tandai sumber manual atau hasil estimasi dan jangan menimpa snapshot diam-diam.
+- Pertahankan manual override untuk jarak. Jika pencarian gagal, kosongkan dan minta nilai manual; jangan diam-diam memakai jarak dari rute lain. Hasil harus menampilkan rute, nilai jarak yang digunakan dan sumbernya secara jelas.
+- Jika ditemukan masalah koordinat atau jaringan rute, perbaiki berdasarkan sumber yang mendukung dan dokumentasikan keterbatasannya. Jangan hardcode 1.308 NM khusus agar cocok dengan CMN; jangan menetapkan toleransi akurasi yang belum divalidasi.
+- Perubahan input setelah perhitungan harus menandai hasil sebagai belum diperbarui dan mencegah hasil lama disalahartikan sebagai hasil rute baru.
+
+### 15.5 Batch C — input margin waktu pelabuhan untuk evaluasi
+
+Usulan: input **margin waktu pelabuhan (%)** terpisah untuk muat dan bongkar, default 0%, dapat diedit dan ditampilkan sebagai asumsi pengguna. Nilai screenshot dapat dimasukkan manual untuk eksperimen, bukan dipasang sebagai ketentuan seluruh pelabuhan.
+
+Perhitungan yang direncanakan secara eksplisit:
+
+1. Waktu kerja dasar = quantity / cadence.
+2. Hitung waktu operasi menurut pilihan faktor terms **atau** kalender yang digunakan saat ini; keduanya tetap tidak dikalikan bersamaan.
+3. Margin adalah asumsi tambahan atas waktu operasi yang sudah dipilih: durasi port = durasi hasil langkah 2 × (1 + margin/100). Ini rancangan PILOG untuk pengujian, belum klaim definisi resmi CMN. Tampilkan waktu dasar, waktu setelah terms/kalender, margin dan waktu akhir agar pengguna bisa memeriksa potensi overlap.
+4. Tambahkan allowance dan waiting yang sudah ada **sekali saja**, dengan urutan dijelaskan; seluruh hari kalender yang ditambahkan memengaruhi biaya hire dan konsumsi bahan bakar di pelabuhan sesuai profil. Margin tidak otomatis mengubah tarif muat atau memilih quantity tolerance.
+5. Kalender yang sudah mewakili hambatan operasional dapat overlap dengan margin; default 0 dan perlu input sadar pengguna. Tidak menganggap rumus ini laytime legal, demurrage, maupun jaminan peniruan CMN.
+
+### 15.6 Batch D — integrasi dan verifikasi
+
+- Gunakan input margin yang sama dalam engine, UI, detail ledger, commercial brief, spread matrix dan paket kasus. Untuk paket lama yang tidak memilikinya, tetapkan 0% dengan versi/aturan migrasi yang jelas agar hasil lama tetap dapat direproduksi; verifikasi checksum sebelum migrasi dan jangan memodifikasi file asli.
+- Uji 24.000 MT/4.000 dan 6.000 MT/hari pada SHINC: margin 0% = 6 dan 4 hari; 24,30% = 7,458 dan 4,972 hari sebelum pembulatan; pastikan hire dan bunker menggunakan durasi akhir. Uji port dengan margin berbeda, invalid, factor terms, kalender, allowance, waiting, tolerance dan batas kapasitas.
+- Uji pergantian port dan jarak manual pada UI, kalkulasi dan paket; uji tidak ada perubahan saat input lain diperbarui. Uji failure provider dan hasil usang. Uji matrix dan replay paket lama/baru.
+- Bandingkan kembali output rute dan port days dengan kedua contoh CMN, jelaskan asumsi dan perbedaan yang tersisa. Jangan menjadikan kecocokan dua contoh sebagai bukti validasi semua rute atau terms.
+
+### 15.7 Hal yang masih perlu dikonfirmasi saat review
+
+- Apakah CMN menyatakan Sea/Port Margin memengaruhi hari, konsumsi, atau keduanya? Adakah default dan sumbernya? Sampai ada jawaban, input kita adalah asumsi pengguna.
+- Untuk screenshot ±3.000 NM, paket kasus yang di-download dari sesi yang sama dan versi aplikasi akan membantu menentukan apakah masalahnya nilai lama, edit manual atau masalah lain; investigasi reproduksi tetap bisa dimulai tanpa paket tersebut.
+
+### 15.8 Hasil implementasi dan review
+
+- Formula aktif FD.2 menambahkan `time_margin_percent` per port; default 0%. Waktu dasar, waktu setelah terms/kalender, margin dan durasi operasi ditampilkan per port; waiting dan allowance tetap terpisah. Hari tambahan masuk hire dan bunker port. Brief dan spread matrix memakai nilai yang sama.
+- Paket PILOG-FREIGHT.1 / FD.1 diperiksa hash-nya sebelum migrasi in-memory ke FD.2 dengan margin 0%; file sumber tidak berubah. Enam paket contoh lama telah diuji terhadap hasil FD.1 dan tetap menghasilkan angka yang sama.
+- Reproduksi lokal menunjukkan Kerteh–Mundra sekitar 3.065,70 NM saat baru port muat diganti; setelah port bongkar Hai Phong dipilih hasil 1.197,59 NM. Ini mungkin menjelaskan angka screenshot, tetapi bukan bukti pasti tanpa paket kasus/sesi pengguna. Editor jarak sekarang diperbarui ketika port berubah; hasil lama disembunyikan hingga dihitung ulang dan hasil menyatakan rute serta jaraknya. Uji kegagalan lookup memastikan jarak lama tidak dipakai.
+- Geometri Searoute yang diperiksa memiliki 13 titik dan menggunakan node jaringan laut terdekat; titiknya bukan terminal persis. Selisih 110,41 NM dari CMN 1.308 NM belum dapat diatribusikan secara pasti. Tidak mengubah koordinat atau memaksa nilai CMN.
+- Pengujian lokal Python 3.11: **87 tes lulus**, termasuk contoh margin 24,30%, batas input, kalender, biaya tambahan, perubahan port, kegagalan lookup, matrix dan migrasi paket. Tes UI memakai Streamlit AppTest; tidak mengklaim pengujian browser/deployment atau validasi bisnis mentor pada revisi ini.
+- Batas: angka margin dan mekanisme CMN belum diverifikasi dari dokumentasi CMN. Tidak ada push/deploy, perubahan sumber workbook/PDF, atau transaksi. Review pengguna/domain masih diperlukan.

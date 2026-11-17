@@ -14,7 +14,7 @@ def example():
         speed_knots="12", sea_vlsfo_mt_day="18", sea_lsmgo_mt_day="0.1",
         port_vlsfo_mt_day="0", port_lsmgo_mt_day="2", bunkers_allowance_mt="1700", constants_allowance_mt="500")
     port = dict(name="A", country="X", rate_mt_day="5000", terms="SHINC", time_basis="factor",
-        draft_limit_m=None, port_da_usd="100000", waiting_days="0", allowance_days="0",
+        draft_limit_m=None, port_da_usd="100000", waiting_days="0", allowance_days="0", time_margin_percent="0",
         calendar={"timezone": "UTC", "holidays": []})
     discharge = deepcopy(port)
     discharge.update(name="B", country="Y")
@@ -37,6 +37,34 @@ class FreightEngineTests(unittest.TestCase):
 
     def nominal(self, case=None):
         return calculate(case or self.case)["classes"]["Handysize"]["nominal"]
+
+    def test_port_margins_change_days_hire_and_bunker_once(self):
+        self.case.update(cargo_mt="24000", tolerance_percent="0")
+        load, discharge = self.case["ports"]["load"], self.case["ports"]["discharge"]
+        load.update(rate_mt_day="4000", time_margin_percent="24.3", waiting_days="1", allowance_days="0.5")
+        discharge.update(rate_mt_day="6000", time_margin_percent="24.3")
+        row = self.nominal()
+        self.assertEqual(row["port_times"]["load"]["operation_days"], D("7.458"))
+        self.assertEqual(row["port_times"]["discharge"]["operation_days"], D("4.972"))
+        self.assertEqual(row["days"], D("15") + D("7.458") + D("4.972") + D("1.5"))
+        self.assertEqual(row["hire_usd"], row["days"] * D("13000"))
+        port_fuel = sum(x["lsmgo_mt"] for x in row["ledger"] if x["activity"] != "Laut bermuatan")
+        self.assertEqual(port_fuel, (D("7.458") + D("4.972") + D("1.5")) * D("2"))
+
+    def test_calendar_margin_is_applied_after_calendar_once(self):
+        self.case.update(cargo_mt="24000", tolerance_percent="0")
+        port = self.case["ports"]["load"]
+        port.update(rate_mt_day="4000", time_basis="calendar", time_margin_percent="25")
+        row = self.nominal()
+        self.assertEqual(row["port_times"]["load"]["terms_days"], D("6"))
+        self.assertEqual(row["port_times"]["load"]["operation_days"], D("7.5"))
+
+    def test_margin_missing_and_negative_are_rejected(self):
+        port = self.case["ports"]["load"]
+        for value in (None, "-1", "NaN"):
+            port["time_margin_percent"] = value
+            with self.assertRaises((ValueError, TypeError)):
+                calculate(self.case)
 
     def test_independent_cost_reconciliation(self):
         row = self.nominal()

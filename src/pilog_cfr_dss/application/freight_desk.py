@@ -71,7 +71,7 @@ def default_case(root: Path, market: dict):
                                      ("discharge", "discharging_port", "discharge_rate_mt_day")):
         port_defaults[side] = {"name": vf[name_key], "country": "",
             "rate_mt_day": vf[rate_key], "terms": "SHINC", "time_basis": "factor",
-            "draft_limit_m": None, "port_da_usd": "100000", "allowance_days": "0",
+            "draft_limit_m": None, "port_da_usd": "100000", "allowance_days": "0", "time_margin_percent": "25",
             "waiting_days": vf["waiting_days"] if side == "load" else "0",
             "calendar": {"timezone": "UTC", "holidays": []}}
     # Countries are read from the supplied port catalog, never inferred by route.
@@ -108,7 +108,7 @@ def default_case(root: Path, market: dict):
         "source": voyage["source_reference"] + " :: " + voyage["sheet"],
         "status": "workbook_assumption", "sha256": voyage["source_sha256"]}
     for side, port in port_defaults.items():
-        for key in ("rate_mt_day", "waiting_days", "terms", "port_da_usd", "allowance_days", "draft_limit_m"):
+        for key in ("rate_mt_day", "waiting_days", "terms", "port_da_usd", "allowance_days", "draft_limit_m", "time_margin_percent"):
             provenance["ports." + side + "." + key] = {"original": port[key], "source":
                 voyage["source_reference"] + " :: " + voyage["sheet"] if key == "rate_mt_day" or (key == "waiting_days" and side == "load")
                 else "Approved planning default; port draft unknown" if key == "draft_limit_m" else "Approved planning default",
@@ -193,6 +193,17 @@ def import_case(raw):
         if not all(key in case[field] for key in keys):
             raise ValueError("INCOMPLETE_CASE_METADATA:" + field)
     calculate(case)
+    if case.get("formula_version") == "FD.1":
+        case = deepcopy(case)
+        case["formula_version"] = FORMULA
+        for side in ("load", "discharge"):
+            case["ports"][side]["time_margin_percent"] = "0"
+            case["sources"]["ports." + side + ".time_margin_percent"] = {
+                "original": "0", "status": "migration_default",
+                "source": "Paket FD.1: margin waktu tidak diterapkan"}
+        case["sources"]["formula_version"] = {"original": "FD.1", "status": "migrated",
+            "source": "Paket diverifikasi sebelum migrasi; margin 0% mempertahankan hasil"}
+        calculate(case)
     return case
 
 
@@ -212,7 +223,7 @@ def matrix(base, origins, destinations, family, root, quantity_basis="nominal", 
                     inherited.append(side)
                     supplied = (port_overrides or {}).get((side, *chosen), {})
                     for field, value in supplied.items():
-                        if field not in ("rate_mt_day", "port_da_usd", "draft_limit_m", "terms", "waiting_days", "allowance_days", "time_basis", "calendar"):
+                        if field not in ("rate_mt_day", "port_da_usd", "draft_limit_m", "terms", "waiting_days", "allowance_days", "time_basis", "calendar", "time_margin_percent"):
                             raise ValueError("INVALID_MATRIX_PORT_OVERRIDE")
                         if field == "terms":
                             select_terms(derived, side, value)

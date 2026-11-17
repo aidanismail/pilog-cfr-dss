@@ -38,6 +38,10 @@ SF default 1,315 m³/MT dan tolerance ±10% editable. Nominal adalah hasil utama
 
 Terms: 23 opsi dari referensi pengguna, per port. Basis faktor adalah estimasi waktu; kalender operasi memakai jadwal/zona waktu/holiday yang diisi pengguna dan menggantikan faktor. Ini bukan settlement laytime/demurrage/despatch.
 
+Margin waktu pelabuhan dapat diisi terpisah untuk muat dan bongkar, default 25% untuk kasus baru sesuai arahan pengguna. Margin menambah waktu setelah faktor terms atau kalender; waiting dan allowance ditambahkan satu kali. Durasi ini memengaruhi hire dan bahan bakar pelabuhan. Periksa kemungkinan overlap dengan asumsi kalender. Nilai margin adalah input kasus, bukan standar CMN yang terverifikasi atau nilai yang diperoleh otomatis. Paket kasus yang sudah ada mempertahankan margin tersimpan; paket FD.1 dimigrasikan dengan 0% agar hasilnya tetap sama.
+
+Jarak Searoute adalah estimasi satu arah dari jaringan laut terdekat, bukan jarak terminal-ke-terminal yang terverifikasi. Perubahan port memperbarui nilai jarak dan mengosongkan identitas editor jarak lama; jika lookup gagal, masukkan jarak manual. Hasil menampilkan rute dan jarak yang dihitung. Paket lama FD.1 diperiksa hash-nya sebelum dimigrasikan ke FD.2 dengan margin 0%; file asal tidak diubah.
+
 Draft summer, grain capacity dan TPC berasal dari satu set profil Baltic BHSI38/BSI63. Penyesuaian draft memakai pendekatan linear TPC, bukan loading approval. Batas draft port yang kosong ditandai belum dimodelkan.
 
 ## Sumber

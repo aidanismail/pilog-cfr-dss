@@ -1,6 +1,6 @@
 """Versioned input catalog. Factors transcribed from supplied CMN screenshots."""
 SCHEMA = "PILOG-FREIGHT.1"
-FORMULA = "FD.1"
+FORMULA = "FD.2"
 COMMODITIES = {
     "urea_granular": "Urea granular",
     "ammonium_sulphate": "Ammonium sulphate / ZA",
