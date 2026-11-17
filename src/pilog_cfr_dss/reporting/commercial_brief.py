@@ -65,6 +65,7 @@ def commercial_brief(result):
             lines.append(f"| {name} | {labels[key]} | {n(row['cargo_mt'])} | {n(row.get('days'))} | {n(row.get('freight_usd_mt'))} | {'Dapat dihitung' if row['feasible'] else clean(row.get('error', 'Kapasitas tidak cukup'))} |")
     mode_name = {"factor": "faktor terms", "calendar": "kalender operasi"}
     lines += ["", f"Terms muat: {load['terms']} ({mode_name[load['time_basis']]}); terms bongkar: {discharge['terms']} ({mode_name[discharge['time_basis']]}).",
+        f"Margin waktu muat: {n(load.get('time_margin_percent', '0'))}%; bongkar: {n(discharge.get('time_margin_percent', '0'))}%. Margin adalah asumsi tambahan setelah terms/kalender.",
         "Ketersediaan kapal dan slot terminal tidak ditentukan oleh hasil biaya.", "",
         "## 5. Konsekuensi harga", ""]
     if case.get("selling_freight_usd_mt") is None:
@@ -77,7 +78,7 @@ def commercial_brief(result):
             if row["feasible"]:
                 co = row["commercial"]
                 lines.append(f"| {name} | {n(co['selling_freight_usd_mt'])} | {n(co['net_freight_revenue_usd'])} | {n(row['voyage_expenses_usd'])} | {n(row['hire_usd'])} | {n(co['surplus_usd'])} | {n(co['tce_usd_day'])} |")
-    lines += ["", "Komisi 0%. Freight biaya mencakup hire, bunker, Port DA dan biaya lain yang dimasukkan; tanpa margin otomatis. Pendapatan penjualan barang PI tidak dicampur dengan pendapatan freight PILOG.", "",
+    lines += ["", "Komisi 0%. Freight biaya mencakup hire, bunker, Port DA dan biaya lain yang dimasukkan; tanpa margin keuntungan otomatis. Pendapatan penjualan barang PI tidak dicampur dengan pendapatan freight PILOG.", "",
         "### Sumber dan waktu", "",
         f"Fearnpulse terakhir diambil: {price_time(case['market_snapshot'].get('fetched_at'))}.",
         "| Data | Seri / nilai | Tanggal sumber |", "|---|---|---|"]
@@ -92,7 +93,9 @@ def commercial_brief(result):
     sources = {(x["publisher"], x["source_file"], x["observation_date"]) for x in case.get("report_snapshot", {}).get("records", []) if x["product"] == case["commodity"]}
     for publisher, file, date in sorted(sources):
         lines.append(f"| {publisher}, konteks harga barang | {clean(file)} | {date} |")
-    lines += ["", f"Jarak: {n(case['distance_nm'])} NM; {clean(case['sources'].get('distance_nm', {}).get('source_reference', 'Input manual'))}.",
+    distance_source = case['sources'].get('distance_nm', {})
+    distance_label = 'Input manual' if distance_source.get('status') == 'manual_override' else distance_source.get('source_reference', 'Input manual')
+    lines += ["", f"Jarak: {n(case['distance_nm'])} NM; {clean(distance_label)}.",
         f"Spesifikasi: {clean(case['profile_source']['source_url'])}, versi {clean(case['profile_source']['document_version'])}; nilai tambahan dan perubahan manual tersedia dalam paket kasus.",
         f"ID data input (SHA-256): {result['input_sha256']}. Rincian angka, perubahan manual, dan sumber tersimpan dalam paket kasus.", "",
         "Rekomendasi untuk persiapan penawaran; keputusan dan pelaksanaan tetap pada pihak berwenang.", ""]

@@ -110,6 +110,33 @@ class FreightDeskUITests(unittest.TestCase):
         self.assertEqual(case["ports"]["load"]["name"],"Aqaba")
         self.assertNotEqual(case["distance_nm"],old)
 
+    def test_route_change_replaces_manual_distance_and_hides_old_result(self):
+        case = self.app.session_state["freight_case"]
+        key = case["case_id"] + "_0_shipment_route_0"
+        self.app.session_state[key] = {"edited_rows": {3: {"Nilai": 3064.32}},
+                                       "added_rows": [], "deleted_rows": []}
+        self.app.run()
+        self.assertEqual(float(self.app.session_state["freight_case"]["distance_nm"]), 3064.32)
+        self.button("Hitung freight").click().run()
+        self.choose("Pelabuhan", ("Kerteh", "Malaysia"), 0)
+        self.assertTrue(any("Input berubah" in c.value for c in self.app.caption))
+        self.choose("Pelabuhan", ("Hai Phong", "Vietnam"), 1)
+        case = self.app.session_state["freight_case"]
+        self.assertAlmostEqual(float(case["distance_nm"]), 1197.5913868621703)
+        self.button("Hitung freight").click().run()
+        result = self.app.session_state["freight_result"]
+        self.assertEqual(result["case"]["distance_nm"], case["distance_nm"])
+        self.assertTrue(any("Kerteh" in c.value and "Hai Phong" in c.value for c in self.app.caption))
+
+    def test_route_failure_clears_previous_distance(self):
+        with patch("pilog_cfr_dss.application.freight_desk.distance", side_effect=ValueError("offline")):
+            self.choose("Pelabuhan", ("Kerteh", "Malaysia"), 0)
+        case = self.app.session_state["freight_case"]
+        self.assertIsNone(case["distance_nm"])
+        self.assertEqual(case["sources"]["distance_nm"]["status"], "unavailable")
+        self.button("Hitung freight").click().run()
+        self.assertTrue(list(self.app.error))
+
     def test_new_case_resets_result(self):
         self.button("Hitung freight").click().run()
         self.button("Kasus baru").click().run()

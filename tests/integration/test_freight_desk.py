@@ -22,6 +22,10 @@ class FreightIntegrationTests(unittest.TestCase):
     def setUpClass(cls):
         cls.case=default_case(ROOT,latest_saved(ROOT))
 
+    def test_new_case_defaults_to_25_percent_for_each_port(self):
+        for side in ("load", "discharge"):
+            self.assertEqual(self.case["ports"][side]["time_margin_percent"], "25")
+
     def test_sources_for_three_products_and_no_fabricated_fertecon_chloride(self):
         snapshot=read_assessments(ROOT)
         self.assertFalse(snapshot["errors"])
@@ -76,6 +80,17 @@ class FreightIntegrationTests(unittest.TestCase):
         changed=deepcopy(self.case)
         changed["terms_snapshot"]["SHINC"]["factor"]="1.2"
         with self.assertRaisesRegex(ValueError,"TERMS_VERSION"):calculate(changed)
+
+    def test_old_packages_migrate_after_hash_and_preserve_calculation(self):
+        for path in (ROOT / "outputs/contoh_6_kasus").glob("*.json"):
+            raw = path.read_bytes()
+            old = json.loads(raw)["case"]
+            before = calculate(old)["classes"]
+            migrated = import_case(raw)
+            self.assertEqual(migrated["formula_version"], "FD.2")
+            self.assertEqual(calculate(migrated)["classes"], before)
+            self.assertEqual(migrated["ports"]["load"]["time_margin_percent"], "0")
+            self.assertEqual(migrated["sources"]["formula_version"]["status"], "migrated")
 
     def test_override_preserves_source_and_original(self):
         c=deepcopy(self.case);old=digest(c)
@@ -142,12 +157,13 @@ class FreightIntegrationTests(unittest.TestCase):
         c=deepcopy(self.case);old=deepcopy(c)
         a=c["ports"]["load"]
         fake={"value":"4320","unit":"NM","source_reference":"test route"}
-        override_values={("discharge","C","Z"):{"port_da_usd":"1234","terms":"SHEX0","rate_mt_day":"6000"}}
+        override_values={("discharge","C","Z"):{"port_da_usd":"1234","terms":"SHEX0","rate_mt_day":"6000", "time_margin_percent":"24.3"}}
         with patch("pilog_cfr_dss.application.freight_desk.distance",return_value=fake):
             cells=matrix(c,[(a["name"],a["country"])],[("C","Z")],"Handysize",ROOT,port_overrides=override_values)
         self.assertEqual(c,old)
         derived=cells[0]["result"]["case"]
         self.assertEqual(derived["ports"]["discharge"]["port_da_usd"],"1234")
         self.assertEqual(derived["ports"]["discharge"]["terms"],"SHEX0")
+        self.assertEqual(derived["ports"]["discharge"]["time_margin_percent"],"24.3")
         self.assertIsNone(derived["ports"]["discharge"]["draft_limit_m"])
         self.assertEqual(cells[0]["rate"],calculate(derived)["classes"]["Handysize"]["nominal"]["freight_usd_mt"])

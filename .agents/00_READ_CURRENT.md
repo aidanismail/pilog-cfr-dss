@@ -1,5 +1,11 @@
 # Mulai di sini — PILOG CFR DSS
 
+## Terbaru — FD.2, 17 November 2026
+
+Pembaruan pengguna: default margin waktu pada kasus baru adalah 25% untuk muat dan bongkar, tetap editable. Paket yang sudah tersimpan mempertahankan nilainya; paket FD.1 tetap dimigrasikan dengan margin 0%. Nilai ini asumsi default pengguna, bukan standar CMN yang terverifikasi.
+
+Port margin waktu terpisah, default 0%, ditambahkan setelah faktor terms/kalender; waiting/allowance terpisah. UI dan brief menampilkan asumsi, spread matrix mengikuti input. Paket FD.1 diverifikasi lalu dimigrasikan in-memory dengan margin 0%. Perubahan port menyegarkan editor jarak; hasil menampilkan rute/jarak. Reproduksi Kerteh–Mundra 3.065,70 NM dan Kerteh–Hai Phong 1.197,59 NM belum membuktikan penyebab sesi pengguna. 87 tes lokal lulus; AppTest bukan browser UAT. CMN margin masih hipotesis; belum push/deploy. Detail dan batas: docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md §15.
+
 ## Aktif — D-078: Freight Desk FD.1, selesai teknis 13 November 2026
 
 Pengguna memberi execute rencana docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md. B0–B6 selesai teknis; bukti dan batas ada di bagian 14. Menunggu review pengguna/domain, bukan persetujuan komersial atau produksi.

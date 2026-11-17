@@ -45,11 +45,19 @@ def _scenario(case, family, profile, quantity, prices):
     port_m = number(profile["port_lsmgo_mt_day"], "port_lsmgo_mt_day", ZERO)
     ledger = []
     dates = {}
+    port_times = {}
     for side, port in (("load", load), ("discharge", discharge)):
         waiting = number(port["waiting_days"], side + "_waiting_days", ZERO)
         cursor = advance(cursor, waiting)
         dates[side + "_start"] = cursor.isoformat()
         elapsed, end = port_duration(quantity, port, cursor)
+        margin = number(port.get("time_margin_percent", "0"), side + "_time_margin_percent", ZERO)
+        extra_time = elapsed * margin / Decimal(100)
+        port_times[side] = {"base_days": quantity / number(port["rate_mt_day"], side + "_rate_mt_day"),
+                            "terms_days": elapsed, "margin_percent": margin,
+                            "margin_days": extra_time, "operation_days": elapsed + extra_time}
+        end = advance(end, extra_time)
+        elapsed += extra_time
         allowance = number(port["allowance_days"], side + "_allowance_days", ZERO)
         dates[side + "_end"] = advance(end, allowance).isoformat()
         cursor = advance(end, allowance)
@@ -90,7 +98,7 @@ def _scenario(case, family, profile, quantity, prices):
                       "surplus_usd": surplus, "tce_usd_day": (revenue - expenses) / days,
                       "rate_change_to_break_even": max(ZERO, minimum - rate),
                       "shortfall_usd": max(ZERO, -surplus)}
-    result.update(ledger=ledger, days=days, sea_days=sea, hire_usd=hire_total,
+    result.update(ledger=ledger, port_times=port_times, days=days, sea_days=sea, hire_usd=hire_total,
                   voyage_expenses_usd=expenses, total_usd=total, freight_usd_mt=freight,
                   minimum_offer_usd_mt=minimum, commercial=commercial, timeline=dates,
                   bunker_usd=sum((x["bunker_usd"] for x in ledger), ZERO),
@@ -110,7 +118,7 @@ def calculate(case):
         raise ValueError("UNSUPPORTED_CASE_VERSION_USE_NEW_FREIGHT_CASE")
     import json
     expected_terms = terms_catalog(case.get("terms_version"))
-    if (case.get("formula_version") != FORMULA
+    if (case.get("formula_version") not in ("FD.1", FORMULA)
             or case.get("terms_snapshot") != json.loads(json.dumps(expected_terms))):
         raise ValueError("FORMULA_OR_TERMS_VERSION_MISMATCH")
     if case.get("currency") != "USD" or case.get("sf_unit") != "m3/MT":
@@ -132,6 +140,10 @@ def calculate(case):
             raise ValueError("INVALID_PORT_STRUCTURE")
         if port["terms"] not in expected_terms or number(port["rate_mt_day"], "handling_rate") <= 0:
             raise ValueError("INVALID_PORT_TERMS_OR_RATE")
+        if case["formula_version"] == "FD.1" and "time_margin_percent" in port:
+            raise ValueError("FD1_MARGIN_NOT_SUPPORTED")
+        if case["formula_version"] == FORMULA:
+            number(port.get("time_margin_percent"), "time_margin_percent", ZERO)
     if case.get("selling_freight_usd_mt") is not None:
         number(case["selling_freight_usd_mt"], "selling_freight_usd_mt", ZERO)
     with localcontext() as context:
@@ -147,7 +159,7 @@ def calculate(case):
                 except (ValueError, KeyError, TypeError) as error:
                     results[family][label] = {"vessel_class": family, "cargo_mt": quantity,
                         "feasible": False, "status": "INPUT_ERROR", "error": str(error), "ledger": []}
-        return {"formula_version": FORMULA, "quantities": qs, "classes": results}
+        return {"formula_version": case["formula_version"], "quantities": qs, "classes": results}
 
 
 def freight_delta(value, base):
