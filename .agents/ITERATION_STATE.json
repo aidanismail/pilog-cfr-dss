@@ -5,10 +5,24 @@
     "authorization": "D-078",
     "iteration": "I5",
     "status": "implemented_verified_pending_user_domain_review",
-    "plan_and_review": "docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md section 16.7",
+    "plan_and_review": "docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md section 17",
     "task": ".agents/tasks/ITERATION_05.md",
-    "state_key": "freight_desk_revision",
+    "state_key": "freight_risk_mitigation",
     "historical_sections_not_current_runtime": true
+  },
+  "freight_risk_mitigation": {
+    "updated_on": "2026-11-20",
+    "version": "1",
+    "branch": "feature/freight-risk-mitigation",
+    "status": "implemented_pending_domain_review",
+    "baseline_formula": "FD.3",
+    "verified_tests": 107,
+    "browser_smoke": "passed_risk_replay_brief_download_and_legacy_flows",
+    "separate_app_deployment_pending": true,
+    "synthetic_packages": [
+      "outputs/test_cases/fd3_risk_pilog_open_hire.json",
+      "outputs/test_cases/fd3_risk_pi_open_freight.json"
+    ]
   },
   "random_bid_risk_revision": {
     "decision_id": "D-076",

@@ -7,6 +7,8 @@ from pathlib import Path
 from uuid import uuid4
 from pilog_cfr_dss.models.freight_desk import SCHEMA, FORMULA, TERMS, TERMS_VERSION
 from pilog_cfr_dss.calculations.freight_desk import calculate, freight_delta
+from pilog_cfr_dss.calculations.risk import assess
+from pilog_cfr_dss.models.risk import risk_input
 from pilog_cfr_dss.sources.baltic_profiles import read_snapshot
 from pilog_cfr_dss.sources.voyage_profiles import read_profiles
 from pilog_cfr_dss.sources.voyage_estimates import read_voyages
@@ -206,6 +208,8 @@ def evaluate(case):
     frozen = deepcopy(case)
     result = calculate(frozen)
     result["recommendation"] = recommend(result)
+    if risk := risk_input(frozen):
+        result["risk_assessment"] = assess(frozen, result, risk)
     result.update(case_id=frozen["case_id"], input_sha256=digest(frozen),
                   calculated_at=datetime.now(timezone.utc).isoformat(), case=frozen)
     return result
@@ -252,6 +256,7 @@ def import_case(raw):
         if not all(key in case[field] for key in keys):
             raise ValueError("INCOMPLETE_CASE_METADATA:" + field)
     calculate(case)
+    risk_input(case)
     if case.get("formula_version") == "FD.1":
         case = deepcopy(case)
         case["formula_version"] = "FD.2"
@@ -275,6 +280,7 @@ def matrix(base, origins, destinations, family, root, quantity_basis="nominal", 
     for destination in destinations:
         for origin in origins:
             derived = deepcopy(base)
+            derived.pop("risk_assessment", None)
             inherited = []
             for side, chosen in (("load", origin), ("discharge", destination)):
                 if (derived["ports"][side]["name"], derived["ports"][side]["country"]) != tuple(chosen):

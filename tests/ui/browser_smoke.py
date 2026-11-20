@@ -118,11 +118,27 @@ def main():
                     page.get_by_role("heading",name="Automated Freight Desk PILOG",exact=True).evaluate("e=>e.scrollIntoView({block:'start'})")
                     settle()
                     page.screenshot(path=str(ARTIFACTS/"fd_mobile.png"))
+                    page.set_viewport_size({"width":1440,"height":1000})
+                    if not page.get_by_role("button", name="Buka kasus", exact=True).is_visible():
+                        page.get_by_test_id("stExpandSidebarButton").click()
+                    risk_case = ROOT / "outputs/test_cases/fd3_risk_pilog_open_hire.json"
+                    page.locator('input[type="file"]').set_input_files(str(risk_case))
+                    expect(page.get_by_role("button", name="Remove " + risk_case.name, exact=True)).to_be_visible()
+                    page.get_by_role("button",name="Buka kasus",exact=True).click()
+                    expect(page.get_by_text("Rujukan atau catatan konfirmasi",exact=True).first).to_be_visible(timeout=30000)
+                    page.get_by_role("button",name="Hitung freight",exact=True).click()
+                    expect(page.get_by_text("Tahan penguncian biaya kapal",exact=False).first).to_be_visible(timeout=30000)
+                    with page.expect_download() as dl:
+                        page.get_by_role("button",name="Download brief",exact=True).click()
+                    path = folder / "risk.md"
+                    dl.value.save_as(str(path))
+                    brief = path.read_text(encoding="utf-8")
+                    assert brief.count("\n## ") == 5 and "45.031,88" in brief and "-2.747,19" in brief and "Kajian beli FFA" in brief
                     assert not errors,errors
                     browser.close()
                 report={"status":"PASS","javascript_errors":errors,"downloads":downloads,
                     "checked":["inputs","browser reload refetch","class results","5-section brief download","case package download/import",
-                               "deficit quote and TCE","base matrix","390px screenshot"],
+                               "deficit quote and TCE","base matrix","390px screenshot","risk case replay and brief"],
                     "agent_server_stopped":True}
                 (ARTIFACTS/"fd_browser_result.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
                 print(json.dumps(report))

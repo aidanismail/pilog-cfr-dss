@@ -48,6 +48,19 @@ class FreightDeskUITests(unittest.TestCase):
             self.app.session_state["freight_result"]
         self.assertFalse(any("bid" in x.label.lower() for x in self.app.button))
 
+    def test_transaction_stress_is_optional_and_validated(self):
+        self.assertNotIn("risk_assessment", self.app.session_state["freight_case"])
+        next(x for x in self.app.checkbox if x.label == "Analisis risiko dan mitigasi").check().run()
+        label = "Hire kapal (USD/hari)"
+        next(x for x in self.app.text_input if x.label == label).set_value("invalid").run()
+        self.assertTrue(self.button("Hitung freight").disabled)
+        next(x for x in self.app.text_input if x.label == label).set_value("2000").run()
+        self.button("Hitung freight").click().run()
+        self.assertFalse(list(self.app.exception))
+        result = self.app.session_state["freight_result"]
+        scenario = result["risk_assessment"]["classes"]["Handysize"]["scenarios"][0]
+        self.assertEqual(scenario["basis"], "Sensitivitas perencanaan")
+
     def test_kobc_hire_per_class_and_manual_edit(self):
         from tests.unit.test_kobc import quote
         today = datetime.now(ZoneInfo("Asia/Seoul")).date().isoformat()

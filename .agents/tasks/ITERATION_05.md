@@ -1,5 +1,16 @@
 # Task Iterasi 5 — deployment Streamlit existing
 
+## Preview risiko freight — 20 November 2026
+
+- [x] I5-RISK1. Simpan status transaksi dan bukti dengan cakupan kasus yang eksplisit.
+- [x] I5-RISK2. Hitung exposure PI/PILOG dan sensitivitas per kelas dengan mesin voyage FD.3.
+- [x] I5-RISK3. Susun tindakan dan opsi mitigasi sesuai komitmen dan asumsi yang didukung.
+- [x] I5-RISK4. Hubungkan editor, Commercial Brief, dan dua paket contoh. Spread Matrix tetap memakai dasar freight per rute.
+- [x] I5-RISK5. 107 tes dan uji browser Streamlit lulus, termasuk impor dan unduhan brief risiko.
+- [ ] Review domain mentor pada preview Streamlit terpisah.
+
+Bukti, batas dan angka demo di [rencana §17](../../docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md#17-rencana-fitur-risiko-dan-opsi-mitigasi).
+
 ## Aktif 13 November — Freight Desk FD.1
 
 User memberi execute untuk rencana RENCANA_PENYESUAIAN_INPUT_VOYAGE.md. B0 approved; B1 schema/source/dependency, B2 engine, B3 UI, B4 brief, B5 matrix, B6 tests/review. Tidak ada push/deploy/transaksi.

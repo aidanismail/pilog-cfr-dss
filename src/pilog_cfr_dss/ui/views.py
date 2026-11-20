@@ -14,6 +14,7 @@ from pilog_cfr_dss.application.freight_desk import (
 )
 from pilog_cfr_dss.models.freight_desk import COMMODITIES, TERMS
 from pilog_cfr_dss.reporting.commercial_brief import commercial_brief
+from pilog_cfr_dss.ui.risk import transaction_inputs
 from pilog_cfr_dss.reporting.formatting import number_text as fmt, price_time
 from pilog_cfr_dss.sources.baltic_profiles import URL as BALTIC_URL, verify_benchmarks
 from pilog_cfr_dss.sources.fearnpulse import fetch_snapshot, latest_saved, save_runtime_snapshot
@@ -321,6 +322,9 @@ def market_context(case):
 def results_view(result):
     st.header("Hasil freight")
     st.info(result["recommendation"]["action"])
+    risk = result.get("risk_assessment", {}).get("primary")
+    if risk:
+        st.warning(f"{risk['vessel_class']} · {risk['team']}: {risk['action']}")
     for family, scenarios in result["classes"].items():
         nominal = scenarios["nominal"]
         title = family + (" · " + fmt(nominal["freight_usd_mt"]) + " USD/MT" if nominal["feasible"] else " · Muatan atau input perlu diperiksa")
@@ -531,6 +535,8 @@ def render(root: Path, output_root=None):
     if market_error:
         st.caption("Fearnpulse tidak terhubung; menggunakan data pasar yang tersimpan.")
     inputs(case, root)
+    if not st.session_state["input_errors"]:
+        transaction_inputs(case, widget_prefix(case))
     market_context(case)
     input_errors = st.session_state["input_errors"]
     if input_errors:

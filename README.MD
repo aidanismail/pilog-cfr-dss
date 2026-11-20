@@ -14,7 +14,9 @@ Untuk instalasi baru, gunakan Python 3.12 dan:
 
     python -m pip install -r requirements.txt
 
-Konfigurasi Streamlit Community Cloud memakai branch `dev` dan entry point `apps/streamlit_app.py`. Versi Streamlit dipasang dari `requirements.txt`, dengan Python 3.12 sebagai lingkungan uji untuk versi tersebut.
+Untuk preview fitur risiko di Streamlit Community Cloud, buat app baru dari branch `feature/freight-risk-mitigation` dengan entry point `apps/streamlit_app.py` dan Python 3.12. App utama tetap memakai `dev`. Versi Streamlit dipasang dari `requirements.txt`.
+
+Untuk mencoba, buka paket [PILOG, hire belum dikunci](outputs/test_cases/fd3_risk_pilog_open_hire.json) atau [PI, freight belum dikunci](outputs/test_cases/fd3_risk_pi_open_freight.json) dari sidebar. Setelah **Hitung freight**, lihat rekomendasi dan opsi mitigasi di **Commercial brief**. Untuk kasus baru, isi **Status transaksi** dan pilih uji perubahan yang relevan. Dokumen demo memakai rujukan komitmen sintetis.
 
 ## Alur dan perhitungan
 

@@ -1,5 +1,9 @@
 # Mulai di sini — PILOG CFR DSS
 
+## Preview risiko freight — 20 November 2026
+
+FD.3 memiliki analisis risiko opsional versi 1 pada cabang `feature/freight-risk-mitigation`. Baca [rencana dan hasil §17](../docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md#17-rencana-fitur-risiko-dan-opsi-mitigasi). Kasus lama tetap dapat dibuka. Paket demo membedakan biaya freight PI dan biaya hire PILOG. Komitmen ditetapkan per bukti dan cakupan voyage. Brief menampilkan tindakan utama dan opsi kajian; perhitungan atau perdagangan FFA tidak termasuk. Preview memakai app Streamlit terpisah dari `dev`.
+
 ## Persiapan redeploy — 20 November 2026
 
 Refresh browser atau **Kasus baru** mengambil ulang Fearnpulse dan KOBC serta memverifikasi profil Baltic. Perubahan widget memakai data sesi tanpa fetch ulang. Paket impor tetap replayable, dan fallback KOBC per kelas berlaku hingga umur tujuh hari.
