@@ -1,8 +1,9 @@
-# Engine DSS dan unittest hanya menggunakan pustaka standar Python.
-# Dependensi berikut untuk persiapan input dari workbook/PDF dan workbook belajar.
+# Dependensi untuk aplikasi dan CLI. Community Cloud membaca file ini.
+streamlit==1.66.1
 openpyxl>=3.1,<4
-pypdf>=5,<7
 geopy==2.5.0
 searoute==1.6.0
 pypdfium2==5.14.0
 pycountry==26.2.16
+requests>=2.31,<3
+tzdata>=2024.1

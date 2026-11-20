@@ -1,544 +1,10 @@
 {
-  "formula_version": "FD.1",
-  "quantities": {
-    "minimum": "27000.0",
-    "nominal": "30000",
-    "maximum": "33000.0"
-  },
-  "classes": {
-    "Handysize": {
-      "minimum": {
-        "vessel_class": "Handysize",
-        "cargo_mt": "27000.0",
-        "capacity": {
-          "feasible": true,
-          "limit_mt": "35836.50190114068441064638783269961977186",
-          "binding": "VOLUME",
-          "volume_required_m3": "35505.0000",
-          "checks": [
-            {
-              "code": "WEIGHT",
-              "status": "PASS",
-              "limit_mt": "36000"
-            },
-            {
-              "code": "VOLUME",
-              "status": "PASS",
-              "limit_mt": "35836.50190114068441064638783269961977186"
-            },
-            {
-              "code": "DRAFT",
-              "status": "NOT_MODELLED",
-              "limit_mt": null
-            }
-          ],
-          "draft_method": "not_modelled"
-        },
-        "feasible": true,
-        "ledger": [
-          {
-            "activity": "Muat",
-            "days": "5.4",
-            "hire_rate": "13000",
-            "hire_usd": "70200.0",
-            "vlsfo_mt": "0.0",
-            "lsmgo_mt": "15.4224",
-            "bunker_usd": "13911.0048",
-            "port_da_usd": "100000",
-            "other_usd": "0",
-            "total_usd": "184111.0048"
-          },
-          {
-            "activity": "Laut bermuatan",
-            "days": "13.94387668221170243055555555555555555556",
-            "hire_rate": "13000",
-            "hire_usd": "181270.3968687521315972222222222222222223",
-            "vlsfo_mt": "250.9897802798106437500000000000000000001",
-            "lsmgo_mt": "1.394387668221170243055555555555555555556",
-            "bunker_usd": "116211.0570448887703967361111111111111111",
-            "port_da_usd": "0",
-            "other_usd": "0",
-            "total_usd": "297481.4539136409019939583333333333333334"
-          },
-          {
-            "activity": "Bongkar",
-            "days": "5.4",
-            "hire_rate": "13000",
-            "hire_usd": "70200.0",
-            "vlsfo_mt": "0.0",
-            "lsmgo_mt": "15.4224",
-            "bunker_usd": "13911.0048",
-            "port_da_usd": "100000",
-            "other_usd": "0",
-            "total_usd": "184111.0048"
-          }
-        ],
-        "status": "CALCULATED",
-        "days": "24.74387668221170243055555555555555555556",
-        "sea_days": "13.94387668221170243055555555555555555556",
-        "hire_usd": "321670.3968687521315972222222222222222223",
-        "voyage_expenses_usd": "344033.0666448887703967361111111111111111",
-        "total_usd": "665703.4635136409019939583333333333333334",
-        "freight_usd_mt": "24.65568383383855192570216049382716049383",
-        "minimum_offer_usd_mt": "24.66",
-        "commercial": null,
-        "timeline": {
-          "load_start": "2026-11-01T00:00:00+00:00",
-          "load_end": "2026-11-06T09:36:00+00:00",
-          "discharge_start": "2026-11-20T08:15:10.945344+00:00",
-          "discharge_end": "2026-11-25T17:51:10.945344+00:00"
-        },
-        "bunker_usd": "144033.0666448887703967361111111111111111",
-        "port_da_usd": "200000",
-        "other_usd": "0"
-      },
-      "nominal": {
-        "vessel_class": "Handysize",
-        "cargo_mt": "30000",
-        "capacity": {
-          "feasible": true,
-          "limit_mt": "35836.50190114068441064638783269961977186",
-          "binding": "VOLUME",
-          "volume_required_m3": "39450.000",
-          "checks": [
-            {
-              "code": "WEIGHT",
-              "status": "PASS",
-              "limit_mt": "36000"
-            },
-            {
-              "code": "VOLUME",
-              "status": "PASS",
-              "limit_mt": "35836.50190114068441064638783269961977186"
-            },
-            {
-              "code": "DRAFT",
-              "status": "NOT_MODELLED",
-              "limit_mt": null
-            }
-          ],
-          "draft_method": "not_modelled"
-        },
-        "feasible": true,
-        "ledger": [
-          {
-            "activity": "Muat",
-            "days": "6",
-            "hire_rate": "13000",
-            "hire_usd": "78000",
-            "vlsfo_mt": "0",
-            "lsmgo_mt": "17.136",
-            "bunker_usd": "15456.672",
-            "port_da_usd": "100000",
-            "other_usd": "0",
-            "total_usd": "193456.672"
-          },
-          {
-            "activity": "Laut bermuatan",
-            "days": "13.94387668221170243055555555555555555556",
-            "hire_rate": "13000",
-            "hire_usd": "181270.3968687521315972222222222222222223",
-            "vlsfo_mt": "250.9897802798106437500000000000000000001",
-            "lsmgo_mt": "1.394387668221170243055555555555555555556",
-            "bunker_usd": "116211.0570448887703967361111111111111111",
-            "port_da_usd": "0",
-            "other_usd": "0",
-            "total_usd": "297481.4539136409019939583333333333333334"
-          },
-          {
-            "activity": "Bongkar",
-            "days": "6",
-            "hire_rate": "13000",
-            "hire_usd": "78000",
-            "vlsfo_mt": "0",
-            "lsmgo_mt": "17.136",
-            "bunker_usd": "15456.672",
-            "port_da_usd": "100000",
-            "other_usd": "0",
-            "total_usd": "193456.672"
-          }
-        ],
-        "status": "CALCULATED",
-        "days": "25.94387668221170243055555555555555555556",
-        "sea_days": "13.94387668221170243055555555555555555556",
-        "hire_usd": "337270.3968687521315972222222222222222223",
-        "voyage_expenses_usd": "347124.4010448887703967361111111111111111",
-        "total_usd": "684394.7979136409019939583333333333333334",
-        "freight_usd_mt": "22.81315993045469673313194444444444444445",
-        "minimum_offer_usd_mt": "22.82",
-        "commercial": null,
-        "timeline": {
-          "load_start": "2026-11-01T00:00:00+00:00",
-          "load_end": "2026-11-07T00:00:00+00:00",
-          "discharge_start": "2026-11-20T22:39:10.945344+00:00",
-          "discharge_end": "2026-11-26T22:39:10.945344+00:00"
-        },
-        "bunker_usd": "147124.4010448887703967361111111111111111",
-        "port_da_usd": "200000",
-        "other_usd": "0"
-      },
-      "maximum": {
-        "vessel_class": "Handysize",
-        "cargo_mt": "33000.0",
-        "capacity": {
-          "feasible": true,
-          "limit_mt": "35836.50190114068441064638783269961977186",
-          "binding": "VOLUME",
-          "volume_required_m3": "43395.0000",
-          "checks": [
-            {
-              "code": "WEIGHT",
-              "status": "PASS",
-              "limit_mt": "36000"
-            },
-            {
-              "code": "VOLUME",
-              "status": "PASS",
-              "limit_mt": "35836.50190114068441064638783269961977186"
-            },
-            {
-              "code": "DRAFT",
-              "status": "NOT_MODELLED",
-              "limit_mt": null
-            }
-          ],
-          "draft_method": "not_modelled"
-        },
-        "feasible": true,
-        "ledger": [
-          {
-            "activity": "Muat",
-            "days": "6.6",
-            "hire_rate": "13000",
-            "hire_usd": "85800.0",
-            "vlsfo_mt": "0.0",
-            "lsmgo_mt": "18.8496",
-            "bunker_usd": "17002.3392",
-            "port_da_usd": "100000",
-            "other_usd": "0",
-            "total_usd": "202802.3392"
-          },
-          {
-            "activity": "Laut bermuatan",
-            "days": "13.94387668221170243055555555555555555556",
-            "hire_rate": "13000",
-            "hire_usd": "181270.3968687521315972222222222222222223",
-            "vlsfo_mt": "250.9897802798106437500000000000000000001",
-            "lsmgo_mt": "1.394387668221170243055555555555555555556",
-            "bunker_usd": "116211.0570448887703967361111111111111111",
-            "port_da_usd": "0",
-            "other_usd": "0",
-            "total_usd": "297481.4539136409019939583333333333333334"
-          },
-          {
-            "activity": "Bongkar",
-            "days": "6.6",
-            "hire_rate": "13000",
-            "hire_usd": "85800.0",
-            "vlsfo_mt": "0.0",
-            "lsmgo_mt": "18.8496",
-            "bunker_usd": "17002.3392",
-            "port_da_usd": "100000",
-            "other_usd": "0",
-            "total_usd": "202802.3392"
-          }
-        ],
-        "status": "CALCULATED",
-        "days": "27.14387668221170243055555555555555555556",
-        "sea_days": "13.94387668221170243055555555555555555556",
-        "hire_usd": "352870.3968687521315972222222222222222223",
-        "voyage_expenses_usd": "350215.7354448887703967361111111111111111",
-        "total_usd": "703086.1323136409019939583333333333333334",
-        "freight_usd_mt": "21.30564037314063339375631313131313131313",
-        "minimum_offer_usd_mt": "21.31",
-        "commercial": null,
-        "timeline": {
-          "load_start": "2026-11-01T00:00:00+00:00",
-          "load_end": "2026-11-07T14:24:00+00:00",
-          "discharge_start": "2026-11-21T13:03:10.945344+00:00",
-          "discharge_end": "2026-11-28T03:27:10.945344+00:00"
-        },
-        "bunker_usd": "150215.7354448887703967361111111111111111",
-        "port_da_usd": "200000",
-        "other_usd": "0"
-      }
-    },
-    "Supramax": {
-      "minimum": {
-        "vessel_class": "Supramax",
-        "cargo_mt": "27000.0",
-        "capacity": {
-          "feasible": true,
-          "limit_mt": "61000",
-          "binding": "WEIGHT",
-          "volume_required_m3": "35505.0000",
-          "checks": [
-            {
-              "code": "WEIGHT",
-              "status": "PASS",
-              "limit_mt": "61000"
-            },
-            {
-              "code": "VOLUME",
-              "status": "PASS",
-              "limit_mt": "61216.73003802281368821292775665399239544"
-            },
-            {
-              "code": "DRAFT",
-              "status": "NOT_MODELLED",
-              "limit_mt": null
-            }
-          ],
-          "draft_method": "not_modelled"
-        },
-        "feasible": true,
-        "ledger": [
-          {
-            "activity": "Muat",
-            "days": "5.4",
-            "hire_rate": "13000",
-            "hire_usd": "70200.0",
-            "vlsfo_mt": "0.0",
-            "lsmgo_mt": "20.8656",
-            "bunker_usd": "18820.7712",
-            "port_da_usd": "100000",
-            "other_usd": "0",
-            "total_usd": "189020.7712"
-          },
-          {
-            "activity": "Laut bermuatan",
-            "days": "11.95189429903860208333333333333333333333",
-            "hire_rate": "13000",
-            "hire_usd": "155374.6258875018270833333333333333333333",
-            "vlsfo_mt": "346.6049346721194604166666666666666666666",
-            "lsmgo_mt": "0E-38",
-            "bunker_usd": "158745.0600798307128708333333333333333333",
-            "port_da_usd": "0",
-            "other_usd": "0",
-            "total_usd": "314119.6859673325399541666666666666666666"
-          },
-          {
-            "activity": "Bongkar",
-            "days": "5.4",
-            "hire_rate": "13000",
-            "hire_usd": "70200.0",
-            "vlsfo_mt": "0.0",
-            "lsmgo_mt": "20.8656",
-            "bunker_usd": "18820.7712",
-            "port_da_usd": "100000",
-            "other_usd": "0",
-            "total_usd": "189020.7712"
-          }
-        ],
-        "status": "CALCULATED",
-        "days": "22.75189429903860208333333333333333333333",
-        "sea_days": "11.95189429903860208333333333333333333333",
-        "hire_usd": "295774.6258875018270833333333333333333333",
-        "voyage_expenses_usd": "396386.6024798307128708333333333333333333",
-        "total_usd": "692161.2283673325399541666666666666666666",
-        "freight_usd_mt": "25.63560105064194592422839506172839506173",
-        "minimum_offer_usd_mt": "25.64",
-        "commercial": null,
-        "timeline": {
-          "load_start": "2026-11-01T00:00:00+00:00",
-          "load_end": "2026-11-06T09:36:00+00:00",
-          "discharge_start": "2026-11-18T08:26:43.667437+00:00",
-          "discharge_end": "2026-11-23T18:02:43.667437+00:00"
-        },
-        "bunker_usd": "196386.6024798307128708333333333333333333",
-        "port_da_usd": "200000",
-        "other_usd": "0"
-      },
-      "nominal": {
-        "vessel_class": "Supramax",
-        "cargo_mt": "30000",
-        "capacity": {
-          "feasible": true,
-          "limit_mt": "61000",
-          "binding": "WEIGHT",
-          "volume_required_m3": "39450.000",
-          "checks": [
-            {
-              "code": "WEIGHT",
-              "status": "PASS",
-              "limit_mt": "61000"
-            },
-            {
-              "code": "VOLUME",
-              "status": "PASS",
-              "limit_mt": "61216.73003802281368821292775665399239544"
-            },
-            {
-              "code": "DRAFT",
-              "status": "NOT_MODELLED",
-              "limit_mt": null
-            }
-          ],
-          "draft_method": "not_modelled"
-        },
-        "feasible": true,
-        "ledger": [
-          {
-            "activity": "Muat",
-            "days": "6",
-            "hire_rate": "13000",
-            "hire_usd": "78000",
-            "vlsfo_mt": "0",
-            "lsmgo_mt": "23.184",
-            "bunker_usd": "20911.968",
-            "port_da_usd": "100000",
-            "other_usd": "0",
-            "total_usd": "198911.968"
-          },
-          {
-            "activity": "Laut bermuatan",
-            "days": "11.95189429903860208333333333333333333333",
-            "hire_rate": "13000",
-            "hire_usd": "155374.6258875018270833333333333333333333",
-            "vlsfo_mt": "346.6049346721194604166666666666666666666",
-            "lsmgo_mt": "0E-38",
-            "bunker_usd": "158745.0600798307128708333333333333333333",
-            "port_da_usd": "0",
-            "other_usd": "0",
-            "total_usd": "314119.6859673325399541666666666666666666"
-          },
-          {
-            "activity": "Bongkar",
-            "days": "6",
-            "hire_rate": "13000",
-            "hire_usd": "78000",
-            "vlsfo_mt": "0",
-            "lsmgo_mt": "23.184",
-            "bunker_usd": "20911.968",
-            "port_da_usd": "100000",
-            "other_usd": "0",
-            "total_usd": "198911.968"
-          }
-        ],
-        "status": "CALCULATED",
-        "days": "23.95189429903860208333333333333333333333",
-        "sea_days": "11.95189429903860208333333333333333333333",
-        "hire_usd": "311374.6258875018270833333333333333333333",
-        "voyage_expenses_usd": "400568.9960798307128708333333333333333333",
-        "total_usd": "711943.6219673325399541666666666666666666",
-        "freight_usd_mt": "23.73145406557775133180555555555555555555",
-        "minimum_offer_usd_mt": "23.74",
-        "commercial": null,
-        "timeline": {
-          "load_start": "2026-11-01T00:00:00+00:00",
-          "load_end": "2026-11-07T00:00:00+00:00",
-          "discharge_start": "2026-11-18T22:50:43.667437+00:00",
-          "discharge_end": "2026-11-24T22:50:43.667437+00:00"
-        },
-        "bunker_usd": "200568.9960798307128708333333333333333333",
-        "port_da_usd": "200000",
-        "other_usd": "0"
-      },
-      "maximum": {
-        "vessel_class": "Supramax",
-        "cargo_mt": "33000.0",
-        "capacity": {
-          "feasible": true,
-          "limit_mt": "61000",
-          "binding": "WEIGHT",
-          "volume_required_m3": "43395.0000",
-          "checks": [
-            {
-              "code": "WEIGHT",
-              "status": "PASS",
-              "limit_mt": "61000"
-            },
-            {
-              "code": "VOLUME",
-              "status": "PASS",
-              "limit_mt": "61216.73003802281368821292775665399239544"
-            },
-            {
-              "code": "DRAFT",
-              "status": "NOT_MODELLED",
-              "limit_mt": null
-            }
-          ],
-          "draft_method": "not_modelled"
-        },
-        "feasible": true,
-        "ledger": [
-          {
-            "activity": "Muat",
-            "days": "6.6",
-            "hire_rate": "13000",
-            "hire_usd": "85800.0",
-            "vlsfo_mt": "0.0",
-            "lsmgo_mt": "25.5024",
-            "bunker_usd": "23003.1648",
-            "port_da_usd": "100000",
-            "other_usd": "0",
-            "total_usd": "208803.1648"
-          },
-          {
-            "activity": "Laut bermuatan",
-            "days": "11.95189429903860208333333333333333333333",
-            "hire_rate": "13000",
-            "hire_usd": "155374.6258875018270833333333333333333333",
-            "vlsfo_mt": "346.6049346721194604166666666666666666666",
-            "lsmgo_mt": "0E-38",
-            "bunker_usd": "158745.0600798307128708333333333333333333",
-            "port_da_usd": "0",
-            "other_usd": "0",
-            "total_usd": "314119.6859673325399541666666666666666666"
-          },
-          {
-            "activity": "Bongkar",
-            "days": "6.6",
-            "hire_rate": "13000",
-            "hire_usd": "85800.0",
-            "vlsfo_mt": "0.0",
-            "lsmgo_mt": "25.5024",
-            "bunker_usd": "23003.1648",
-            "port_da_usd": "100000",
-            "other_usd": "0",
-            "total_usd": "208803.1648"
-          }
-        ],
-        "status": "CALCULATED",
-        "days": "25.15189429903860208333333333333333333333",
-        "sea_days": "11.95189429903860208333333333333333333333",
-        "hire_usd": "326974.6258875018270833333333333333333333",
-        "voyage_expenses_usd": "404751.3896798307128708333333333333333333",
-        "total_usd": "731726.0155673325399541666666666666666666",
-        "freight_usd_mt": "22.17351562325250121073232323232323232323",
-        "minimum_offer_usd_mt": "22.18",
-        "commercial": null,
-        "timeline": {
-          "load_start": "2026-11-01T00:00:00+00:00",
-          "load_end": "2026-11-07T14:24:00+00:00",
-          "discharge_start": "2026-11-19T13:14:43.667437+00:00",
-          "discharge_end": "2026-11-26T03:38:43.667437+00:00"
-        },
-        "bunker_usd": "204751.3896798307128708333333333333333333",
-        "port_da_usd": "200000",
-        "other_usd": "0"
-      }
-    }
-  },
-  "recommendation": {
-    "action": "Gunakan Handysize sebagai dasar penawaran.",
-    "status": "PREPARE_OFFER",
-    "selected": [
-      "Handysize"
-    ],
-    "reasons": [
-      "LOWEST_COST_FEASIBLE_NOMINAL",
-      "COST_FLOOR_NOT_PROFIT_FORECAST"
-    ]
-  },
-  "case_id": "fd_473e750806ef4b8cbf02b42fcb9ea01e",
-  "input_sha256": "48e17caff3b8c3c04b7b51560b94382e7857f0ea59c3545614a3487b501800b8",
-  "calculated_at": "2026-11-13T05:31:16.786529+00:00",
+  "format": "PILOG-FREIGHT.1",
+  "sha256": "6e16f75cc851a8e23602b7ce85c0d345f7bdf0563fbc9791a75af2a1317e146f",
   "case": {
     "schema": "PILOG-FREIGHT.1",
-    "formula_version": "FD.1",
-    "terms_version": "CMN-TERMS.1",
+    "formula_version": "FD.3",
+    "terms_version": "CMN-TERMS.2",
     "terms_snapshot": {
       "CQD1": {
         "label": "Customary Quick Despatch SHINC",
@@ -783,54 +249,75 @@
         ],
         "source": "docs/UI References/term_2.jpeg",
         "source_sha256": "d031abcadf2e06013dbcb812566b615820d7916e0c9db4fce4205d08faebd4d9"
+      },
+      "THEX3": {
+        "label": "Thursday 12:00–Saturday 08:00 excluded",
+        "factor": "1.35",
+        "excluded_interval": [
+          3,
+          720,
+          5,
+          480
+        ],
+        "source": "User confirmation 2026-11-13 :: THEX3 Thu 12:00–Sat 08:00 EXCL 1.35",
+        "source_sha256": null
       }
     },
-    "case_id": "fd_473e750806ef4b8cbf02b42fcb9ea01e",
+    "case_id": "test_fd3_bontang_hai_phong",
     "currency": "USD",
     "commodity": "urea_granular",
-    "cargo_mt": "30000",
+    "cargo_mt": "29000",
     "sf_unit": "m3/MT",
-    "stowage_factor_m3_mt": "1.315",
-    "tolerance_percent": "10",
+    "stowage_factor_m3_mt": "1.34",
+    "tolerance_percent": "8",
     "commission_fraction": "0",
     "hire_usd_day": "13000",
-    "bunker_delay_days": "0",
-    "selling_freight_usd_mt": null,
-    "other_costs": [],
+    "bunker_delay_days": "0.5",
+    "selling_freight_usd_mt": "23.50",
+    "other_costs": [
+      {
+        "id": "cleaning",
+        "label": "Pembersihan palka",
+        "amount": "2500",
+        "unit": "USD"
+      }
+    ],
     "ports": {
       "load": {
         "name": "Bontang",
         "country": "Indonesia",
-        "rate_mt_day": "5000",
-        "terms": "SHINC",
-        "time_basis": "factor",
+        "rate_mt_day": "5200",
+        "terms": "SHEX0",
+        "time_basis": "calendar",
         "draft_limit_m": null,
-        "port_da_usd": "100000",
+        "port_da_usd": "78000",
         "allowance_days": "0",
-        "waiting_days": "0",
+        "time_margin_percent": "10",
+        "waiting_days": "0.5",
         "calendar": {
-          "timezone": "UTC",
+          "timezone": "Asia/Makassar",
           "holidays": []
         }
       },
       "discharge": {
-        "name": "Mundra",
-        "country": "India",
-        "rate_mt_day": "5000",
+        "name": "Hai Phong",
+        "country": "Vietnam",
+        "rate_mt_day": "4300",
         "terms": "SHINC",
         "time_basis": "factor",
-        "draft_limit_m": null,
-        "port_da_usd": "100000",
+        "draft_limit_m": "9.25",
+        "port_da_usd": "96000",
         "allowance_days": "0",
-        "waiting_days": "0",
+        "time_margin_percent": "15",
+        "waiting_days": "0.25",
         "calendar": {
           "timezone": "UTC",
           "holidays": []
         }
       }
     },
-    "start_at": "2026-11-01T00:00:00+00:00",
-    "distance_nm": "4015.8364844769703",
+    "start_at": "2026-11-27T00:00:00+00:00",
+    "distance_nm": "1807.3463762816166",
     "profiles": {
       "Handysize": {
         "dwt_mt": "38200",
@@ -843,7 +330,8 @@
         "port_vlsfo_mt_day": "0",
         "port_lsmgo_mt_day": "2.856",
         "bunkers_allowance_mt": "1700",
-        "constants_allowance_mt": "500"
+        "constants_allowance_mt": "500",
+        "hire_usd_day": "16353"
       },
       "Supramax": {
         "dwt_mt": "63500",
@@ -856,7 +344,8 @@
         "port_vlsfo_mt_day": "0",
         "port_lsmgo_mt_day": "3.864",
         "bunkers_allowance_mt": "2000",
-        "constants_allowance_mt": "500"
+        "constants_allowance_mt": "500",
+        "hire_usd_day": "22373"
       }
     },
     "sources": {
@@ -926,6 +415,19 @@
         "original": "500",
         "sha256": "e217873df34b71e47efdac401aeb5e30e245fed523210eb7e693fbd10447c810"
       },
+      "profiles.Handysize.hire_usd_day": {
+        "status": "market_benchmark",
+        "source": "https://www.kobc.or.kr/ebz/shippinginfo/handy/gridList.do?mId=0301000000",
+        "benchmark_code": "TC Average",
+        "description": "Rata-rata kelas KOBC",
+        "scope": "class_average",
+        "observed_on": "2026-11-19",
+        "fetched_at": "2026-11-20T06:09:28.830017+00:00",
+        "benchmark_dwt_mt": 33000,
+        "commission_basis": "KOBC standard: 5% total commission",
+        "unit": "USD/day",
+        "original": "16353"
+      },
       "profiles.Supramax.dwt_mt": {
         "source": "https://www.balticexchange.com/content/dam/balticexchange/consumer/documents/data-services/documentation/ocean-bulk-guides-policies/GMB.pdf :: PDF page 83",
         "status": "source_specification",
@@ -992,25 +494,40 @@
         "original": "500",
         "sha256": "e217873df34b71e47efdac401aeb5e30e245fed523210eb7e693fbd10447c810"
       },
+      "profiles.Supramax.hire_usd_day": {
+        "status": "market_benchmark",
+        "source": "https://www.kobc.or.kr/ebz/shippinginfo/supramax/gridList.do?mId=0301000000",
+        "benchmark_code": "TC Average",
+        "description": "Rata-rata kelas KOBC",
+        "scope": "class_average",
+        "observed_on": "2026-11-19",
+        "fetched_at": "2026-11-20T06:09:28.830017+00:00",
+        "benchmark_dwt_mt": 58000,
+        "commission_basis": "KOBC standard: 5% total commission",
+        "unit": "USD/day",
+        "original": "22373"
+      },
       "fuel.VLSFO.value": {
         "original": "458",
-        "source": "https://fearnpulse.com/#6 :: Singapore 380 CST",
-        "status": "market_proxy",
-        "observation_date": "2026-07-01"
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "observation_date": "2026-07-01",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
       },
       "fuel.LSMGO.value": {
         "original": "902",
-        "source": "https://fearnpulse.com/#6 :: Singapore MGO",
-        "status": "market_proxy",
-        "observation_date": "2026-07-01"
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "observation_date": "2026-07-01",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
       },
       "formula_version": {
-        "original": "FD.1",
+        "original": "FD.3",
         "source": "Approved case default",
         "status": "default_assumption"
       },
       "terms_version": {
-        "original": "CMN-TERMS.1",
+        "original": "CMN-TERMS.2",
         "source": "Approved case default",
         "status": "default_assumption"
       },
@@ -1026,9 +543,10 @@
       },
       "cargo_mt": {
         "original": "30000",
-        "source": "data/raw/Voyage Estimate.xlsx :: Bontang-Mundra",
-        "status": "workbook_assumption",
-        "sha256": "e217873df34b71e47efdac401aeb5e30e245fed523210eb7e693fbd10447c810"
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "sha256": "e217873df34b71e47efdac401aeb5e30e245fed523210eb7e693fbd10447c810",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
       },
       "sf_unit": {
         "original": "m3/MT",
@@ -1037,13 +555,15 @@
       },
       "stowage_factor_m3_mt": {
         "original": "1.315",
-        "source": "Approved case default",
-        "status": "default_assumption"
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
       },
       "tolerance_percent": {
         "original": "10",
-        "source": "Approved case default",
-        "status": "default_assumption"
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
       },
       "commission_fraction": {
         "original": "0",
@@ -1052,29 +572,32 @@
       },
       "hire_usd_day": {
         "original": "13000",
-        "source": "Approved case default",
-        "status": "default_assumption"
+        "source": "Legacy FD.1/FD.2 only; FD.3 uses hire per class",
+        "status": "legacy_unused"
       },
       "bunker_delay_days": {
         "original": "0",
-        "source": "Approved case default",
-        "status": "default_assumption"
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
       },
       "selling_freight_usd_mt": {
         "original": null,
-        "source": "Approved case default",
-        "status": "default_assumption"
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
       },
       "start_at": {
         "original": "2026-11-01T00:00:00+00:00",
-        "source": "Approved case default",
-        "status": "default_assumption"
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
       },
       "distance_nm": {
-        "value": "4015.8364844769703",
+        "value": "1807.3463762816166",
         "unit": "NM",
         "loading_port": "Bontang",
-        "discharging_port": "Mundra",
+        "discharging_port": "Hai Phong",
         "source_status": "estimated_sea_route",
         "source_reference": "Estimasi jarak laut",
         "provider": "UN/LOCODE / Nominatim + Searoute",
@@ -1083,13 +606,13 @@
           0.119226
         ],
         "destination_coordinates": [
-          69.746702,
-          22.795048
+          106.683333,
+          20.85
         ],
         "origin_locode": "IDBXT",
-        "destination_locode": "INMUN",
+        "destination_locode": "VNHPH",
         "origin_coordinate_source": "Searoute 1.6.0 port catalog",
-        "destination_coordinate_source": "Searoute 1.6.0 port catalog",
+        "destination_coordinate_source": "UN/LOCODE",
         "port_catalog_sha256": "00bd9cf1ebdafebd72faf3dd224e004d3274eb0ca87c619f9e09bb5454d52a29",
         "origin_catalog_sha256": "00bd9cf1ebdafebd72faf3dd224e004d3274eb0ca87c619f9e09bb5454d52a29",
         "destination_catalog_sha256": "00bd9cf1ebdafebd72faf3dd224e004d3274eb0ca87c619f9e09bb5454d52a29",
@@ -1097,23 +620,27 @@
       },
       "ports.load.rate_mt_day": {
         "original": "5000",
-        "source": "data/raw/Voyage Estimate.xlsx :: Bontang-Mundra",
-        "status": "workbook_assumption"
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
       },
       "ports.load.waiting_days": {
         "original": "0",
-        "source": "data/raw/Voyage Estimate.xlsx :: Bontang-Mundra",
-        "status": "workbook_assumption"
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
       },
       "ports.load.terms": {
         "original": "SHINC",
         "source": "Approved planning default",
-        "status": "default_assumption"
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
       },
       "ports.load.port_da_usd": {
         "original": "100000",
-        "source": "Approved planning default",
-        "status": "default_assumption"
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
       },
       "ports.load.allowance_days": {
         "original": "0",
@@ -1125,15 +652,23 @@
         "source": "Approved planning default; port draft unknown",
         "status": "default_assumption"
       },
+      "ports.load.time_margin_percent": {
+        "original": "25",
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
+      },
       "ports.discharge.rate_mt_day": {
         "original": "5000",
-        "source": "data/raw/Voyage Estimate.xlsx :: Bontang-Mundra",
-        "status": "workbook_assumption"
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
       },
       "ports.discharge.waiting_days": {
         "original": "0",
-        "source": "Approved planning default",
-        "status": "default_assumption"
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
       },
       "ports.discharge.terms": {
         "original": "SHINC",
@@ -1142,8 +677,9 @@
       },
       "ports.discharge.port_da_usd": {
         "original": "100000",
-        "source": "Approved planning default",
-        "status": "default_assumption"
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
       },
       "ports.discharge.allowance_days": {
         "original": "0",
@@ -1152,35 +688,72 @@
       },
       "ports.discharge.draft_limit_m": {
         "original": null,
-        "source": "Approved planning default; port draft unknown",
-        "status": "default_assumption"
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
+      },
+      "ports.discharge.time_margin_percent": {
+        "original": "25",
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00"
+      },
+      "ports.load.time_basis": {
+        "original": "factor",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00",
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong"
+      },
+      "ports.load.calendar.timezone": {
+        "original": "UTC",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00",
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong"
+      },
+      "ports.discharge.name": {
+        "original": "Mundra",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00",
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong"
+      },
+      "ports.discharge.country": {
+        "original": "India",
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00",
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong"
+      },
+      "other_costs": {
+        "original": [],
+        "status": "manual_override",
+        "overridden_at": "2026-11-20T06:09:28.827820+00:00",
+        "source": "Input sintetis untuk uji FD.3 Bontang–Hai Phong"
       }
     },
     "market_snapshot": {
       "snapshot_version": "FP.1",
-      "snapshot_id": "fp_9b79da15d284433caf4c0c6641e7c5e6",
+      "snapshot_id": "fp_9dd376b9c8c142c9901c0cdb262e95ac",
       "provider": "Fearnpulse / Fearnleys",
       "url": "https://fearnpulse.com/",
-      "fetched_at": "2026-11-09T08:42:34.972116+00:00",
-      "report_published_at": "2026-11-04T15:24:01.631476+00:00",
-      "report_id": "5fb91fe9-677b-47a7-b605-c428cca1a5d4",
+      "fetched_at": "2026-10-29T03:31:11.595137+00:00",
+      "report_published_at": "2026-10-28T15:23:24.380661+00:00",
+      "report_id": "fb4ac1e2-c041-4a7b-babe-d4334555c17c",
       "tc_rates": {
         "Supramax": {
-          "value": "17000",
+          "value": "17250",
           "unit": "USD/day",
           "series": "Supramax (58 000 dwt)",
           "contract_period": "1_year_TC",
-          "source_observed_on": "2026-11-04",
+          "source_observed_on": "2026-10-28",
           "source_status": "observed_public_market",
           "source_reference": "https://fearnpulse.com/#2 :: 1 Year T/C :: Supramax",
           "commission_basis": "not_stated_by_source"
         },
         "Handysize": {
-          "value": "14750",
+          "value": "15000",
           "unit": "USD/day",
           "series": "Handysize (38 000 dwt)",
           "contract_period": "1_year_TC",
-          "source_observed_on": "2026-11-04",
+          "source_observed_on": "2026-10-28",
           "source_status": "observed_public_market",
           "source_reference": "https://fearnpulse.com/#2 :: 1 Year T/C :: Handysize",
           "commission_basis": "not_stated_by_source"
@@ -1211,14 +784,14 @@
         }
       },
       "raw_payloads": {
-        "fearnpulse_report.json": "{\"data\":{\"report\":[{\"created_at\":\"2026-11-04T15:24:01.631476+00:00\",\"id\":\"5fb91fe9-677b-47a7-b605-c428cca1a5d4\",\"report_name\":\"Fearnleys Weekly Report\"}]}}",
-        "fearnpulse_tc.json": "{\"data\":{\"rate_meta\":[{\"rates\":[{\"date\":\"2026-11-04\",\"rate\":17000}, {\"date\":\"2026-10-28\",\"rate\":17250}, {\"date\":\"2026-10-21\",\"rate\":17500}, {\"date\":\"2026-10-14\",\"rate\":18000}, {\"date\":\"2026-10-07\",\"rate\":17250}],\"info\":{\"route\":\"Supramax (58 000 dwt)\",\"rate_type\":\"BULK\",\"rate_subtype\":\"TC\"}}, {\"rates\":[{\"date\":\"2026-11-04\",\"rate\":14750}, {\"date\":\"2026-10-28\",\"rate\":15000}, {\"date\":\"2026-10-21\",\"rate\":14500}, {\"date\":\"2026-10-14\",\"rate\":15500}, {\"date\":\"2026-10-07\",\"rate\":15750}],\"info\":{\"route\":\"Handysize (38 000 dwt)\",\"rate_type\":\"BULK\",\"rate_subtype\":\"TC\"}}]}}",
+        "fearnpulse_report.json": "{\"data\":{\"report\":[{\"created_at\":\"2026-10-28T15:23:24.380661+00:00\",\"id\":\"fb4ac1e2-c041-4a7b-babe-d4334555c17c\",\"report_name\":\"Fearnleys Weekly Report\"}]}}",
+        "fearnpulse_tc.json": "{\"data\":{\"rate_meta\":[{\"rates\":[{\"date\":\"2026-10-28\",\"rate\":17250}, {\"date\":\"2026-10-21\",\"rate\":17500}, {\"date\":\"2026-10-14\",\"rate\":18000}, {\"date\":\"2026-10-07\",\"rate\":17250}, {\"date\":\"2026-09-30\",\"rate\":18000}],\"info\":{\"route\":\"Supramax (58 000 dwt)\",\"rate_type\":\"BULK\",\"rate_subtype\":\"TC\"}}, {\"rates\":[{\"date\":\"2026-10-28\",\"rate\":15000}, {\"date\":\"2026-10-21\",\"rate\":14500}, {\"date\":\"2026-10-14\",\"rate\":15500}, {\"date\":\"2026-10-07\",\"rate\":15750}, {\"date\":\"2026-09-30\",\"rate\":15000}],\"info\":{\"route\":\"Handysize (38 000 dwt)\",\"rate_type\":\"BULK\",\"rate_subtype\":\"TC\"}}]}}",
         "fearnpulse_306.json": "{\"columns\":[\"tsid\",\"value\",\"date\",\"jobid\"],\"index\":[0,1],\"data\":[[306,458,1782864000000,15],[306,459,1782691200000,15]]}",
         "fearnpulse_307.json": "{\"columns\":[\"tsid\",\"value\",\"date\",\"jobid\"],\"index\":[0,1],\"data\":[[307,902,1782864000000,15],[307,882.5,1782691200000,15]]}"
       },
       "payload_hashes": {
-        "fearnpulse_report.json": "5d09db193bce105e97ab0da05ef6ff7e60035cdff123941ed1c86f385c215103",
-        "fearnpulse_tc.json": "f1c1c3367965105694fc8ff9fe0fef9d6a27ee6d741b6521ef4f64dd3be1051d",
+        "fearnpulse_report.json": "db00caf80c2b4ba6bff3800c0aa459c39a01fef30535bb01a28695cd255406de",
+        "fearnpulse_tc.json": "99784624b7e441c4df9652fe3d85a9229ce768e266dfc407636c7f93cc81dc98",
         "fearnpulse_306.json": "493edefabb5cc5ebd80f3db61ab98418e6bf6d2d31b37024da7580980a105283",
         "fearnpulse_307.json": "079e5ef4014b08417c06b309ec1abe6ba7104e09c4f841f68ecfbabfb3dff978"
       }
@@ -3013,7 +2586,7 @@
     },
     "fuel": {
       "VLSFO": {
-        "value": "458",
+        "value": "510",
         "unit": "USD/MT",
         "series": "Singapore 380 CST",
         "series_id": 306,
@@ -3027,7 +2600,7 @@
         "original_value": "458"
       },
       "LSMGO": {
-        "value": "902",
+        "value": "785",
         "unit": "USD/MT",
         "series": "Singapore MGO",
         "series_id": 307,
@@ -3040,6 +2613,50 @@
         "proxy": true,
         "original_value": "902"
       }
+    },
+    "kobc_snapshot": {
+      "provider": "KOBC",
+      "as_of": "2026-11-20",
+      "classes": {
+        "Handysize": {
+          "observed_on": "2026-11-19",
+          "values": {
+            "MH1": "17410",
+            "MH2": "14326",
+            "MH3": "15821",
+            "MH4": "15960",
+            "MH5": "18247",
+            "TC Average": "16353"
+          },
+          "unit": "USD/day",
+          "source_url": "https://www.kobc.or.kr/ebz/shippinginfo/handy/gridList.do?mId=0301000000",
+          "standard_url": "https://www.kobc.or.kr/ebz/shippinginfo/kdci/gridList.do?mId=0301000000",
+          "source_family": "Handysize",
+          "commission_basis": "KOBC standard: 5% total commission",
+          "benchmark_dwt_mt": 33000,
+          "fetched_at": "2026-11-20T06:09:28.830017+00:00"
+        },
+        "Supramax": {
+          "observed_on": "2026-11-19",
+          "values": {
+            "MS1": "18822",
+            "MS2": "30488",
+            "MS4": "16410",
+            "MS5": "20290",
+            "MS6": "15174",
+            "MS7": "30728",
+            "TC Average": "22373"
+          },
+          "unit": "USD/day",
+          "source_url": "https://www.kobc.or.kr/ebz/shippinginfo/supramax/gridList.do?mId=0301000000",
+          "standard_url": "https://www.kobc.or.kr/ebz/shippinginfo/kdci/gridList.do?mId=0301000000",
+          "source_family": "Supramax",
+          "commission_basis": "KOBC standard: 5% total commission",
+          "benchmark_dwt_mt": 58000,
+          "fetched_at": "2026-11-20T06:09:28.830017+00:00"
+        }
+      },
+      "errors": {}
     }
   }
 }

@@ -10,9 +10,11 @@ Dari folder repository di PowerShell:
 
 Buka alamat localhost yang ditampilkan. Pilih komoditas dan pelabuhan, edit tabel input, lalu klik **Hitung freight**. Perubahan port memperbarui jarak otomatis. Jika lookup gagal, isi jarak manual; jarak tidak mengambil OD.
 
-Untuk instalasi baru, gunakan Python 3.11 dan:
+Untuk instalasi baru, gunakan Python 3.12 dan:
 
-    python -m pip install -r requirements.txt -r requirements-ui.txt
+    python -m pip install -r requirements.txt
+
+Konfigurasi Streamlit Community Cloud memakai branch `dev` dan entry point `apps/streamlit_app.py`. Versi Streamlit dipasang dari `requirements.txt`, dengan Python 3.12 sebagai lingkungan uji untuk versi tersebut.
 
 ## Alur dan perhitungan
 
@@ -25,7 +27,9 @@ Untuk instalasi baru, gunakan Python 3.11 dan:
 Komoditas aktif: urea granular, ammonium sulphate/ZA dan ammonium chloride. Semuanya dry bulk; ammonia cair/gas tidak termasuk.
 
 Freight biaya = (hire + bunker + Port DA muat + Port DA bongkar + other costs) / cargo.
-Hire = Hire/day × hari sewa. Komisi 0%. TC Rates Fearnpulse hanya benchmark, tidak ditambahkan lagi sebagai biaya.
+Hire = Hire/day × hari sewa. Kasus baru memiliki hire/day terpisah untuk Handysize dan Supramax. Nilai awal dapat berasal dari KOBC yang sesuai; pengguna dapat memasukkan quotation manual. Komisi kalkulator 0%; standar indeks KOBC menyebut 5% total, jadi basisnya perlu diperhatikan. TC Rates Fearnpulse adalah benchmark terpisah dan bukan KOBC spot.
+
+KOBC diambil otomatis saat halaman dimuat ulang. Jika sumber gagal, aplikasi dapat memakai observasi terakhir di server selama umurnya 0–7 hari kalender menurut tanggal Seoul. Pencocokan rute terbatas pada Supramax MS5 untuk Bontang–Haldia/Tuticorin, MS6 untuk Bontang–Ningbo, dan Handysize MH3 untuk Bontang–Qingdao. Untuk rute lain, aplikasi memakai TC Average masing-masing kelas. Jika belum pernah ada data kelas tersebut, nilai awal USD 13.000/hari ditandai sebagai asumsi. Benchmark kedaluwarsa perlu diganti dengan input manual.
 
 Tarif jual freight bersifat opsional. Jika diisi:
 - Pendapatan freight = tarif jual × cargo.
@@ -53,7 +57,7 @@ Draft summer, grain capacity dan TPC berasal dari satu set profil Baltic BHSI38/
 - Chloride tersedia pada Argus CFR Southeast Asia; tidak mengarang pasangan Fertecon.
 - Ports.xlsx dan catalog koordinat: lookup jarak laut satu arah. Port DA/rate yang diwariskan untuk rute lain tetap asumsi editable.
 
-Data Fearnpulse diambil otomatis dengan cache 60 detik. Jika gagal terhubung, aplikasi memakai data tersimpan dengan tanggal aslinya; input manual tidak ditimpa. Setiap hasil menggunakan data yang tersimpan pada kasus tersebut. Jika input berubah, hitung kembali untuk memperbarui hasil.
+F5 atau **Kasus baru** meminta data Fearnpulse dan KOBC kembali dan memeriksa spesifikasi terhadap halaman Baltic. Perubahan widget bekerja dengan data sesi saat ini. Bila Fearnpulse gagal, data terakhir tetap menampilkan tanggal observasi asli. Bila spesifikasi Baltic berubah atau halaman gagal diverifikasi, kasus menggunakan profil tersimpan dan menampilkan statusnya. F5 memulai sesi baru. Download paket dulu jika ingin menyimpan edit, lalu buka paket tersebut untuk menghitung ulang dengan data yang tersimpan.
 
 ## File utama
 
@@ -74,7 +78,7 @@ Kode tender, putaran, alpha buyer, OE/HPS, winner serta gate tender telah dikelu
 
     .\venv\Scripts\python.exe scripts/run_market_simulation.py
     .\venv\Scripts\python.exe scripts/run_market_simulation.py --refresh
-    .\venv\Scripts\python.exe scripts/run_market_simulation.py --package outputs/latest_freight/case.json
+    .\venv\Scripts\python.exe scripts/run_market_simulation.py --package outputs/contoh_6_kasus/01_urea_bontang_mundra_terms.json
 
 Output CLI: outputs/latest_freight/ berisi case.json, result.json, ledger.csv dan commercial_brief.md. Replay paket memakai snapshot sendiri tanpa fetch baru.
 
@@ -85,7 +89,7 @@ Pengujian:
     $env:PYTHONPATH = "src"
     .\venv\Scripts\python.exe -m unittest discover -s tests -t . -q
 
-Browser smoke memakai Playwright dan browser terpisah, tidak memakai Chrome/login pengguna. Runner lokal yang tersedia: .venv/Scripts/python.exe tests/ui/browser_smoke.py; server aplikasi memakai venv Python 3.11 dan ditutup otomatis.
+Untuk smoke test browser lokal, pasang `requirements-ui-test.txt` dan jalankan `python tests/ui/browser_smoke.py` di lingkungan yang sama. Runner memakai Microsoft Edge headless dan menutup server uji secara otomatis.
 
 Rencana, evidence dan batas implementasi: docs/it_5/RENCANA_PENYESUAIAN_INPUT_VOYAGE.md. Task/state pada .agents/. Tidak ada auto-award, booking, hedge, transaksi atau klaim kepastian tersedia kapal.
 

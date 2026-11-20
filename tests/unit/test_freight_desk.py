@@ -11,7 +11,7 @@ import json
 
 def example():
     profile = dict(dwt_mt="38200", grain_m3="47125", summer_draft_m="10.538", tpc_mt_cm="49",
-        speed_knots="12", sea_vlsfo_mt_day="18", sea_lsmgo_mt_day="0.1",
+        speed_knots="12", sea_vlsfo_mt_day="18", sea_lsmgo_mt_day="0.1", hire_usd_day="13000",
         port_vlsfo_mt_day="0", port_lsmgo_mt_day="2", bunkers_allowance_mt="1700", constants_allowance_mt="500")
     port = dict(name="A", country="X", rate_mt_day="5000", terms="SHINC", time_basis="factor",
         draft_limit_m=None, port_da_usd="100000", waiting_days="0", allowance_days="0", time_margin_percent="0",

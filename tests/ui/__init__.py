@@ -1,1 +1,1 @@
-"""Optional interface tests; install requirements-ui.txt to run them."""
+"""Streamlit interface tests and optional browser smoke test."""

@@ -1,18 +1,20 @@
 from copy import deepcopy
-from decimal import Decimal as D
+from decimal import Decimal as D, localcontext
+from datetime import date
 import json
 from pathlib import Path
 import unittest
 from unittest.mock import patch
 
 from pilog_cfr_dss.application.freight_desk import (
-    default_case, evaluate, export_case, import_case, matrix, override, digest, select_terms)
+    default_case, evaluate, export_case, import_case, matrix, override, digest, select_terms, sync_fearnpulse)
 from pilog_cfr_dss.calculations.freight_desk import calculate
 from pilog_cfr_dss.sources.fearnpulse import latest_saved
 from pilog_cfr_dss.sources.fertilizer_reports import read_assessments, for_product, _read, destination_context
 from pilog_cfr_dss.reporting.commercial_brief import commercial_brief
 from tests.unit.test_freight_desk import example
 from pilog_cfr_dss.models.freight_desk import terms_catalog
+from tests.unit.test_kobc import quote
 
 ROOT=Path(__file__).resolve().parents[2]
 
@@ -25,6 +27,49 @@ class FreightIntegrationTests(unittest.TestCase):
     def test_new_case_defaults_to_25_percent_for_each_port(self):
         for side in ("load", "discharge"):
             self.assertEqual(self.case["ports"][side]["time_margin_percent"], "25")
+
+    def test_class_hire_is_used_in_engine_brief_and_replay(self):
+        from pilog_cfr_dss.application.freight_desk import sync_kobc
+        c = deepcopy(self.case)
+        data = {"classes": {"Handysize": quote("Handysize"), "Supramax": quote("Supramax")}, "errors": {}}
+        sync_kobc(c, data, date(2026, 11, 20))
+        result = evaluate(c)
+        handy = result["classes"]["Handysize"]["nominal"]
+        supra = result["classes"]["Supramax"]["nominal"]
+        self.assertEqual(handy["hire_rate_usd_day"], D("16000"))
+        self.assertEqual(supra["hire_rate_usd_day"], D("22000"))
+        with localcontext() as ctx:
+            ctx.prec = 40
+            self.assertEqual(handy["hire_usd"], handy["days"] * D("16000"))
+        brief = commercial_brief(result)
+        self.assertIn("KOBC TC Average", brief)
+        restored = import_case(export_case(c))
+        self.assertEqual(calculate(restored), calculate(c))
+        override(c, "profiles.Handysize.hire_usd_day", "12000")
+        sync_kobc(c, data, date(2026, 11, 20))
+        self.assertEqual(calculate(c)["classes"]["Handysize"]["nominal"]["hire_rate_usd_day"], D("12000"))
+
+    def test_bunker_refresh_updates_provenance_and_keeps_manual_price(self):
+        case = deepcopy(self.case)
+        override(case, "fuel.LSMGO.value", "700")
+        market = deepcopy(case["market_snapshot"])
+        market["bunkers"]["fo_price_usd_mt"].update(value="500", source_observed_on="2026-11-19")
+        market["bunkers"]["do_price_usd_mt"]["value"] = "900"
+        sync_fearnpulse(case, market)
+        self.assertEqual(case["fuel"]["VLSFO"]["value"], "500")
+        self.assertEqual(case["sources"]["fuel.VLSFO.value"]["observation_date"], "2026-11-19")
+        self.assertEqual(case["sources"]["fuel.VLSFO.value"]["original"], "500")
+        self.assertEqual(case["fuel"]["LSMGO"]["value"], "700")
+        self.assertEqual(case["sources"]["fuel.LSMGO.value"]["status"], "manual_override")
+
+    def test_missing_and_zero_hire_do_not_produce_a_free_voyage(self):
+        case = deepcopy(self.case)
+        case["profiles"]["Handysize"]["hire_usd_day"] = None
+        case["profiles"]["Supramax"]["hire_usd_day"] = "0"
+        result = evaluate(case)
+        self.assertEqual(result["classes"]["Supramax"]["nominal"]["error"], "HIRE_MUST_BE_POSITIVE")
+        self.assertEqual(result["recommendation"]["reasons"], ["VESSEL_INPUT_INCOMPLETE"])
+        self.assertIn("Input perlu diperiksa", commercial_brief(result))
 
     def test_sources_for_three_products_and_no_fabricated_fertecon_chloride(self):
         snapshot=read_assessments(ROOT)

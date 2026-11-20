@@ -1,12 +1,15 @@
 """Run the active Freight Desk without a UI or any tender fixture."""
 import argparse
 import csv
+from datetime import datetime
 import json
 from pathlib import Path
 import sys
+from zoneinfo import ZoneInfo
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"src"))
-from pilog_cfr_dss.application.freight_desk import default_case,evaluate,export_case,import_case,serializable
+from pilog_cfr_dss.application.freight_desk import default_case,evaluate,export_case,import_case,serializable,sync_kobc
 from pilog_cfr_dss.sources.fearnpulse import latest_saved,fetch_snapshot,save_runtime_snapshot
+from pilog_cfr_dss.sources.kobc import fetch_snapshot as fetch_kobc
 from pilog_cfr_dss.reporting.commercial_brief import commercial_brief
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -24,6 +27,8 @@ def main():
         if snapshot is None: parser.error("No saved market snapshot; use --refresh.")
         if args.refresh:save_runtime_snapshot(snapshot,ROOT/"outputs/market_cache")
         case=default_case(ROOT,snapshot)
+        if args.refresh:
+            sync_kobc(case, fetch_kobc(), datetime.now(ZoneInfo("Asia/Seoul")).date())
     result=evaluate(case)
     folder=args.output_root
     folder.mkdir(parents=True,exist_ok=True)

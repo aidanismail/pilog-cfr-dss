@@ -136,11 +136,10 @@ def _sea_route(origin, destination):
     return str(value)
 
 
-def distance(origin, destination, workbook: Path, product='urea granular bulk', catalog: Path | None=None):
+def distance(origin, destination, *, catalog: Path):
     if origin == destination:
         raise ValueError('SAME_PORT')
     try:
-        catalog = catalog or workbook.parent.parent/'processed/port_locations_unlocode.json'
         first = catalog_coordinate(catalog, *origin) or searoute_port_coordinate(*origin)
         second = catalog_coordinate(catalog, *destination) or searoute_port_coordinate(*destination)
         a = first[0] if first else geocode_port(*origin)
