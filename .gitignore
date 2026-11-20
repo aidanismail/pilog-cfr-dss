@@ -4,6 +4,9 @@ venv/
 outputs/ui_cases/
 outputs/ui_review/
 outputs/market_cache/
+outputs/latest_freight/
+outputs/route_coverage_audit_i5.json
+outputs/runs/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -29,8 +32,3 @@ Thumbs.db
 # Generated learning previews and inspection logs
 outputs/learning/*.png
 outputs/learning/*.inspect.ndjson
-
-# Keep one reviewed Iteration 2 example; ignore subsequent local runs.
-outputs/runs/*
-!outputs/runs/i2_20260923T091307166739Z_f5c4e74a/
-!outputs/runs/i2_20260923T091307166739Z_f5c4e74a/**

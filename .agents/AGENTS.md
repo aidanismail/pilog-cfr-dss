@@ -1,5 +1,9 @@
 # Panduan Agentic Coding - PILOG CFR DSS
 
+## Terbaru — FD.3 KOBC, 20 November 2026
+
+FD.3 memakai hire/day per kelas; KOBC route-reference terbatas dan fallback TC Average kelas dengan data 0–7 hari kalender. Manual override dan replay tidak ditimpa. Paket FD.1/FD.2 mempertahankan hire tunggal. Standar KOBC 33k/58k dan 5% total commission tidak sama dengan spesifikasi/komisi kasus; jangan sebut benchmark sebagai quotation atau klaim semua rute dipetakan. Lihat plan §16.7. Tidak ada push/deploy.
+
 ## Terbaru — FD.2, 17 November 2026
 
 Pembaruan pengguna: kasus baru memakai default margin waktu 25% untuk kedua port; dapat diedit. Paket tersimpan tidak ditimpa, migrasi FD.1 tetap 0% untuk menjaga replay. Jangan mengklaim 25% sebagai standar CMN terverifikasi.

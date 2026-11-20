@@ -3,6 +3,8 @@ from copy import deepcopy
 from pathlib import Path
 import unittest
 from unittest.mock import patch
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from streamlit.testing.v1 import AppTest
 from pilog_cfr_dss.sources.fearnpulse import latest_saved
 from pilog_cfr_dss.application.freight_desk import override
@@ -13,9 +15,20 @@ ROOT=Path(__file__).resolve().parents[2]
 class FreightDeskUITests(unittest.TestCase):
     def setUp(self):
         self.market=latest_saved(ROOT)
-        self.patcher=patch("pilog_cfr_dss.ui.views.fresh_market",return_value=self.market)
-        self.patcher.start()
+        self.patcher=patch("pilog_cfr_dss.ui.views.fetch_snapshot",return_value=self.market)
+        self.market_mock=self.patcher.start()
         self.addCleanup(self.patcher.stop)
+        self.kobc = patch("pilog_cfr_dss.ui.views.fetch_kobc", return_value={"classes": {}, "errors": {}})
+        self.kobc_mock = self.kobc.start()
+        self.addCleanup(self.kobc.stop)
+        baltic = patch("pilog_cfr_dss.ui.views.verify_benchmarks",
+                       return_value={"url": "https://www.balticexchange.com/",
+                                     "checked_at": "2026-11-20T00:00:00Z", "status": "verified"})
+        self.baltic_mock = baltic.start()
+        self.addCleanup(baltic.stop)
+        kobc_storage = patch("pilog_cfr_dss.ui.views.remember_kobc", side_effect=lambda quote, _: quote)
+        kobc_storage.start()
+        self.addCleanup(kobc_storage.stop)
         self.storage=patch("pilog_cfr_dss.ui.views.save_runtime_snapshot")
         self.storage.start()
         self.addCleanup(self.storage.stop)
@@ -34,6 +47,33 @@ class FreightDeskUITests(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.app.session_state["freight_result"]
         self.assertFalse(any("bid" in x.label.lower() for x in self.app.button))
+
+    def test_kobc_hire_per_class_and_manual_edit(self):
+        from tests.unit.test_kobc import quote
+        today = datetime.now(ZoneInfo("Asia/Seoul")).date().isoformat()
+        self.kobc_mock.return_value = {"classes": {family: quote(family, today)
+                                for family in ("Handysize", "Supramax")}, "errors": {}}
+        del self.app.session_state["online_inputs"]
+        self.app.run()
+        case = self.app.session_state["freight_case"]
+        self.assertEqual(case["profiles"]["Handysize"]["hire_usd_day"], "16000")
+        self.assertEqual(case["profiles"]["Supramax"]["hire_usd_day"], "22000")
+        self.button("Hitung freight").click().run()
+        self.assertFalse(list(self.app.exception))
+        result = self.app.session_state["freight_result"]
+        self.assertEqual(str(result["classes"]["Handysize"]["nominal"]["hire_rate_usd_day"]), "16000")
+        override(case, "profiles.Handysize.hire_usd_day", "12500")
+        self.app.run()
+        self.assertEqual(case["profiles"]["Handysize"]["hire_usd_day"], "12500")
+
+    def test_new_streamlit_session_refetches_all_three_sources(self):
+        self.app.run()
+        for provider in (self.market_mock, self.kobc_mock, self.baltic_mock):
+            self.assertEqual(provider.call_count, 1)
+        reloaded = AppTest.from_file(str(ROOT / "apps/streamlit_app.py"), default_timeout=30).run()
+        self.assertFalse(list(reloaded.exception))
+        for provider in (self.market_mock, self.kobc_mock, self.baltic_mock):
+            self.assertEqual(provider.call_count, 2)
 
     def test_calculate_brief_metrics_and_matrix(self):
         self.button("Hitung freight").click().run()
@@ -88,11 +128,11 @@ class FreightDeskUITests(unittest.TestCase):
     def test_manual_fuel_and_hire_survive_refresh(self):
         case=self.app.session_state["freight_case"]
         override(case,"fuel.VLSFO.value","777")
-        override(case,"hire_usd_day","14000")
+        override(case,"profiles.Handysize.hire_usd_day","14000")
         self.market["bunkers"]["fo_price_usd_mt"]["value"]="999"
         self.app.run()
         self.assertEqual(self.app.session_state["freight_case"]["fuel"]["VLSFO"]["value"],"777")
-        self.assertEqual(self.app.session_state["freight_case"]["hire_usd_day"],"14000")
+        self.assertEqual(self.app.session_state["freight_case"]["profiles"]["Handysize"]["hire_usd_day"],"14000")
 
     def test_low_quote_deficit_and_tce_visible(self):
         self.app.session_state["freight_case"]["selling_freight_usd_mt"]="1"
@@ -128,6 +168,19 @@ class FreightDeskUITests(unittest.TestCase):
         self.assertEqual(result["case"]["distance_nm"], case["distance_nm"])
         self.assertTrue(any("Kerteh" in c.value and "Hai Phong" in c.value for c in self.app.caption))
 
+    def test_port_change_clears_old_draft_editor_state(self):
+        from pilog_cfr_dss.application.freight_desk import digest
+        case = self.app.session_state["freight_case"]
+        port = case["ports"]["discharge"]
+        port_id = digest((port["name"], port["country"]))[:12]
+        key = f"{case['case_id']}_0_discharge_{port_id}"
+        self.app.session_state[key] = {"edited_rows": {2: {"Nilai": 9.2}},
+                                       "added_rows": [], "deleted_rows": []}
+        self.app.run()
+        self.assertEqual(float(case["ports"]["discharge"]["draft_limit_m"]), 9.2)
+        self.choose("Pelabuhan", ("Haldia", "India"), 1)
+        self.assertIsNone(case["ports"]["discharge"]["draft_limit_m"])
+
     def test_route_failure_clears_previous_distance(self):
         with patch("pilog_cfr_dss.application.freight_desk.distance", side_effect=ValueError("offline")):
             self.choose("Pelabuhan", ("Kerteh", "Malaysia"), 0)
@@ -149,11 +202,19 @@ class FreightDeskUITests(unittest.TestCase):
         imported["commodity"]="ammonium_chloride"
         imported["selling_freight_usd_mt"]="1"
         imported["ports"]["load"]["terms"]="SHEX0"
+        imported["other_costs"] = [{"id": "cleaning", "label": "Pembersihan palka",
+                                    "amount": "2500.15", "unit": "USD"}]
         self.app.session_state["freight_case"]=imported
         self.app.session_state["widget_generation"]=1
         self.app.session_state["replay_case"]=True
-        self.app.run()
+        with patch("pilog_cfr_dss.ui.views.fetch_online_inputs", side_effect=AssertionError("replay tried to fetch")):
+            self.app.run()
+        self.assertFalse(list(self.app.exception))
         current=self.app.session_state["freight_case"]
         self.assertEqual(current["commodity"],"ammonium_chloride")
         self.assertEqual(current["ports"]["load"]["terms"],"SHEX0")
         self.assertEqual(current["selling_freight_usd_mt"],"1")
+        self.assertEqual(current["other_costs"], imported["other_costs"])
+        self.button("Hitung freight").click().run()
+        result = self.app.session_state["freight_result"]
+        self.assertEqual(str(result["classes"]["Handysize"]["nominal"]["other_usd"]), "2500.15")

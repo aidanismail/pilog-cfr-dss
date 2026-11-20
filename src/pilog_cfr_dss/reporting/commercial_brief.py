@@ -25,7 +25,8 @@ def commercial_brief(result):
         if row["feasible"]:
             lines.append(f"| {name} | {n(row['days'])} | {n(row['total_usd'])} | {n(row['freight_usd_mt'])} | {n(row['minimum_offer_usd_mt'])} |")
         else:
-            lines.append(f"| {name} | — | — | Tidak dapat dipakai pada muatan ini | — |")
+            status = "Input perlu diperiksa" if row.get("error") else "Kapasitas tidak cukup"
+            lines.append(f"| {name} | — | — | {status} | — |")
     lines += ["", "| Kapal | Pemeriksaan | Status | Batas MT |", "|---|---|---|---:|"]
     for name, scenarios in result["classes"].items():
         row = scenarios["nominal"]
@@ -34,14 +35,27 @@ def commercial_brief(result):
         if row.get("error"):
             lines.append(f"| {name} | Input | {clean(row['error'])} | — |")
         maximum = scenarios["maximum"]
-        lines.append(f"| {name} | Muatan maksimum tolerance | {'Lolos' if maximum['feasible'] else 'Tidak seluruh rentang terlayani'} | {n(maximum.get('capacity', {}).get('limit_mt'))} |")
+        status = ("Lolos" if maximum["feasible"] else "Input perlu diperiksa" if maximum.get("error")
+                  else "Tidak seluruh rentang terlayani")
+        lines.append(f"| {name} | Muatan maksimum tolerance | {status} | {n(maximum.get('capacity', {}).get('limit_mt'))} |")
     lines += ["", "## 2. Exposure", "",
               "| Kapal terpilih | Hire USD | Bunker USD | Port DA USD | Biaya lain USD | Total USD |",
               "|---|---:|---:|---:|---:|---:|"]
     for row in candidates:
         lines.append(f"| {row['vessel_class']} | {n(row['hire_usd'])} | {n(row['bunker_usd'])} | {n(row['port_da_usd'])} | {n(row['other_usd'])} | {n(row['total_usd'])} |")
+    lines += ["", "| Kapal | Hire/day digunakan USD/hari | Sumber | Tanggal pasar |", "|---|---:|---|---|"]
+    for name, scenarios in result["classes"].items():
+        row = scenarios["nominal"]
+        if not row["feasible"]:
+            continue
+        source = case['sources'].get('profiles.' + name + '.hire_usd_day', case['sources'].get('hire_usd_day', {}))
+        status = source.get('status')
+        label = ('KOBC ' + source.get('benchmark_code', '') + ' — ' + source.get('description', '') if status == 'market_benchmark'
+                 else 'Input manual' if status == 'manual_override' else 'Nilai awal / input kasus')
+        lines.append(f"| {name} | {n(row['hire_rate_usd_day'])} | {clean(label)} | {source.get('observed_on', '—') if status == 'market_benchmark' else '—'} |")
+    lines.append("KOBC: standar kapal 33.000/58.000 DWT dan komisi total 5%; kalkulasi kasus PILOG memakai komisi 0%. Benchmark bukan quotation kapal.")
     if not candidates:
-        lines.append("Tidak ada kapal yang memenuhi pemeriksaan awal untuk muatan nominal. Ubah muatan atau profil kapal sebelum menyiapkan penawaran.")
+        lines.append("Estimasi biaya belum tersedia untuk muatan nominal. Lihat hasil pemeriksaan di atas.")
     lines += ["", "## 3. Risiko dan tindakan", ""]
     for row in candidates:
         cap = row["capacity"]
@@ -96,7 +110,12 @@ def commercial_brief(result):
     distance_source = case['sources'].get('distance_nm', {})
     distance_label = 'Input manual' if distance_source.get('status') == 'manual_override' else distance_source.get('source_reference', 'Input manual')
     lines += ["", f"Jarak: {n(case['distance_nm'])} NM; {clean(distance_label)}.",
-        f"Spesifikasi: {clean(case['profile_source']['source_url'])}, versi {clean(case['profile_source']['document_version'])}; nilai tambahan dan perubahan manual tersedia dalam paket kasus.",
-        f"ID data input (SHA-256): {result['input_sha256']}. Rincian angka, perubahan manual, dan sumber tersimpan dalam paket kasus.", "",
-        "Rekomendasi untuk persiapan penawaran; keputusan dan pelaksanaan tetap pada pihak berwenang.", ""]
+        f"Spesifikasi: {clean(case['profile_source']['source_url'])}, versi {clean(case['profile_source']['document_version'])}; nilai tambahan dan perubahan manual tersedia dalam paket kasus."]
+    verification = case["profile_source"].get("live_verification")
+    if verification:
+        status = ("cocok dengan profil tersimpan" if verification["status"] == "verified"
+                  else "belum terverifikasi, memakai profil tersimpan")
+        lines.append(f"Pemeriksaan Baltic {price_time(verification['checked_at'])} · {status}.")
+    lines += [f"ID data input (SHA-256): {result['input_sha256']}. Rincian angka, perubahan manual, dan sumber tersimpan dalam paket kasus.", "",
+              "Rekomendasi untuk persiapan penawaran; keputusan dan pelaksanaan tetap pada pihak berwenang.", ""]
     return "\n".join(lines)

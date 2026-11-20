@@ -1,5 +1,15 @@
 # Mulai di sini — PILOG CFR DSS
 
+## Persiapan redeploy — 20 November 2026
+
+Refresh browser atau **Kasus baru** mengambil ulang Fearnpulse dan KOBC serta memverifikasi profil Baltic. Perubahan widget memakai data sesi tanpa fetch ulang. Paket impor tetap replayable, dan fallback KOBC per kelas berlaku hingga umur tujuh hari.
+
+Katalog aktif berisi 54 pelabuhan. Empat PoD untuk pembanding spesifik KOBC: Haldia, Tuticorin, Ningbo, dan Qingdao. Dependensi aplikasi dipasang dari `requirements.txt`. Output CLI dan audit rute dibuat ulang sesuai kebutuhan. README memuat perintah aktif. Detail pembersihan dan uji ada di rencana Iterasi 5 bagian 16.8.
+
+## Terbaru — FD.3 KOBC, 20 November 2026
+
+Benchmark KOBC otomatis dipilih per kelas dan rute terbatas, fallback TC Average kelas, umur 0–7 hari kalender. Hire/day Handysize dan Supramax terpisah dan manual override/replay terjaga. FD.1/FD.2 tetap memakai hire tunggal historis. Standar KOBC 33k/58k dan komisi 5% berbeda dari spesifikasi kasus/komisi 0%; benchmark bukan quotation. Rute cocok saat ini terbatas; detail, uji live dan batas ada di plan §16.7. Belum push/deploy atau browser UAT.
+
 ## Terbaru — FD.2, 17 November 2026
 
 Pembaruan pengguna: default margin waktu pada kasus baru adalah 25% untuk muat dan bongkar, tetap editable. Paket yang sudah tersimpan mempertahankan nilainya; paket FD.1 tetap dimigrasikan dengan margin 0%. Nilai ini asumsi default pengguna, bukan standar CMN yang terverifikasi.

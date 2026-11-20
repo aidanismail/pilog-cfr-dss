@@ -1,6 +1,6 @@
 """I/O and case snapshots. No business arithmetic and no tender dependency."""
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from hashlib import sha256
 import json
 from pathlib import Path
@@ -14,6 +14,7 @@ from pilog_cfr_dss.sources.route_distance import distance
 from pilog_cfr_dss.sources.fertilizer_reports import read_assessments
 from pilog_cfr_dss.decisions.freight_desk import recommend
 from pilog_cfr_dss.validation.numbers import unique_object
+from pilog_cfr_dss.sources.kobc import select_assessment
 
 
 def serializable(value):
@@ -33,6 +34,21 @@ def canonical(value):
 
 def digest(value):
     return sha256(canonical(value).encode("utf-8")).hexdigest()
+
+
+def sync_fearnpulse(case, market):
+    case["market_snapshot"] = deepcopy(market)
+    for grade, key in (("VLSFO", "fo_price_usd_mt"), ("LSMGO", "do_price_usd_mt")):
+        path = f"fuel.{grade}.value"
+        if case["sources"].get(path, {}).get("status") == "manual_override":
+            continue
+        item = deepcopy(market["bunkers"][key])
+        item.update(requested_grade=grade, proxy=True, original_value=item["value"])
+        case["fuel"][grade] = item
+        case["sources"][path] = {
+            "original": item["value"], "source": item["source_reference"],
+            "status": "market_proxy", "observation_date": item["source_observed_on"],
+        }
 
 
 def default_case(root: Path, market: dict):
@@ -55,14 +71,16 @@ def default_case(root: Path, market: dict):
                   "port_lsmgo_mt_day": supplemental["fields"]["port_do_mt_day"],
                   "bunkers_allowance_mt": supplemental["fields"]["bunkers_allowance_mt"],
                   "constants_allowance_mt": supplemental["fields"]["constants_allowance_mt"]}
+        fields["hire_usd_day"] = "13000"
         profiles[family] = fields
         for key in fields:
-            ref = ("Approved model default: VLSFO port consumption 0" if key == "port_vlsfo_mt_day" else
+            ref = ("Approved planning default; enter quote if market unavailable" if key == "hire_usd_day" else
+                   "Approved model default: VLSFO port consumption 0" if key == "port_vlsfo_mt_day" else
                    supplemental["source_reference"] + " :: " + supplemental["sheet"] if key in (
                        "port_lsmgo_mt_day", "bunkers_allowance_mt", "constants_allowance_mt") else
                    baltic["source_url"] + " :: PDF page " + str(spec["page"]))
             provenance["profiles." + family + "." + key] = {"source": ref,
-                "status": "default_assumption" if key == "port_vlsfo_mt_day" else
+                "status": "default_assumption" if key in ("port_vlsfo_mt_day", "hire_usd_day") else
                           "workbook_assumption" if key in ("port_lsmgo_mt_day", "bunkers_allowance_mt", "constants_allowance_mt") else "source_specification",
                 "original": fields[key], "sha256": supplemental["source_sha256"] if "workbook" in ref.lower() or "Estimate.xlsx" in ref else None}
     vf = voyage["fields"]
@@ -91,22 +109,17 @@ def default_case(root: Path, market: dict):
         "selling_freight_usd_mt": None, "other_costs": [], "ports": port_defaults,
         "start_at": datetime.now(timezone.utc).replace(day=1, hour=0, minute=0, second=0, microsecond=0).isoformat(),
         "distance_nm": None, "profiles": profiles, "sources": provenance,
-        "market_snapshot": deepcopy(market), "report_snapshot": read_assessments(root),
+        "report_snapshot": read_assessments(root),
         "workbook_source": voyage, "profile_source": baltic,
         "fuel": {}}
-    for grade, key in (("VLSFO", "fo_price_usd_mt"), ("LSMGO", "do_price_usd_mt")):
-        original = deepcopy(market["bunkers"][key])
-        original.update(requested_grade=grade, proxy=True, original_value=original["value"])
-        case["fuel"][grade] = original
-        provenance["fuel." + grade + ".value"] = {
-            "original": original["value"], "source": original["source_reference"],
-            "status": "market_proxy", "observation_date": original["source_observed_on"]}
+    sync_fearnpulse(case, market)
     for key, value in case.items():
         if isinstance(value, (str, type(None))) and key not in ("schema", "case_id"):
             provenance[key] = {"original": value, "source": "Approved case default", "status": "default_assumption"}
     provenance["cargo_mt"] = {"original": case["cargo_mt"],
         "source": voyage["source_reference"] + " :: " + voyage["sheet"],
         "status": "workbook_assumption", "sha256": voyage["source_sha256"]}
+    provenance["hire_usd_day"] = {"original": "13000", "source": "Legacy FD.1/FD.2 only; FD.3 uses hire per class", "status": "legacy_unused"}
     for side, port in port_defaults.items():
         for key in ("rate_mt_day", "waiting_days", "terms", "port_da_usd", "allowance_days", "draft_limit_m", "time_margin_percent"):
             provenance["ports." + side + "." + key] = {"original": port[key], "source":
@@ -117,11 +130,57 @@ def default_case(root: Path, market: dict):
     return case
 
 
+def sync_kobc(case, incoming, today):
+    """Refresh eligible benchmarks while preserving user-entered hire."""
+    previous = case.get("kobc_snapshot", {"classes": {}, "errors": {}})
+    merged = {"provider": "KOBC", "as_of": today.isoformat(),
+              "fetched_at": incoming.get("fetched_at", previous.get("fetched_at")),
+              "classes": deepcopy(previous.get("classes", {})),
+              "errors": deepcopy(incoming.get("errors", {}))}
+    for family, quote in incoming.get("classes", {}).items():
+        old = merged["classes"].get(family)
+        if not old or quote["observed_on"] >= old.get("observed_on", ""):
+            if not old or (quote["observed_on"], quote["values"]) != (old.get("observed_on"), old.get("values")):
+                merged["classes"][family] = deepcopy(quote)
+    case["kobc_snapshot"] = merged
+    changed = False
+    for family, profile in case["profiles"].items():
+        if "hire_usd_day" not in profile:
+            continue  # legacy packages preserve their single hire input
+        path = "profiles." + family + ".hire_usd_day"
+        source = case["sources"].get(path, {})
+        if source.get("status") == "manual_override":
+            continue
+        quote = select_assessment(merged, family, case["ports"]["load"], case["ports"]["discharge"], today)
+        if quote:
+            old_value, old_code = profile["hire_usd_day"], source.get("benchmark_code")
+            profile["hire_usd_day"] = quote["value"]
+            case["sources"][path] = {"status": "market_benchmark", "source": quote["source_url"],
+                "benchmark_code": quote["code"], "description": quote["description"], "scope": quote["scope"],
+                "observed_on": quote["observed_on"], "fetched_at": quote["fetched_at"],
+                "benchmark_dwt_mt": quote["benchmark_dwt_mt"], "commission_basis": quote["commission_basis"],
+                "unit": "USD/day", "original": quote["value"]}
+            changed |= old_value != quote["value"] or old_code != quote["code"]
+        elif source.get("status") != "unavailable" and family in merged["classes"]:
+            profile["hire_usd_day"] = None
+            case["sources"][path] = {"status": "unavailable", "source": "KOBC >7 hari atau tidak tersedia; isi manual"}
+            changed = True
+    return changed
+
+
+def reselect_saved_kobc(case):
+    snapshot = case.get("kobc_snapshot", {})
+    if not snapshot.get("as_of"):
+        return False
+    return sync_kobc(case, {"classes": {}, "errors": snapshot.get("errors", {})},
+                     date.fromisoformat(snapshot["as_of"]))
+
+
 def update_route(case, root):
     load, discharge = case["ports"]["load"], case["ports"]["discharge"]
     try:
         ref = distance((load["name"], load["country"]), (discharge["name"], discharge["country"]),
-                       root / "data/raw/Simulasi Tarif Internasional_Mei 2025.xlsx")
+                       catalog=root / "data/processed/port_locations_unlocode.json")
         case["distance_nm"] = ref["value"]
         case["sources"]["distance_nm"] = ref
     except ValueError:
@@ -195,7 +254,7 @@ def import_case(raw):
     calculate(case)
     if case.get("formula_version") == "FD.1":
         case = deepcopy(case)
-        case["formula_version"] = FORMULA
+        case["formula_version"] = "FD.2"
         for side in ("load", "discharge"):
             case["ports"][side]["time_margin_percent"] = "0"
             case["sources"]["ports." + side + ".time_margin_percent"] = {
@@ -232,6 +291,7 @@ def matrix(base, origins, destinations, family, root, quantity_basis="nominal", 
             # The exact base uses the same recorded distance, including manual overrides.
             if inherited:
                 update_route(derived, root)
+                reselect_saved_kobc(derived)
             try:
                 result = evaluate(derived)
                 scenario = result["classes"][family][quantity_basis]

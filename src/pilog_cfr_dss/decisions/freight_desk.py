@@ -2,7 +2,11 @@
 def recommend(result):
     nominal = [rows["nominal"] for rows in result["classes"].values()]
     feasible = [row for row in nominal if row["feasible"]]
+    incomplete = [row["vessel_class"] for row in nominal if row["status"] == "INPUT_ERROR"]
     if not feasible:
+        if incomplete:
+            return {"action": "Lengkapi input kapal sebelum menentukan opsi.",
+                    "status": "REVISE", "selected": [], "reasons": ["VESSEL_INPUT_INCOMPLETE"]}
         return {"action": "Ubah muatan atau profil kapal sebelum melanjutkan.",
                 "status": "REVISE", "selected": [], "reasons": ["NO_FEASIBLE_NOMINAL_OPTION"]}
     profitable = [row for row in feasible if row["commercial"] is not None and row["commercial"]["surplus_usd"] >= 0]
@@ -25,5 +29,8 @@ def recommend(result):
         reasons.append("COST_FLOOR_NOT_PROFIT_FORECAST")
     if len(names) > 1:
         reasons.append("EQUAL_COST_OPTIONS")
+    if incomplete:
+        reasons.append("VESSEL_INPUT_INCOMPLETE")
+        action += " Lengkapi input " + " / ".join(incomplete) + " untuk membandingkan kedua kelas."
     return {"action": action, "status": "REPRICE" if negative else "PREPARE_OFFER",
             "selected": names, "reasons": reasons}

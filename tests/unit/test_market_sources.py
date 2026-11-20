@@ -77,6 +77,15 @@ class MarketParserTests(unittest.TestCase):
         raw["fearnpulse_306.json"] = json.dumps({"columns": ["date", "value", "tsid"], "data": [[1782864000000, 458, 306]]})
         self.assertEqual(self.normalize(raw)["bunkers"]["fo_price_usd_mt"]["value"], "458")
 
+    def test_future_or_duplicate_bunker_observations_are_rejected(self):
+        for rows in ([[306, 458, 1893456000000]],
+                     [[306, 458, 1782864000000], [306, 999, 1782864000000]]):
+            with self.subTest(rows=rows):
+                raw = sample_payloads()
+                raw["fearnpulse_306.json"] = json.dumps({"columns": ["tsid", "value", "date"], "data": rows})
+                with self.assertRaisesRegex(ValueError, "AMBIGUOUS_BUNKER_DATE"):
+                    self.normalize(raw)
+
     def test_exact_decimal_not_binary_float_round_trip(self):
         raw = sample_payloads()
         raw["fearnpulse_306.json"] = '{"columns":["tsid","value","date"],"data":[[306,458.1234567890123456789,1782864000000]]}'

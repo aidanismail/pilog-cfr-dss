@@ -29,7 +29,10 @@ BUNKERS = {"fo_price_usd_mt": (306, "Singapore 380 CST"), "do_price_usd_mt": (30
 
 
 def _decode(raw: str):
-    return json.loads(raw, parse_float=Decimal)
+    data = json.loads(raw, parse_float=Decimal)
+    if not isinstance(data, dict):
+        raise ValueError("FEARNPULSE_INVALID_RESPONSE")
+    return data
 
 
 def _positive(value, field):
@@ -40,13 +43,15 @@ def _positive(value, field):
 
 
 def normalize_payloads(raw: dict[str, str], fetched_at: str) -> dict:
-    timestamp(fetched_at)
+    fetched = timestamp(fetched_at)
     report_data = _decode(raw["fearnpulse_report.json"])
     reports = report_data.get("data", {}).get("report", [])
     if report_data.get("errors") or not reports:
         raise ValueError("FEARNPULSE_REPORT_UNAVAILABLE")
     report = reports[0]
     published = timestamp(report["created_at"])
+    if published > fetched:
+        raise ValueError("FEARNPULSE_FUTURE_REPORT")
     rates_data = _decode(raw["fearnpulse_tc.json"])
     if rates_data.get("errors"):
         raise ValueError("FEARNPULSE_RATE_QUERY_ERROR")
@@ -63,7 +68,8 @@ def normalize_payloads(raw: dict[str, str], fetched_at: str) -> dict:
             raise ValueError("FEARNPULSE_EMPTY_TC_SERIES:" + family)
         latest = max(candidates, key=lambda x: x["date"])
         observed = datetime.fromisoformat(latest["date"]).date().isoformat()
-        if observed > published.date().isoformat() or family in tc:
+        if (observed > published.date().isoformat() or family in tc
+                or sum(candidate["date"] == latest["date"] for candidate in candidates) != 1):
             raise ValueError("FEARNPULSE_AMBIGUOUS_TC_SERIES")
         tc[family] = {"value": _positive(latest["rate"], family), "unit": "USD/day",
             "series": ROUTES[family], "contract_period": "1_year_TC", "source_observed_on": observed,
@@ -75,7 +81,7 @@ def normalize_payloads(raw: dict[str, str], fetched_at: str) -> dict:
     for key, (series_id, name) in BUNKERS.items():
         payload = _decode(raw[f"fearnpulse_{series_id}.json"])
         columns = payload.get("columns", [])
-        if not {"tsid", "value", "date"}.issubset(columns):
+        if not {"tsid", "value", "date"}.issubset(columns) or len(columns) != len(set(columns)):
             raise ValueError("FEARNPULSE_TS_SCHEMA_CHANGED")
         source_rows = payload.get("data", [])
         if not isinstance(source_rows, list) or any(not isinstance(row, list) or len(row) != len(columns) for row in source_rows):
@@ -83,12 +89,17 @@ def normalize_payloads(raw: dict[str, str], fetched_at: str) -> dict:
         rows = [dict(zip(columns, row)) for row in source_rows]
         if not rows or any(row["tsid"] != series_id for row in rows):
             raise ValueError("FEARNPULSE_INVALID_BUNKER_SERIES")
-        latest = max(rows, key=lambda x: x["date"])
-        milliseconds = number(latest["date"], "source epoch")
+        dated = [(number(row["date"], "source epoch"), row) for row in rows]
+        milliseconds, latest = max(dated, key=lambda entry: entry[0])
         if milliseconds != milliseconds.to_integral_value():
             raise ValueError("FEARNPULSE_INVALID_EPOCH")
         seconds, remainder = divmod(int(milliseconds), 1000)
-        observed = datetime.fromtimestamp(seconds, tz=timezone.utc) + timedelta(milliseconds=remainder)
+        try:
+            observed = datetime.fromtimestamp(seconds, tz=timezone.utc) + timedelta(milliseconds=remainder)
+        except (ValueError, OverflowError, OSError) as error:
+            raise ValueError("FEARNPULSE_INVALID_EPOCH") from error
+        if observed > fetched or sum(day == milliseconds for day, _ in dated) != 1:
+            raise ValueError("FEARNPULSE_AMBIGUOUS_BUNKER_DATE")
         bunkers[key] = {"value": _positive(latest["value"], name), "unit": "USD/MT", "series": name,
             "series_id": series_id, "source_observed_on": observed.date().isoformat(),
             "source_observed_at": observed.isoformat(), "source_timestamp_kind": "daily_series_epoch_not_trade_execution",
@@ -128,7 +139,7 @@ def fetch_snapshot() -> dict:
                       "dateFrom": (published.date() - timedelta(days=30)).isoformat(), "dateTo": date_to}})
     def bunker(entry):
         series_id, _ = entry
-        return f"fearnpulse_{series_id}.json", _request(f"https://fearnpulse.com/api/marketapi/TS?last=2&id={series_id}&date_to={date_to}")
+        return f"fearnpulse_{series_id}.json", _request(f"https://fearnpulse.com/api/marketapi/TS?last=2&id={series_id}&date_to={now.date().isoformat()}")
     with ThreadPoolExecutor(max_workers=2) as pool:
         raw.update(dict(pool.map(bunker, BUNKERS.values())))
     return normalize_payloads(raw, datetime.now(timezone.utc).isoformat())

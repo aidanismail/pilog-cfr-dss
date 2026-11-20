@@ -1,13 +1,13 @@
-"""Fetch official benchmark PDF when accessible; retain a sourced offline snapshot."""
+"""Verify the configured vessel profiles against Baltic's public benchmarks."""
 from datetime import datetime, timezone
 from hashlib import sha256
+from html.parser import HTMLParser
 from pathlib import Path
-from urllib.request import Request, urlopen
 import json
 import re
-import pypdfium2
+import requests
 
-URL = 'https://www.balticexchange.com/content/dam/balticexchange/consumer/documents/data-services/documentation/ocean-bulk-guides-policies/GMB.pdf'
+URL = "https://www.balticexchange.com/en/data-services/market-information0/dry-services.html"
 SNAPSHOT = Path(__file__).resolve().parents[3]/'data/processed/baltic_vessel_benchmarks.json'
 
 
@@ -18,23 +18,52 @@ def read_snapshot():
     return data
 
 
+class _Text(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.parts = []
+
+    def handle_data(self, data):
+        self.parts.append(data)
+
+
+def verify_profiles(html, profiles):
+    parser = _Text()
+    parser.feed(html)
+    text = " ".join(" ".join(parser.parts).split())
+    sections = {
+        "Supramax": ("Baltic Supramax vessel for Timecharter routes", "Handysize Index"),
+        "Handysize": ("Baltic Handysize 38 vessel for Timecharter routes", "Sale & Purchase"),
+    }
+    for family, (start, end) in sections.items():
+        _, marker, after = text.partition(start)
+        block, stop, _ = after.partition(end)
+        if not marker or not stop:
+            raise ValueError("BALTIC_PROFILE_SECTION_NOT_FOUND:" + family)
+        spec = profiles[family]
+        dwt = rf"(?<![\d,]){int(spec['dwt_mt']):,}\s*mt\s*dwt"
+        draft = rf"{re.escape(spec['summer_draft_m'])}\s*m\s+SSW"
+        tpc = rf"\bTPC\s+{re.escape(spec['tpc_mt_cm'])}(?![\d.])"
+        grain = rf"{int(spec['grain_m3']):,}\s*cbm"
+        speeds = rf"{re.escape(spec['speed_knots'])}\s+knots on\s+{re.escape(spec['sea_fo_mt_day'])}\s*mt"
+        checks = [dwt, draft, tpc]
+        if family == "Supramax":
+            checks.extend([rf"\bGRAIN\s*:\s*{grain}",
+                           rf"{speeds}\s+laden[^.]*\.\s*Marine Fuel Oil,\s*no Marine Gas Oil at sea"])
+            if spec["sea_do_mt_day"] != "0":
+                raise ValueError("BALTIC_BENCHMARK_CHANGED:" + family)
+        else:
+            checks.extend([rf"{grain}\s+grain",
+                           rf"{speeds}\s+IFO\s*\(380 CST\)\s+laden/[^+]*\+\s*{re.escape(spec['sea_do_mt_day'])}\s+MDO at sea"])
+        if not all(re.search(check, block, re.IGNORECASE) for check in checks):
+            raise ValueError("BALTIC_BENCHMARK_CHANGED:" + family)
+
+
 def verify_benchmarks():
-    req=Request(URL,headers={'User-Agent':'PILOG-CFR-DSS/1.0'})
-    with urlopen(req,timeout=8) as response:
-        content=response.read(8_000_001)
-    if not content.startswith(b'%PDF-') or len(content)>8_000_000:
-        raise ValueError('BALTIC_INVALID_DOCUMENT')
-    try:
-        pdf=pypdfium2.PdfDocument(content)
-    except pypdfium2.PdfiumError as error:
-        raise ValueError('BALTIC_INVALID_DOCUMENT') from error
-    try:
-        text=' '.join(' '.join(pdf[i].get_textpage().get_text_range().split()) for i in range(len(pdf)))
-    finally:
-        pdf.close()
-    checks=(r'63,500\s*mt\s*DWT',r'12\s*knots\s+on\s+20\s*mt\s+laden',
-            r'38,200\s*mt\s*dwt',r'12\s*knots\s+on\s+18\s*mt\s+IFO')
-    if not all(re.search(p,text,re.IGNORECASE) for p in checks):
-        raise ValueError('BALTIC_BENCHMARK_CHANGED')
-    return {'url':URL,'verified_at':datetime.now(timezone.utc).isoformat(),
-            'sha256':sha256(content).hexdigest(),'source_status':'live_document_verified'}
+    response = requests.get(URL, timeout=8)
+    response.raise_for_status()
+    if len(response.content) > 2_000_000 or "text/html" not in response.headers.get("Content-Type", ""):
+        raise ValueError("BALTIC_INVALID_DOCUMENT")
+    verify_profiles(response.text, read_snapshot()["profiles"])
+    return {"url": URL, "checked_at": datetime.now(timezone.utc).isoformat(),
+            "sha256": sha256(response.content).hexdigest(), "status": "verified"}

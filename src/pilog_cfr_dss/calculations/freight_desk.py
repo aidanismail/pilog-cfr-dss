@@ -1,5 +1,6 @@
 """Deterministic cost-based dry-bulk calculator shared by UI, CLI and matrix."""
 from decimal import Decimal, ROUND_CEILING, localcontext
+import json
 from pilog_cfr_dss.calculations.capacity import bulk_capacity
 from pilog_cfr_dss.calculations.voyage_days import sea_days
 from pilog_cfr_dss.calculations.costs import daily_cost_usd
@@ -37,7 +38,10 @@ def _scenario(case, family, profile, quantity, prices):
               "feasible": cap["feasible"], "ledger": [], "status": "CAPACITY_FAIL" if not cap["feasible"] else "CALCULATED"}
     if not cap["feasible"]:
         return result
-    hire = number(case["hire_usd_day"], "hire_usd_day", ZERO)
+    hire = number(profile["hire_usd_day"] if case["formula_version"] == FORMULA else case["hire_usd_day"],
+                  "hire_usd_day", ZERO)
+    if case["formula_version"] == FORMULA and hire == ZERO:
+        raise ValueError("HIRE_MUST_BE_POSITIVE")
     speed = number(profile["speed_knots"], "speed_knots")
     sea = sea_days(number(case["distance_nm"], "distance_nm"), speed)
     cursor = timestamp(case["start_at"])
@@ -59,8 +63,8 @@ def _scenario(case, family, profile, quantity, prices):
         end = advance(end, extra_time)
         elapsed += extra_time
         allowance = number(port["allowance_days"], side + "_allowance_days", ZERO)
-        dates[side + "_end"] = advance(end, allowance).isoformat()
         cursor = advance(end, allowance)
+        dates[side + "_end"] = cursor.isoformat()
         if waiting:
             ledger.append(_activity("Tunggu " + side, waiting, hire, port_v, port_m, prices))
         ledger.append(_activity("Muat" if side == "load" else "Bongkar", elapsed + allowance,
@@ -98,7 +102,7 @@ def _scenario(case, family, profile, quantity, prices):
                       "surplus_usd": surplus, "tce_usd_day": (revenue - expenses) / days,
                       "rate_change_to_break_even": max(ZERO, minimum - rate),
                       "shortfall_usd": max(ZERO, -surplus)}
-    result.update(ledger=ledger, port_times=port_times, days=days, sea_days=sea, hire_usd=hire_total,
+    result.update(ledger=ledger, port_times=port_times, days=days, sea_days=sea, hire_rate_usd_day=hire, hire_usd=hire_total,
                   voyage_expenses_usd=expenses, total_usd=total, freight_usd_mt=freight,
                   minimum_offer_usd_mt=minimum, commercial=commercial, timeline=dates,
                   bunker_usd=sum((x["bunker_usd"] for x in ledger), ZERO),
@@ -116,15 +120,19 @@ def calculate(case):
         raise ValueError("INVALID_CASE_STRUCTURE")
     if case.get("schema") != SCHEMA:
         raise ValueError("UNSUPPORTED_CASE_VERSION_USE_NEW_FREIGHT_CASE")
-    import json
     expected_terms = terms_catalog(case.get("terms_version"))
-    if (case.get("formula_version") not in ("FD.1", FORMULA)
+    if (case.get("formula_version") not in ("FD.1", "FD.2", FORMULA)
             or case.get("terms_snapshot") != json.loads(json.dumps(expected_terms))):
         raise ValueError("FORMULA_OR_TERMS_VERSION_MISMATCH")
     if case.get("currency") != "USD" or case.get("sf_unit") != "m3/MT":
         raise ValueError("INCOMPATIBLE_CASE_UNITS")
     if case.get("commodity") not in COMMODITIES or set(case["profiles"]) != {"Handysize", "Supramax"}:
         raise ValueError("UNSUPPORTED_COMMODITY_OR_CLASS")
+    if case["formula_version"] == FORMULA:
+        if not all("hire_usd_day" in profile for profile in case["profiles"].values()):
+            raise ValueError("CLASS_HIRE_REQUIRED")
+    elif any("hire_usd_day" in profile for profile in case["profiles"].values()):
+        raise ValueError("LEGACY_CLASS_HIRE_NOT_SUPPORTED")
     if case.get("commission_fraction") != "0":
         raise ValueError("COMMISSION_MUST_BE_ZERO")
     if number(case["distance_nm"], "distance_nm") <= 0:
@@ -140,9 +148,11 @@ def calculate(case):
             raise ValueError("INVALID_PORT_STRUCTURE")
         if port["terms"] not in expected_terms or number(port["rate_mt_day"], "handling_rate") <= 0:
             raise ValueError("INVALID_PORT_TERMS_OR_RATE")
+        if port.get("time_basis") not in ("factor", "calendar"):
+            raise ValueError("INVALID_TIME_BASIS")
         if case["formula_version"] == "FD.1" and "time_margin_percent" in port:
             raise ValueError("FD1_MARGIN_NOT_SUPPORTED")
-        if case["formula_version"] == FORMULA:
+        if case["formula_version"] in ("FD.2", FORMULA):
             number(port.get("time_margin_percent"), "time_margin_percent", ZERO)
     if case.get("selling_freight_usd_mt") is not None:
         number(case["selling_freight_usd_mt"], "selling_freight_usd_mt", ZERO)

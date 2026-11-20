@@ -1,6 +1,7 @@
 """White/blue freight desk. No business calculations or tender imports."""
-from copy import deepcopy
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 import json
 from pathlib import Path
 
@@ -9,14 +10,16 @@ import streamlit as st
 
 from pilog_cfr_dss.application.freight_desk import (
     default_case, digest, evaluate, export_case, import_case, matrix, override,
-    serializable, update_route, select_terms,
+    reselect_saved_kobc, serializable, update_route, select_terms, sync_kobc,
 )
 from pilog_cfr_dss.models.freight_desk import COMMODITIES, TERMS
 from pilog_cfr_dss.reporting.commercial_brief import commercial_brief
 from pilog_cfr_dss.reporting.formatting import number_text as fmt, price_time
+from pilog_cfr_dss.sources.baltic_profiles import URL as BALTIC_URL, verify_benchmarks
 from pilog_cfr_dss.sources.fearnpulse import fetch_snapshot, latest_saved, save_runtime_snapshot
 from pilog_cfr_dss.sources.fertilizer_reports import for_product, read_assessments
 from pilog_cfr_dss.sources.route_distance import ports
+from pilog_cfr_dss.sources.kobc import fetch_snapshot as fetch_kobc, remember_snapshot as remember_kobc
 from pilog_cfr_dss.validation.numbers import timestamp
 
 STYLE = """
@@ -31,14 +34,14 @@ hr{border-color:#DFE7EE}
 """
 
 
-@st.cache_data(ttl=60, show_spinner=False)
-def fresh_market():
-    return fetch_snapshot()
-
-
 @st.cache_data(show_spinner=False)
 def port_catalog(path, version):
     return ports(Path(path))
+
+
+def port_choices(root):
+    path = root / "data/raw/Ports.xlsx"
+    return port_catalog(str(path), path.stat().st_mtime_ns)
 
 
 def get_value(case, path):
@@ -58,6 +61,8 @@ def edit_table(case, entries, key, compact=False):
         value = get_value(case, path)
         source = case["sources"].get(path, {})
         source_text = ("Input manual" if source.get("status") == "manual_override" else
+                       "KOBC " + source.get("benchmark_code", "") if source.get("status") == "market_benchmark" else
+                       "Perlu input manual" if source.get("status") == "unavailable" else
                        "Fearnpulse (harga pembanding)" if source.get("status") == "market_proxy" else
                        "Estimasi rute laut" if source.get("source_status") == "estimated_sea_route" else
                        "Baltic" if "balticexchange" in source.get("source", "") else
@@ -71,6 +76,11 @@ def edit_table(case, entries, key, compact=False):
     editor_key = widget_prefix(case) + "_" + key
     if key == "shipment":
         editor_key += "_route_" + str(st.session_state.get("route_generation", 0))
+    if key == "hire":
+        editor_key += "_market_" + str(st.session_state.get("hire_generation", 0))
+    if key in ("load", "discharge"):
+        port = case["ports"][key]
+        editor_key += "_" + digest((port["name"], port["country"]))[:12]
     edited = st.data_editor(frame, key=editor_key, hide_index=True,
         width="stretch", disabled=["Parameter", "Satuan", "Sumber"],
         column_config={"Nilai": st.column_config.NumberColumn(min_value=0.0,
@@ -144,6 +154,8 @@ def port_card(case, root, choices, side, title):
             # Never transfer a terminal draft limit to a different port.
             override(case, "ports." + side + ".draft_limit_m", None)
             update_route(case, root)
+            if st.session_state.get("replay_case") and reselect_saved_kobc(case):
+                st.session_state["hire_generation"] = st.session_state.get("hire_generation", 0) + 1
             st.session_state["route_generation"] = st.session_state.get("route_generation", 0) + 1
             st.rerun()
         terms = st.selectbox("Terms", list(TERMS), index=list(TERMS).index(port["terms"]),
@@ -180,23 +192,33 @@ def inputs(case, root):
     start = datetime.combine(start_date, start_time, timezone.utc)
     if start != timestamp(case["start_at"]):
         override(case, "start_at", start.isoformat())
-    edit_table(case, [
+    shipment = [
         ("cargo_mt", "Muatan nominal", "MT"),
         ("stowage_factor_m3_mt", "Stowage factor", "m³/MT"),
         ("tolerance_percent", "Tolerance ±", "%"),
         ("distance_nm", "Jarak laut satu arah", "NM"),
-        ("hire_usd_day", "Hire/day", "USD/hari"),
         ("fuel.VLSFO.value", "Harga VLSFO", "USD/MT"),
         ("fuel.LSMGO.value", "Harga LSMGO", "USD/MT"),
         ("bunker_delay_days", "Bunker delay", "hari"),
         ("selling_freight_usd_mt", "Tarif jual freight (opsional)", "USD/MT"),
-    ], "shipment")
-    choices = port_catalog(str(root / "data/raw/Ports.xlsx"), (root / "data/raw/Ports.xlsx").stat().st_mtime_ns)
+    ]
+    if not all("hire_usd_day" in p for p in case["profiles"].values()):
+        shipment.insert(4, ("hire_usd_day", "Hire/day kedua kelas", "USD/hari"))
+    edit_table(case, shipment, "shipment")
+    choices = port_choices(root)
     a, b = st.columns(2)
     with a:
         port_card(case, root, choices, "load", "Pelabuhan muat")
     with b:
         port_card(case, root, choices, "discharge", "Pelabuhan bongkar")
+    if all("hire_usd_day" in p for p in case["profiles"].values()):
+        st.subheader("Hire/day kapal")
+        edit_table(case, [("profiles." + family + ".hire_usd_day", family, "USD/hari")
+                          for family in case["profiles"]], "hire")
+        st.caption("Nilai awal KOBC dapat diganti dengan quotation. KOBC: standar komisi 5%; kalkulasi PILOG: 0%.")
+        if any(case["sources"].get("profiles." + family + ".hire_usd_day", {}).get("status") in
+               ("default_assumption", "unavailable") for family in case["profiles"]):
+            st.warning("KOBC belum tersedia untuk semua kelas. Periksa atau isi hire/day secara manual sebelum menghitung.")
     with st.expander("Profil kapal dan biaya lain"):
         st.caption("Supramax memakai benchmark Baltic BSI63, 63.500 DWT. Konsumsi tidak berubah otomatis saat speed diedit.")
         columns = st.columns(2)
@@ -215,15 +237,27 @@ def inputs(case, root):
                 st.subheader(family)
                 edit_table(case, [(f"profiles.{family}.{key}", label, unit) for key, label, unit in labels], family)
         st.subheader("Biaya tambahan")
+        original_costs = {row["id"]: row for row in case["other_costs"]}
         rows = pd.DataFrame(case["other_costs"], columns=["id", "label", "amount", "unit"])
+        rows["amount"] = pd.to_numeric(rows["amount"], errors="coerce").astype(float)
         edited = st.data_editor(rows, key=widget_prefix(case) + "_other", num_rows="dynamic", hide_index=True,
             column_config={"amount": st.column_config.NumberColumn("Nilai USD", min_value=0.0),
                            "unit": st.column_config.SelectboxColumn(options=["USD"], default="USD")})
         cleaned = []
         for row in edited.to_dict("records"):
-            if not row.get("id") and not row.get("label"):
+            fields = {k: "" if pd.isna(v) else str(v).strip() for k, v in row.items()}
+            if not any(fields[k] for k in ("id", "label", "amount")):
                 continue
-            cleaned.append({k: str(v) for k, v in row.items()})
+            if not all(fields[k] for k in ("id", "label", "amount")):
+                st.session_state["input_errors"].append("Lengkapi ID, label dan nilai biaya tambahan.")
+                break
+            fields["unit"] = fields["unit"] or "USD"
+            original = original_costs.get(fields["id"])
+            if original and pd.to_numeric(original["amount"], errors="coerce") == float(fields["amount"]):
+                fields["amount"] = original["amount"]
+            cleaned.append(fields)
+        if st.session_state["input_errors"]:
+            return
         if cleaned != case["other_costs"]:
             override(case, "other_costs", cleaned)
 
@@ -232,6 +266,25 @@ def market_context(case):
     snapshot = case["market_snapshot"]
     st.caption("Fearnpulse terakhir diambil: " + price_time(snapshot.get("fetched_at")))
     with st.expander("Data pasar dan sumber"):
+        verification = case["profile_source"].get("live_verification")
+        if verification:
+            checked = price_time(verification["checked_at"])
+            if verification["status"] == "verified":
+                st.caption(f"Spesifikasi kapal cocok dengan [Baltic]({verification['url']}). Dicek {checked}.")
+            else:
+                message = ("Profil di [Baltic](" + verification["url"] + ") perlu ditinjau ulang."
+                           if verification["status"] == "changed" else "Halaman Baltic belum bisa diverifikasi.")
+                st.caption(f"{message} Memakai profil tersimpan. Dicek {checked}.")
+        kobc_attempt = case.get("kobc_snapshot", {})
+        if kobc_attempt.get("fetched_at"):
+            st.caption("KOBC terakhir dicek: " + price_time(kobc_attempt["fetched_at"]))
+        if kobc_attempt.get("errors"):
+            st.caption("KOBC belum merespons dengan data valid untuk " + ", ".join(kobc_attempt["errors"]) + ".")
+        for family in case["profiles"]:
+            source = case["sources"].get("profiles." + family + ".hire_usd_day", {})
+            if source.get("status") == "market_benchmark":
+                st.caption(f"{family}: KOBC {source['benchmark_code']} ({source['description']}), {source['observed_on']}; "
+                           f"diambil {price_time(source.get('fetched_at'))}; kapal acuan {source['benchmark_dwt_mt']:,} DWT. Pembanding, bukan quotation.")
         st.subheader("TC Rates — pembanding")
         st.dataframe(pd.DataFrame([{"Kelas": k, "TC Rates USD/hari": fmt(v["value"]),
             "Seri": v["series"], "Tanggal": v["source_observed_on"]} for k, v in snapshot["tc_rates"].items()]),
@@ -312,12 +365,14 @@ def results_view(result):
 
 def matrix_view(result, root):
     case = result["case"]
+    base_load, base_discharge = [(case["ports"][side]["name"], case["ports"][side]["country"])
+                                for side in ("load", "discharge")]
+    choices = sorted(set(port_choices(root)) | {base_load, base_discharge})
     with st.expander("Spread matrix"):
-        choices = port_catalog(str(root / "data/raw/Ports.xlsx"), (root / "data/raw/Ports.xlsx").stat().st_mtime_ns)
         a, b = st.columns(2)
-        origins = a.multiselect("Port muat", choices, default=[(case["ports"]["load"]["name"], case["ports"]["load"]["country"])],
+        origins = a.multiselect("Port muat", choices, default=[base_load],
                                format_func=lambda p: p[0] + ", " + p[1])
-        destinations = b.multiselect("Port bongkar", choices, default=[(case["ports"]["discharge"]["name"], case["ports"]["discharge"]["country"])],
+        destinations = b.multiselect("Port bongkar", choices, default=[base_discharge],
                                     format_func=lambda p: p[0] + ", " + p[1])
         a, b, c = st.columns(3)
         family = a.selectbox("Kelas matrix", list(case["profiles"]))
@@ -337,7 +392,9 @@ def matrix_view(result, root):
         edited_ports = rows_input
         if rows_input:
             st.caption("Parameter port tambahan; nilai awal diwariskan dari input muat/bongkar.")
-            edited_ports = st.data_editor(pd.DataFrame(rows_input), key="matrix_ports_" + result["input_sha256"],
+            row_ids = [(row["Sisi"], row["Port"], row["Negara"]) for row in rows_input]
+            editor_key = "matrix_ports_" + digest((result["input_sha256"], row_ids))
+            edited_ports = st.data_editor(pd.DataFrame(rows_input), key=editor_key,
                 hide_index=True, disabled=["Sisi", "Port", "Negara"],
                 column_config={"Terms": st.column_config.SelectboxColumn(options=list(TERMS)),
                     "Rate MT/hari": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
@@ -397,27 +454,40 @@ def matrix_view(result, root):
         st.caption("Flat: USD/MT. Delta: selisih terhadap rute dasar. Maksimum 25 sel; bukan selisih laba.")
 
 
-def render(root: Path, output_root=None):
-    st.set_page_config(page_title="PILOG Freight Desk", page_icon="⚓", layout="wide")
-    st.html(STYLE)
-    runtime = (output_root or root / "outputs") / "market_cache"
+def load_market(root, runtime):
     try:
-        market = fresh_market()
+        market = fetch_snapshot()
         try:
             save_runtime_snapshot(market, runtime)
         except OSError:
             pass
-        market_error = None
-    except Exception as error:
-        market = latest_saved(root, runtime)
-        market_error = str(error)
-    if market is None:
-        st.error("Snapshot pasar belum tersedia.")
-        return
+        return market, False
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        return latest_saved(root, runtime), True
+
+
+def check_baltic():
+    try:
+        return verify_benchmarks()
+    except (OSError, ValueError) as error:
+        return {"url": BALTIC_URL, "checked_at": datetime.now(timezone.utc).isoformat(),
+                "status": "changed" if str(error).startswith("BALTIC_BENCHMARK_CHANGED") else "unavailable"}
+
+
+def fetch_online_inputs(root, runtime):
+    with ThreadPoolExecutor(max_workers=3) as pool:
+        fearnpulse = pool.submit(load_market, root, runtime)
+        kobc = pool.submit(fetch_kobc)
+        baltic = pool.submit(check_baltic)
+        market, used_fallback = fearnpulse.result()
+        return market, used_fallback, remember_kobc(kobc.result(), runtime), baltic.result()
+
+
+def case_sidebar(root):
     with st.sidebar:
         st.image(str(root / "public/Pupuk_Indonesia_Logistik.png"), width=100)
         if st.button("Kasus baru", width="stretch"):
-            for key in ("freight_case", "freight_result", "matrix"):
+            for key in ("freight_case", "freight_result", "matrix", "online_inputs"):
                 st.session_state.pop(key, None)
             st.rerun()
         upload = st.file_uploader("Buka paket kasus", type=["json"])
@@ -432,37 +502,50 @@ def render(root: Path, output_root=None):
             except (ValueError, KeyError, TypeError) as error:
                 st.error(str(error))
         st.caption("Internal PI/PILOG")
-    if "freight_case" not in st.session_state:
-        st.session_state["freight_case"] = default_case(root, market)
-        st.session_state["replay_case"] = False
-    case = st.session_state["freight_case"]
-    # New feed affects default market inputs, never manual overrides or imported replay.
-    if not st.session_state.get("replay_case"):
-        case["market_snapshot"] = deepcopy(market)
-        case["report_snapshot"] = read_assessments(root)
-        for grade, key in (("VLSFO", "fo_price_usd_mt"), ("LSMGO", "do_price_usd_mt")):
-            field = "fuel." + grade + ".value"
-            if case["sources"].get(field, {}).get("status") != "manual_override":
-                case["fuel"][grade] = dict(deepcopy(market["bunkers"][key]), requested_grade=grade,
-                                           proxy=True, original_value=market["bunkers"][key]["value"])
-    st.title("Automated Freight Desk PILOG    ")
+
+
+def render(root: Path, output_root=None):
+    st.set_page_config(page_title="PILOG Freight Desk", page_icon="⚓", layout="wide")
+    st.html(STYLE)
+    case_sidebar(root)
+    case = st.session_state.get("freight_case")
+    market_error = False
+    if case is None or not st.session_state.get("replay_case"):
+        runtime = (output_root or root / "outputs") / "market_cache"
+        # Browser reload starts a new Streamlit session. Widget reruns reuse its data.
+        if "online_inputs" not in st.session_state:
+            st.session_state["online_inputs"] = fetch_online_inputs(root, runtime)
+        market, market_error, kobc, baltic = st.session_state["online_inputs"]
+        if market is None and case is None:
+            st.error("Snapshot pasar belum tersedia.")
+            return
+        if case is None:
+            case = st.session_state["freight_case"] = default_case(root, market)
+            st.session_state["replay_case"] = False
+        else:
+            case["report_snapshot"] = read_assessments(root)
+        case["profile_source"]["live_verification"] = baltic
+        if sync_kobc(case, kobc, datetime.now(ZoneInfo("Asia/Seoul")).date()):
+            st.session_state["hire_generation"] = st.session_state.get("hire_generation", 0) + 1
+    st.title("Automated Freight Desk PILOG")
     if market_error:
         st.caption("Fearnpulse tidak terhubung; menggunakan data pasar yang tersimpan.")
     inputs(case, root)
     market_context(case)
+    input_errors = st.session_state["input_errors"]
+    if input_errors:
+        st.error(" ".join(input_errors))
     with st.sidebar:
         st.download_button("Download kasus", export_case(case), "pilog_freight_case.json",
-                           mime="application/json", width="stretch")
-    if st.button("Hitung freight", type="primary", width="stretch"):
+                           mime="application/json", width="stretch", disabled=bool(input_errors))
+    if st.button("Hitung freight", type="primary", width="stretch", disabled=bool(input_errors)):
         try:
-            if st.session_state["input_errors"]:
-                raise ValueError("; ".join(st.session_state["input_errors"]))
             st.session_state["freight_result"] = evaluate(case)
         except (ValueError, KeyError, TypeError) as error:
             st.session_state.pop("freight_result", None)
             st.error("Periksa input: " + str(error))
     result = st.session_state.get("freight_result")
-    if result and result["input_sha256"] == digest(case):
+    if result and not input_errors and result["input_sha256"] == digest(case):
         results_view(result)
         matrix_view(result, root)
     elif result:

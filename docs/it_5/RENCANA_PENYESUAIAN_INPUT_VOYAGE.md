@@ -733,3 +733,69 @@ Perhitungan yang direncanakan secara eksplisit:
 - Geometri Searoute yang diperiksa memiliki 13 titik dan menggunakan node jaringan laut terdekat; titiknya bukan terminal persis. Selisih 110,41 NM dari CMN 1.308 NM belum dapat diatribusikan secara pasti. Tidak mengubah koordinat atau memaksa nilai CMN.
 - Pengujian lokal Python 3.11: **87 tes lulus**, termasuk contoh margin 24,30%, batas input, kalender, biaya tambahan, perubahan port, kegagalan lookup, matrix dan migrasi paket. Tes UI memakai Streamlit AppTest; tidak mengklaim pengujian browser/deployment atau validasi bisnis mentor pada revisi ini.
 - Batas: angka margin dan mekanisme CMN belum diverifikasi dari dokumentasi CMN. Tidak ada push/deploy, perubahan sumber workbook/PDF, atau transaksi. Review pengguna/domain masih diperlukan.
+
+## 16. Riset sumber benchmark hire berdasarkan rute — 18 November 2026
+
+**20 November — persetujuan pelaksanaan:** pengguna menyetujui KOBC, fallback rata-rata kelas dan toleransi data satu minggu, serta meminta pelaksanaan setelah sumber dipastikan. Standar KOBC resmi berhasil diperoleh melalui tombol Standards pada halaman KDCI: Handysize 33.000 DWT, Supramax 58.000 DWT; deskripsi MH/MS, duration dan basis 5% commission. Batas ini berbeda dari profil Baltic di kalkulator dan komisi PILOG 0%; tampilkan secara jelas. Implementasi hanya memetakan kandidat rute yang didukung definisi tersebut; rute lain fallback ke TC Average per kelas, bukan mapping yang dikarang. Data baru dipakai sebagai nilai awal hire per kelas, tetap editable; paket lama dipertahankan. Hari kalender 0–7 digunakan sebagai asumsi satu minggu.
+
+**Konfirmasi pengguna, 20 November 2026:** jika tidak ada pembanding rute yang cocok, basket regional atau rata-rata kelas boleh digunakan sebagai nilai awal hire/day. Data hingga satu minggu sebelumnya masih boleh digunakan. Batas teknis yang lebih rinci (hari kalender atau hari kerja dan perilaku ketika data melewati satu minggu) belum ditetapkan.
+
+**Status: riset dan rancangan untuk diaudit, belum ada perubahan kode atau integrasi sumber baru.** Tujuan: mencari pembanding USD/hari untuk Handysize/Supramax berdasarkan rute yang dipilih; jika sesuai dapat menjadi nilai awal hire/day yang tetap editable. Benchmark adalah estimasi pasar, bukan quotation kapal aktual.
+
+### 16.1 Penemuan penting: basket regional Baltic
+
+Selain Handysize global HS7TC, Baltic meluncurkan HSPTC (Pacific: HS5 33%, HS6 34%, HS7 33%) dan HSATC (Atlantic: HS1–HS4 masing-masing 25%) pada 13 April 2026. HSPTC lebih fokus secara regional, tetapi tetap rata-rata basket, bukan quotation untuk setiap rute Asia. Sumber: [circular Baltic 24/26](https://www.balticexchange.com/en/data-services/Circulars/market-announcements-/category-a/2026/circular-24-26--go-live---handysize-atlantic-and-pacific-baskets.html). BDI global dalam poin bukan nilai USD/hari.
+
+### 16.2 KOBC — kandidat utama yang perlu dibuktikan detail rute
+
+- [Halaman Handysize](https://www.kobc.or.kr/ebz/shippinginfo/handy/gridList.do?mId=0301000000): MH1–MH5 dan TC Average, USD/hari; [halaman Supramax](https://www.kobc.or.kr/ebz/shippinginfo/supramax/gridList.do?mId=0301000000): MS1, MS2, MS4–MS7 dan TC Average, USD/hari. Tabel dapat dibaca publik pada saat riset dan menampilkan data bertanggal; ketersediaan otomatis tidak diuji dari deployment.
+- Metadata [dataset KDCI pada portal data pemerintah Korea](https://www.data.go.kr/data/15131503/fileData.do) menyatakan gratis dan cakupan izin tanpa pembatasan; [halaman Open API KOBC](https://www.kobc.or.kr/ebz/kor/userOpenApi/view.do?mId=0607000000&oapiNo=3) menyebut aplikasi melalui data.go.kr dan atribusi. **Jangan samakan otomatis izin dan cakupan dataset KDCI tertentu dengan seluruh halaman MH/MS, API, atau hak redistribusi aplikasi**; periksa ketentuan endpoint aktual. Registrasi, akses dari Indonesia dan respons API belum diuji. Metadata menyebut 27 rute, tetapi belum membuktikan response API berisi kode rute individual.
+- KOBC menyatakan KDCI memberi bobot pada rute Asia dan segmen kecil: [KOBC maritime information](https://www.kobc.or.kr/ebz/eng/contents.do?mId=0802010000). Ini mendukung kredibilitas organisasi dan relevansi umum, bukan jaminan kecocokan tiap pengiriman PILOG.
+- Belum ditemukan sumber primer terkini yang menjelaskan semua rute MH/MS, delivery/redelivery, spesifikasi kapal, cargo dan dasar komisi. Hingga ada dokumen tersebut, **jangan mapping kode ke POL/POD otomatis** atau menyebut TC Average sebagai route-specific.
+
+### 16.3 FIS — nilai rute dan basket Baltic yang ditemukan, izin perlu diverifikasi
+
+[Laporan FIS 30 Oktober 2026](https://fisapp.com/wp-content/uploads/2026/10/Freight-Index-Report-2026-10-30-1.pdf) memuat HS5–HS7, HS7TC, S8/S10/S11TC serta baris Handysize Pacific dan Supramax Pacific 3TC. Ini bukti tersedia sebagai laporan historis publik pada tanggal tersebut, **bukan bukti adanya API terbuka atau ketersediaan pembaruan otomatis yang berkelanjutan**. Nilai dari laporan itu adalah historis, bukan hari ini.
+
+Data Baltic yang ditampilkan oleh FIS tidak otomatis menjadi bebas dipakai ulang. Baltic menyatakan penggunaan benchmark tunduk pada subscription/licence; cakupan penggunaan dan pengolahan data pihak ketiga harus dipastikan sesuai [kebijakan market data Baltic](https://www.balticexchange.com/en/data-services/Methodology/market-data.html) dan ketentuan penyedia. Jangan membangun parser produksi/menyebarkan data tersebut dengan asumsi PDF publik berarti hak penggunaan otomatis.
+
+### 16.4 Shanghai Shipping Exchange (SSE) — kandidat parsial
+
+[Far East Dry Bulk Index](https://en.sse.net.cn/indices/fdinew2.jsp) mempublikasikan sejumlah benchmark rute Supramax Asia dalam USD/hari, termasuk Singapore via Indonesia ke southern China. Daftar publik juga memuat rute voyage USD/ton dan indeks poin: **satuan dan tipe tidak boleh dicampur menjadi hire/day**. Cakupan Handysize serta relevansi Bontang–Mundra belum dibuktikan. [Ketentuan indeks SSE](https://en.sse.net.cn/indices/agreetext.htm) menyatakan pembatasan reuse/penggunaan publik atau komersial tanpa otorisasi, sehingga tidak direkomendasikan sebagai integrasi otomatis sampai haknya jelas.
+
+### 16.5 Matriks awal kecocokan untuk dua kasus
+
+| Kasus dan kelas | Kandidat riset | Penilaian sementara |
+|---|---|---|
+| Kerteh–Hai Phong, Handysize | HS5/Handysize Pacific; KOBC MH jika definisi cocok | HS5 punya cakupan regional SEA ke Singapore–Japan, tetapi kesetaraan rute dan kontraknya belum dibuktikan. HSPTC adalah basket regional, bukan quote rute. Kode MH belum terverifikasi. |
+| Kerteh–Hai Phong, Supramax | S10 atau SSE Singapore via Indonesia–southern China; KOBC MS jika definisi cocok | Arah regional serupa, tetapi delivery, rute via, tujuan dan komoditas tidak otomatis sama. Kandidat saja, bukan exact match. |
+| Bontang–Mundra, kedua kelas | Kode KOBC/basket regional atau quotation broker | Mundra di west coast India; S8 adalah via Indonesia ke **east coast India**, sehingga tidak boleh diberi label cocok dengan Mundra. Kandidat rute spesifik masih belum dibuktikan. |
+
+Definisi rute Baltic: [halaman dry services](https://www.balticexchange.com/en/data-services/market-information0/dry-services.html). Satu benchmark tidak harus tersedia untuk semua kemungkinan rute. Kecocokan rute perlu mempertimbangkan arah, delivery/redelivery, charter period, ukuran kapal, cargo, dan terms.
+
+### 16.6 Rekomendasi dan rencana tahap selanjutnya
+
+1. Verifikasi spesifikasi resmi KOBC tiap kode serta apakah dataset/API KDCI mencakup nilai MH/MS; uji akses dari lingkungan aplikasi, format, pembaruan dan syarat pemakaian endpoint yang sebenarnya. Jangan meminta/menggunakan kredensial sampai jalur yang relevan terbukti.
+2. Bila didukung bukti dan hak penggunaan, bangun daftar referensi yang mencatat penyedia, jenis seri, kode, kelas, rute/delivery/redelivery, USD/hari, basis komisi, tanggal, waktu ambil, sumber dan tingkat kesesuaian. Jangan menganggap nilai period 1 Year T/C Fearnpulse sebagai spot TC Baltic atau quote kapal.
+3. Rekomendasikan benchmark dengan urutan **assessment rute relevan → basket regional relevan → TC average per kelas → hire/day manual**. Tampilkan alasan dan perbedaan; tidak mengarang nilai atau memaksakan mapping untuk seluruh port. Rute campuran basin atau lintas wilayah perlu review komersial; tidak otomatis ditentukan dari negara tujuan saja.
+4. Jika tersedia nilai yang sesuai dan penggunaannya diizinkan, isi sebagai default hire/day untuk kelas tersebut. Pengguna dapat override dengan quotation kapal; pemilihan rute/kelas baru tidak diam-diam menimpa quotation manual. Simpan snapshot/versi sehingga hasil dan paket kasus dapat direplay.
+5. Jika feed gagal, tidak cocok atau usang, tampilkan status dan pertahankan input manual/estimasi yang jelas asal dan tanggalnya; jangan mengklaim update real-time. Kebijakan stale/fallback final perlu persetujuan pengguna.
+6. Verifikasi pembanding menggunakan minimal dua rute dan kedua kelas, satu rute tanpa kecocokan, perubahan tanggal dan pembulatan, input manual, feed failure, kemampuan penggunaan, serta tidak adanya pencampuran USD/MT dan poin dengan USD/hari.
+
+**Pertanyaan untuk mentor:** apakah benchmark regional boleh menjadi default hire/day ketika tidak ada assessment rute yang cocok, atau untuk kasus tersebut pengguna harus memasukkan harga sendiri? Berapa umur data yang masih diterima untuk estimasi? Saat ini belum ada persetujuan untuk memperlakukan nilai publik yang belum diuji dan belum jelas haknya sebagai feed produksi.
+
+### 16.7 Hasil implementasi KOBC — 20 November 2026
+
+- Pengguna menyetujui KOBC dan meminta implementasi setelah penelusuran. Dokumen standar resmi KOBC diperoleh melalui tombol **Standards** pada [halaman KDCI](https://www.kobc.or.kr/ebz/shippinginfo/kdci/gridList.do?mId=0301000000). Standar tersebut mencatat Handysize 33.000 DWT, Supramax 58.000 DWT, duration dan 5% total commission. Kelas fisik pada kalkulator memiliki spesifikasi berbeda; pembanding pasar bukan quotation kapal dan komisi kasus PILOG tetap 0%.
+- FD.3 memakai hire/day berbeda per kelas dan sumber KOBC dapat diperbarui otomatis. Pemetaan saat ini sengaja sempit: Supramax MS5 Bontang–Haldia/Tuticorin, MS6 Bontang–Ningbo, Handysize MH3 Bontang–Qingdao. Ini **pembanding rute/koridor** dengan delivery/redelivery sesuai standar, bukan bukti shipment identik. Rute lain menggunakan KOBC TC Average per kelas; basket regional belum diterapkan. Jangan mengklaim seluruh POL/POD dipetakan.
+- Parser memeriksa header, nilai positif, tanggal unik dan umur 0–7 hari kalender menurut Asia/Seoul; snapshot dan provenance tersimpan dalam paket. Jika feed gagal, snapshot sebelumnya hanya digunakan sampai umur 7 hari; benchmark otomatis yang kemudian stale dikosongkan untuk input manual. Jika belum pernah tersedia benchmark, asumsi awal 13.000 USD/hari tetap terlihat dan diberi peringatan untuk diperiksa/diganti. Quotation manual dan replay paket impor tidak ditimpa.
+- Pengujian langsung read-only 20 November: KOBC merespons untuk kedua kelas, tanggal assessment 19 November; Bontang–Mundra memakai TC Average Handysize 16.353 dan Supramax 22.373 USD/hari sebagai contoh pengujian, bukan nilai tetap atau quotation. Perhitungan dan export/import memakai nilai per kelas yang benar. Jaringan di sandbox default dibatasi; pengujian langsung memakai akses jaringan yang diizinkan, bukan bukti bahwa deployment sudah diuji.
+- FD.1/FD.2 tetap dibaca dengan hire tunggal historis; FD.1 dimigrasi ke FD.2 dengan margin 0% seperti sebelumnya. FD.3 menyimpan hire masing-masing kelas. Spread matrix memilih kembali pembanding menggunakan snapshot dan rute sel kecuali hire telah dioverride pengguna.
+- Hak penggunaan KOBC untuk sumber/endpoint dan tampilan deployment harus dikonfirmasi sesuai lingkup aktual; metadata dataset KDCI terbuka tidak otomatis membuktikan seluruh izin halaman/API. Belum ada push/deploy, browser UAT atau validasi mentor atas mapping. Tidak mengimplementasikan feed FIS/SSE/Baltic.
+
+### 16.8 Persiapan redeploy
+
+- Haldia dan Tuticorin (India), serta Ningbo dan Qingdao (China), tersedia di PoL dan PoD. Jarak dari dan ke Bontang dapat dihitung dengan koordinat katalog. Uji UI mengonfirmasi MS5, MS6, dan MH3 mengikuti kelas yang dipetakan.
+- Refresh Fearnpulse memperbarui harga bunker dan sumbernya bersamaan. Paket impor memakai data yang tersimpan. Batas draft pelabuhan dan perubahan input spread matrix mengikuti pelabuhan yang benar. Biaya tambahan dari paket tetap terbaca sebagai angka. Hire nol ditolak untuk kasus FD.3, dan brief membedakan input yang belum lengkap dari kapasitas yang tidak cukup.
+- Dependensi aplikasi dipusatkan di `requirements.txt`. Fixture tender usang, keluaran yang dapat dibuat ulang, dan dua salinan PDF ammonia dikeluarkan dari repo aktif. Laporan nitrogen, dataset sumber, dan paket contoh tetap tersedia.
+- Verifikasi lokal mencakup tes perhitungan dan UI, replay tujuh paket, serta smoke test Edge untuk hitung, download, impor, defisit, dan spread matrix. Deploy Community Cloud dilakukan secara terpisah.
